@@ -1,6 +1,15 @@
 package bean;
 
 public class EmployeeBean {
+	public EmployeeBean(){
+	}
+	public EmployeeBean(String emp_id, String emp_name, String email, int dpt_id, int pos_id){
+		this.emp_id = emp_id;
+		this.emp_name = emp_name;
+		this.email = email;
+		this.dpt_id = dpt_id;
+		this.pos_id = pos_id;
+	}
 	String emp_id;
 	String emp_name;
 	String email;
