@@ -40,7 +40,7 @@ DROP TABLE IF EXISTS `applications`;
 CREATE TABLE IF NOT EXISTS `applications` (
   `apct_id` varchar(20) NOT NULL,
   `emp_id` varchar(20) NOT NULL,
-  `title` varchar(50) NOT NULL,
+  `content` varchar(200) NOT NULL,
   `type` varchar(20) NOT NULL,
   `method` varchar(20) NOT NULL,
   `amount` int(10) NOT NULL DEFAULT 0,
