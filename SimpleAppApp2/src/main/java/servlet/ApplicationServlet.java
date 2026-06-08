@@ -21,24 +21,29 @@ public class ApplicationServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-    	// 1. セッションからログイン中の社員IDを取得
+        
         HttpSession session = request.getSession();
         String employeeId = (String) session.getAttribute("emp_id");
         
-        //ログイン情報が取得できなかったらログイン画面へ
         if (employeeId == null) {
             response.sendRedirect(request.getContextPath() + "/login_mock.jsp");
             return;
         }
 
-        // 2. サーブレット側でDAOのselectメソッドを呼び出す
         ApplicationDAO dao = new ApplicationDAO();
-        EmployeeBean empBean = dao.select(employeeId);
+        
 
-        // 3. 取得したデータを「employeeInfo」という名前でリクエストスコープに保存
-        request.setAttribute("employeeInfo", empBean);
+        EmployeeBean employee = dao.selectEmployee(employeeId);
+        String dptName = "未所属";
 
-        // 4. データを持たせた状態で application.jsp へフォワード（画面表示）
+        if (employee != null) {
+            dptName = dao.selectDepartmentName(employee.getDpt_id());
+        }
+
+        // リクエストスコープへそれぞれ格納
+        request.setAttribute("employeeInfo", employee);
+        request.setAttribute("departmentName", dptName);
+
         request.getRequestDispatcher("/application.jsp").forward(request, response);
     }
 
@@ -48,7 +53,6 @@ public class ApplicationServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         try {
-            // セッションからログイン中の社員IDを取得
             HttpSession session = request.getSession();
             String employeeId = (String) session.getAttribute("emp_id");
             
@@ -57,7 +61,6 @@ public class ApplicationServlet extends HttpServlet {
                 return;
             }
 
-            // リクエストパラメータ取得
             String applicationType = request.getParameter("applicationType");
             String paymentMethod   = request.getParameter("paymentMethod");
             String amountParam     = request.getParameter("amount");
@@ -66,14 +69,11 @@ public class ApplicationServlet extends HttpServlet {
             String note            = request.getParameter("note");
             String urgentFlagParam = request.getParameter("urgentFlag");
 
-
-            // 金額（文字列）を int 型に変換する処理
             int amount = 0;
             if (amountParam != null && !amountParam.trim().isEmpty()) {
                 amount = Integer.parseInt(amountParam.trim());
             }
-            
-            // Bean にデータ格納
+
             ApplicationBean bean = new ApplicationBean();
             bean.setType(applicationType);
             bean.setAmount(amount);
@@ -86,22 +86,40 @@ public class ApplicationServlet extends HttpServlet {
             boolean urgent = false;
             if (urgentFlagParam != null) {
                 String u = urgentFlagParam.trim().toLowerCase();
-                urgent = "true".equals(u) || "1".equals(u);
+                urgent = "on".equals(u) || "true".equals(u) || "1".equals(u);
             }
             bean.setUrgentFlag(urgent);
             bean.setCreateDate(TodaysDateTime.getNow());
 
-            // DB登録
             ApplicationDAO dao = new ApplicationDAO();
             dao.insert(bean);
 
-            // 完了画面へフォワード
             request.getRequestDispatcher("/app_submit.jsp").forward(request, response);
 
         } catch (Exception e) {
             log("ApplicationServlet error", e);
-            request.setAttribute("errorMessage", "申請の登録中にエラーが発生しました。");
-            request.getRequestDispatcher("/error.jsp").forward(request, response);
+            
+            try {
+                HttpSession session = request.getSession();
+                String employeeId = (String) session.getAttribute("emp_id");
+                
+                if (employeeId != null) {
+                	ApplicationDAO dao = new ApplicationDAO();
+                    EmployeeBean employee = dao.selectEmployee(employeeId);
+                    String dptName = "未所属";
+                    if (employee != null) {
+                        dptName = dao.selectDepartmentName(employee.getDpt_id());
+                    }
+                    request.setAttribute("employeeInfo", employee);
+                    request.setAttribute("departmentName", dptName);
+                }
+                
+                request.setAttribute("errorMessage", "申請の登録中にエラーが発生しました。");
+                request.getRequestDispatcher("/application.jsp").forward(request, response);
+                
+            } catch (Exception ex) {
+                log("Fatal error in catch block", ex);
+            }
         }
     }
 }

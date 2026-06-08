@@ -1,26 +1,59 @@
 package bean;
 
-import java.io.Serializable;
+public class EmployeeBean {
+	public EmployeeBean(){
+	}
+	public EmployeeBean(String emp_id, String emp_name, String email, String dpt_id, String pos_id){
+		this.emp_id = emp_id;
+		this.emp_name = emp_name;
+		this.email = email;
+		this.dpt_id = dpt_id;
+		this.pos_id = pos_id;
+	}
+	String emp_id;
+	String emp_name;
+	String email;
+	String dpt_id;
+	String pos_id;
+	boolean is_deleted = false;
+	
+	public String getEmp_id() {
+		return emp_id;
+	}
+	public void setEmp_id(String emp_id) {
+		this.emp_id = emp_id;
+	}
+	public String getEmp_name() {
+		return emp_name;
+	}
+	public void setEmp_name(String emp_name) {
+		this.emp_name = emp_name;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-/**
- * 画面表示用の社員情報と部署名を保持するオブジェクト
- */
-public class EmployeeBean implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    private String empName; // 社員名
-    private String dptName; // 部署名
-
-    public EmployeeBean() {}
-
-    public EmployeeBean(String empName, String dptName) {
-        this.empName = empName;
-        this.dptName = dptName;
-    }
-
-    public String getEmpName() { return empName; }
-    public void setEmpName(String empName) { this.empName = empName; }
-
-    public String getDptName() { return dptName; }
-    public void setDptName(String dptName) { this.dptName = dptName; }
+	public String getDpt_id() {
+		return dpt_id;
+	}
+	public void setDpt_id(String dpt_id) {
+		this.dpt_id = dpt_id;
+	}
+	public String getPos_id() {
+		return pos_id;
+	}
+	public void setPos_id(String pos_id) {
+		this.pos_id = pos_id;
+	}
+	public boolean isIs_deleted() {
+		return is_deleted;
+	}
+	public void setIs_deleted(boolean is_deleted) {
+		this.is_deleted = is_deleted;
+	}
+	
+	
 }
