@@ -71,11 +71,14 @@ CREATE TABLE IF NOT EXISTS `approvals` (
   `apct_type` varchar(20) NOT NULL,
   `comment` varchar(200) DEFAULT NULL,
   `time` datetime NOT NULL,
+  `status_id` int(10) NOT NULL,
   PRIMARY KEY (`approval_id`),
   KEY `apct_id` (`apct_id`),
   KEY `emp_id` (`emp_id`),
+  KEY `status` (`status_id`) USING BTREE,
   CONSTRAINT `FK_approvals_applications` FOREIGN KEY (`apct_id`) REFERENCES `applications` (`apct_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `FK_approvals_employees` FOREIGN KEY (`emp_id`) REFERENCES `employees` (`emp_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `FK_approvals_employees` FOREIGN KEY (`emp_id`) REFERENCES `employees` (`emp_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `FK_approvals_status` FOREIGN KEY (`status_id`) REFERENCES `status` (`status_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- テーブル simpleappapp2.approvals: ~0 rows (約) のデータをダンプしています
