@@ -36,11 +36,16 @@ public class PassResetConfirm2 extends HttpServlet {
 			eMsg = "入力が間違っています。";
 			request.setAttribute("eMsg", eMsg);
 		}else {
+
 			EmployeeDAO empDAO = new EmployeeDAO();
 			HttpSession session = request.getSession();
 			EmployeeBean empBean = (EmployeeBean)session.getAttribute("empBean");
-			if(empDAO.updatePassword(empBean, pass) == 0) {
+			int result = empDAO.updatePassword(empBean, pass);
+			if(result == 0) {
 				eMsg = "パスワードリセットが失敗しました。";
+			}else if(result == -1) {
+				eMsg = "初期パスワードから変更されていません。新しいパスワードを入力してください。";
+				request.setAttribute("eMsg", eMsg);
 			}else {
 				url = "WEB-INF/jsp/pass_reset_confirm.jsp";
 			}

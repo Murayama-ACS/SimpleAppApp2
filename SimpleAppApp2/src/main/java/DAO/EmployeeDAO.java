@@ -35,7 +35,9 @@ public class EmployeeDAO extends DAO{
 		Connection con = dbConnect();
 		int result = 0;
 		String sql = "update employees set password=? where emp_id=?";
-		
+		if(newPass.equals("1234")){
+			return -1;
+		}
 		try {
 			if(con != null) {
 				

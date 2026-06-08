@@ -23,27 +23,24 @@ public class InitPassReset extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
 		String url = "WEB-INF/jsp/pass_reset1.jsp";//login→verify1への遷移
 		String eMsg = "";
-		
+
 		String pass = request.getParameter("pass");
 		String retype = request.getParameter("retype");
 		String quiz = request.getParameter("quiz");
 		String answer = request.getParameter("answer");
-		
+
 		if(pass.equals("") || retype.equals("") || !pass.equals(retype)) {
 			eMsg = "パスワードの入力が正しくありません";
 			request.setAttribute("eMsg", eMsg);
 		}else if(quiz.equals("") || answer.equals("")){
 			eMsg = "秘密の質問の入力が正しくありません";
-			request.setAttribute("eMsg", eMsg);
-		}else if(pass.equals("1234")){
-			eMsg = "初期パスワードから変更されていません。新しいパスワードを入力してください。";
 			request.setAttribute("eMsg", eMsg);
 		}else {
 			EmployeeDAO empDAO = new EmployeeDAO();
@@ -51,40 +48,31 @@ public class InitPassReset extends HttpServlet {
 			EmployeeBean empBean = (EmployeeBean)session.getAttribute("empBean");
 			QuizDAO quizDAO = new QuizDAO();
 			QuizBean quizBean = new QuizBean(empBean.getEmp_id(), quiz, answer);
-			if(empDAO.updatePassword(empBean, pass) == 0) {
+			int resultPass = empDAO.updatePassword(empBean, pass);
+			if(resultPass == 0) {
 				System.out.println("パスワードリセット失敗 in InitPassReset");
 				eMsg = "パスワードリセットが失敗しました。";
 				request.setAttribute("eMsg", eMsg);
-			}else if(quizDAO.insertQuiz(quizBean) == 0) {
-				System.out.println("問題の登録失敗 in InitPassReset");
-				eMsg = "問題の登録が失敗しました。";
+			}else if(resultPass == -1) {
+				eMsg = "初期パスワードから変更されていません。新しいパスワードを入力してください。";
 				request.setAttribute("eMsg", eMsg);
-			}else if(quizDAO.insertQuiz(quizBean) == -1){
-				eMsg = "同じ問題への回答が登録されています。\nセキュリティ保護のため、異なる問題への回答を登録してください";
-				request.setAttribute("eMsg", eMsg);
-			}else {
-				url = "WEB-INF/jsp/initpassresetconfirm.jsp";
+			}else { 
+				int resultQuiz = quizDAO.insertQuiz(quizBean);
+				if(resultQuiz == 0) {
+					System.out.println("問題の登録失敗 in InitPassReset");
+					eMsg = "問題の登録が失敗しました。";
+					request.setAttribute("eMsg", eMsg);
+				}else if(resultQuiz == -1){
+					eMsg = "同じ問題への回答が登録されています。\nセキュリティ保護のため、異なる問題への回答を登録してください";
+					request.setAttribute("eMsg", eMsg);
+				}else {
+					url = "WEB-INF/jsp/initpassresetconfirm.jsp";
+				}
 			}
 		}
-		
-//		EmployeeDAO empDAO = new EmployeeDAO();
-//		EmployeeBean empBean = new EmployeeBean();
-//		QuizBean quizBean = new QuizBean();
-//		HttpSession session = request.getSession();
-//		String quiz = request.getParameter("quiz");
-//		String answer = request.getParameter("answer");
-//		//pass_reset1→loginへの遷移
-//		//初期ログイン時にパスワード、秘密の質問と回答の登録
-//		String pass = request.getParameter("pass");
-//		empBean = (EmployeeBean)session.getAttribute("empBean");
-//		String emp_id = empBean.getEmp_id();
-//		QuizDAO quizDAO = new QuizDAO();
-//		quizBean = new QuizBean(quiz, answer, emp_id);
-//		quizDAO.insertQuiz(quizBean);
-//		url = "WEB-INF/jsp/login.jsp";
-	
-	RequestDispatcher rd = request.getRequestDispatcher(url);
-	rd.forward(request, response);
+
+		RequestDispatcher rd = request.getRequestDispatcher(url);
+		rd.forward(request, response);
 	}
 
 }
