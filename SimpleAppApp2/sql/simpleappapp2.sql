@@ -1,4 +1,4 @@
-employeespositions-- --------------------------------------------------------
+-- --------------------------------------------------------
 -- ホスト:                          127.0.0.1
 -- サーバーのバージョン:                   11.8.6-MariaDB - MariaDB Server
 -- サーバー OS:                      Win64
@@ -47,14 +47,16 @@ CREATE TABLE IF NOT EXISTS `applications` (
   `amount` int(10) NOT NULL DEFAULT 0,
   `reason` varchar(200) NOT NULL,
   `remark` varchar(200) DEFAULT NULL,
-  `urgent` varchar(20) NOT NULL,
-  `status` varchar(20) NOT NULL,
+  `urgent` varchar(50) NOT NULL DEFAULT '0',
+  `status_id` int(10) NOT NULL DEFAULT 0,
   `create_date` datetime NOT NULL,
   `update_date` datetime NOT NULL,
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`apct_id`),
   KEY `emp_id` (`emp_id`),
-  CONSTRAINT `f_emp_id` FOREIGN KEY (`emp_id`) REFERENCES `employees` (`emp_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `status_id` (`status_id`),
+  CONSTRAINT `FK_applications_employees` FOREIGN KEY (`emp_id`) REFERENCES `employees` (`emp_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `FK_applications_status` FOREIGN KEY (`status_id`) REFERENCES `status` (`status_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- テーブル simpleappapp2.applications: ~0 rows (約) のデータをダンプしています
@@ -148,8 +150,10 @@ CREATE TABLE IF NOT EXISTS `employees` (
   CONSTRAINT `FK_employees_positions` FOREIGN KEY (`pos_id`) REFERENCES `positions` (`pos_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- テーブル simpleappapp2.employees: ~0 rows (約) のデータをダンプしています
+-- テーブル simpleappapp2.employees: ~1 rows (約) のデータをダンプしています
 DELETE FROM `employees`;
+INSERT INTO `employees` (`emp_id`, `emp_name`, `email`, `password`, `dpt_id`, `pos_id`, `is_deleted`) VALUES
+	('1111', 'test', 'test@test.jp', '2222', 'D400', 'EY1', 0);
 
 --  テーブル simpleappapp2.positions の構造をダンプしています
 DROP TABLE IF EXISTS `positions`;
@@ -183,6 +187,24 @@ CREATE TABLE IF NOT EXISTS `security_quiz` (
 
 -- テーブル simpleappapp2.security_quiz: ~0 rows (約) のデータをダンプしています
 DELETE FROM `security_quiz`;
+
+--  テーブル simpleappapp2.status の構造をダンプしています
+DROP TABLE IF EXISTS `status`;
+CREATE TABLE IF NOT EXISTS `status` (
+  `status_id` int(10) NOT NULL,
+  `status_name` varchar(20) NOT NULL,
+  PRIMARY KEY (`status_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+-- テーブル simpleappapp2.status: ~6 rows (約) のデータをダンプしています
+DELETE FROM `status`;
+INSERT INTO `status` (`status_id`, `status_name`) VALUES
+	(1, '未承認'),
+	(2, '上長承認'),
+	(3, '管理部承認'),
+	(4, '完了'),
+	(5, '却下'),
+	(6, '削除');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
