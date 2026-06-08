@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import bean.ApplicationBean;
+import bean.EmployeeBean;
 import dao.ApplicationDAO;
 import model.TodaysDateTime;
 
@@ -20,7 +21,25 @@ public class ApplicationServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.sendRedirect(request.getContextPath() + "/application.jsp");
+    	// 1. セッションからログイン中の社員IDを取得
+        HttpSession session = request.getSession();
+        String employeeId = (String) session.getAttribute("emp_id");
+        
+        //ログイン情報が取得できなかったらログイン画面へ
+        if (employeeId == null) {
+            response.sendRedirect(request.getContextPath() + "/login_mock.jsp");
+            return;
+        }
+
+        // 2. サーブレット側でDAOのselectメソッドを呼び出す
+        ApplicationDAO dao = new ApplicationDAO();
+        EmployeeBean empBean = dao.select(employeeId);
+
+        // 3. 取得したデータを「employeeInfo」という名前でリクエストスコープに保存
+        request.setAttribute("employeeInfo", empBean);
+
+        // 4. データを持たせた状態で application.jsp へフォワード（画面表示）
+        request.getRequestDispatcher("/application.jsp").forward(request, response);
     }
 
     @Override
