@@ -1,4 +1,4 @@
--- --------------------------------------------------------
+employeespositions-- --------------------------------------------------------
 -- ホスト:                          127.0.0.1
 -- サーバーのバージョン:                   11.8.6-MariaDB - MariaDB Server
 -- サーバー OS:                      Win64
@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS `app_delete_histories` (
   CONSTRAINT `FK_app_delete_histories_employees` FOREIGN KEY (`emp_id`) REFERENCES `employees` (`emp_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- エクスポートするデータが選択されていません
+-- テーブル simpleappapp2.app_delete_histories: ~0 rows (約) のデータをダンプしています
+DELETE FROM `app_delete_histories`;
 
 --  テーブル simpleappapp2.applications の構造をダンプしています
 DROP TABLE IF EXISTS `applications`;
@@ -56,7 +57,8 @@ CREATE TABLE IF NOT EXISTS `applications` (
   CONSTRAINT `f_emp_id` FOREIGN KEY (`emp_id`) REFERENCES `employees` (`emp_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- エクスポートするデータが選択されていません
+-- テーブル simpleappapp2.applications: ~0 rows (約) のデータをダンプしています
+DELETE FROM `applications`;
 
 --  テーブル simpleappapp2.approvals の構造をダンプしています
 DROP TABLE IF EXISTS `approvals`;
@@ -74,17 +76,43 @@ CREATE TABLE IF NOT EXISTS `approvals` (
   CONSTRAINT `FK_approvals_employees` FOREIGN KEY (`emp_id`) REFERENCES `employees` (`emp_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- エクスポートするデータが選択されていません
+-- テーブル simpleappapp2.approvals: ~0 rows (約) のデータをダンプしています
+DELETE FROM `approvals`;
 
 --  テーブル simpleappapp2.departments の構造をダンプしています
 DROP TABLE IF EXISTS `departments`;
 CREATE TABLE IF NOT EXISTS `departments` (
-  `dpt_id` int(3) NOT NULL,
+  `dpt_id` char(10) NOT NULL DEFAULT '',
   `dpt_name` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`dpt_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- エクスポートするデータが選択されていません
+-- テーブル simpleappapp2.departments: ~23 rows (約) のデータをダンプしています
+DELETE FROM `departments`;
+INSERT INTO `departments` (`dpt_id`, `dpt_name`) VALUES
+	('D000', '経営企画部'),
+	('D100', '管理部'),
+	('D200', '経理部'),
+	('D300', '総務部'),
+	('D400', '人事部'),
+	('D410', '人事部A課'),
+	('D420', '人事部B課'),
+	('D500', '開発部'),
+	('D510', '開発部A課'),
+	('D520', '開発部B課'),
+	('D530', '開発部C課'),
+	('D540', '開発部D課'),
+	('D600', '営業部'),
+	('D610', '営業部A課'),
+	('D620', '営業部B課'),
+	('D630', '営業部C課'),
+	('D700', '情報システム部'),
+	('D710', '情報システム部A課'),
+	('D712', '情報システム部A課B課'),
+	('D720', '情報システム部B課'),
+	('D730', '情報システム部C課'),
+	('D734', '情報システム部C課D課'),
+	('D740', '情報システム部A課');
 
 --  テーブル simpleappapp2.emp_delete_histories の構造をダンプしています
 DROP TABLE IF EXISTS `emp_delete_histories`;
@@ -100,7 +128,8 @@ CREATE TABLE IF NOT EXISTS `emp_delete_histories` (
   CONSTRAINT `FK_emp_delete_histories_employees_2` FOREIGN KEY (`emp_id`) REFERENCES `employees` (`emp_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- エクスポートするデータが選択されていません
+-- テーブル simpleappapp2.emp_delete_histories: ~0 rows (約) のデータをダンプしています
+DELETE FROM `emp_delete_histories`;
 
 --  テーブル simpleappapp2.employees の構造をダンプしています
 DROP TABLE IF EXISTS `employees`;
@@ -109,42 +138,51 @@ CREATE TABLE IF NOT EXISTS `employees` (
   `emp_name` varchar(100) NOT NULL,
   `email` varchar(200) NOT NULL,
   `password` varchar(200) NOT NULL,
-  `dpt_id` int(3) NOT NULL,
-  `pos_id` int(3) NOT NULL,
+  `dpt_id` char(10) NOT NULL DEFAULT '',
+  `pos_id` char(10) NOT NULL DEFAULT '',
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`emp_id`),
   KEY `dpt_id` (`dpt_id`),
   KEY `pos_id` (`pos_id`),
-  CONSTRAINT `dpt_id` FOREIGN KEY (`dpt_id`) REFERENCES `departments` (`dpt_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `pos_id` FOREIGN KEY (`pos_id`) REFERENCES `positions` (`pos_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `FK_employees_departments` FOREIGN KEY (`dpt_id`) REFERENCES `departments` (`dpt_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `FK_employees_positions` FOREIGN KEY (`pos_id`) REFERENCES `positions` (`pos_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- エクスポートするデータが選択されていません
+-- テーブル simpleappapp2.employees: ~0 rows (約) のデータをダンプしています
+DELETE FROM `employees`;
 
 --  テーブル simpleappapp2.positions の構造をダンプしています
 DROP TABLE IF EXISTS `positions`;
 CREATE TABLE IF NOT EXISTS `positions` (
-  `pos_id` int(3) NOT NULL,
+  `pos_id` char(10) NOT NULL DEFAULT '',
   `pos_name` varchar(50) NOT NULL DEFAULT '',
-  `pos_amount` int(10) NOT NULL DEFAULT 0,
+  `pos_amount` int(10) DEFAULT 0,
   PRIMARY KEY (`pos_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- エクスポートするデータが選択されていません
+-- テーブル simpleappapp2.positions: ~5 rows (約) のデータをダンプしています
+DELETE FROM `positions`;
+INSERT INTO `positions` (`pos_id`, `pos_name`, `pos_amount`) VALUES
+	('EB1', '部長', 300000),
+	('EH1', '本部長', NULL),
+	('EK1', '課長', 100000),
+	('ES1', '社長', NULL),
+	('EY1', '一般社員', 30000);
 
 --  テーブル simpleappapp2.security_quiz の構造をダンプしています
 DROP TABLE IF EXISTS `security_quiz`;
 CREATE TABLE IF NOT EXISTS `security_quiz` (
-  `sq_id` varchar(20) NOT NULL,
+  `sq_id` int(11) NOT NULL AUTO_INCREMENT,
   `emp_id` varchar(20) NOT NULL,
   `quiz` varchar(200) NOT NULL,
   `answer` varchar(200) NOT NULL,
-  PRIMARY KEY (`sq_id`),
+  PRIMARY KEY (`sq_id`) USING BTREE,
   KEY `emp_id` (`emp_id`),
   CONSTRAINT `emp_id` FOREIGN KEY (`emp_id`) REFERENCES `employees` (`emp_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- エクスポートするデータが選択されていません
+-- テーブル simpleappapp2.security_quiz: ~0 rows (約) のデータをダンプしています
+DELETE FROM `security_quiz`;
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
