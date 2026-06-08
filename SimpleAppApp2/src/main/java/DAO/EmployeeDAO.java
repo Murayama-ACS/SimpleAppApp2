@@ -31,38 +31,37 @@ public class EmployeeDAO extends DAO{
 //		}
 //		return result;
 //	}
-//	public int updateUser(EmployeeBean empBean, String newPass) {
-//		Connection con = dbConnect();
-//		int result = 0;
-//		String sql = "update user set name=? ,pass=? where email=?";
-//		
-//		try {
-//			if(con != null) {
-//				
-//				PreparedStatement st = con.prepareStatement(sql);
-//				st.setString(1, userBean.getName());
-//				st.setString(2, newPass);
-//				st.setString(3, userBean.getEmail());
-//
-//				int rs = st.executeUpdate();//これなんだっけ
-//				result = rs;
-//			}
-//		}catch(SQLException e) {
-//			System.out.println("SQLエラー");
-//			System.out.println(e.getMessage());
-//			return 0;
-//		}
-//		return result;
-//	}
+	public int updatePassword(EmployeeBean empBean, String newPass) {
+		Connection con = dbConnect();
+		int result = 0;
+		String sql = "update employees set password=? where emp_id=?";
+		
+		try {
+			if(con != null) {
+				
+				PreparedStatement st = con.prepareStatement(sql);
+				st.setString(1, newPass);
+				st.setString(2, empBean.getEmp_id());
+
+				int rs = st.executeUpdate();//これなんだっけ
+				result = rs;
+			}
+		}catch(SQLException e) {
+			System.out.println("SQLエラー");
+			System.out.println(e.getMessage());
+			return 0;
+		}
+		return result;
+	}
 	
 	//社員ID or メールアドレスとパスワードが一致する社員の情報をデータベースから取得するメソッド
 	public EmployeeBean empInfo(String identifier, String pass, boolean isEmail) {
 		Connection con = dbConnect();
 		EmployeeBean employee = null;
 		//identifierがメールか社員IDかでsql文を変更
-		String sql = "SELECT name FROM USER WHERE emp_id = ? and pass = ?";
+		String sql = "SELECT * FROM employees WHERE emp_id = ? and password = ?";
 		if(isEmail) {
-			sql = "SELECT name FROM USER WHERE email = ? and pass = ?";
+			sql = "SELECT * FROM employees WHERE email = ? and password = ?";
 		}
 		try {
 			if(con != null) {
@@ -87,7 +86,45 @@ public class EmployeeDAO extends DAO{
 			return null;
 		}
 		dbClose(con);
+		
+//		System.out.println("emp_id in EmployeeDAO:" + employee.getEmp_id());
+//		System.out.println("emp_name in EmployeeDAO:" + employee.getEmp_name());
+//		System.out.println("emp_email in EmployeeDAO:" + employee.getEmail());
+//		System.out.println("dpt_id in EmployeeDAO:" + employee.getDpt_id());
+//		System.out.println("pos_id in EmployeeDAO:" + employee.getPos_id());
 
 		return employee;
 	}
+	
+	//社員IDとメールアドレスが一致する社員の情報をデータベースから取得するメソッド
+		public EmployeeBean empInfo(String emp_id, String email) {
+			Connection con = dbConnect();
+			EmployeeBean employee = null;
+			//identifierがメールか社員IDかでsql文を変更
+			String sql = "SELECT * FROM employees WHERE emp_id = ? and email = ?";
+			
+			try {
+				if(con != null) {
+					
+					PreparedStatement st = con.prepareStatement(sql);
+					st.setString(1, emp_id);
+					st.setString(2, email);
+					ResultSet rs = st.executeQuery();
+					
+					while(rs.next()) {
+						String emp_name = rs.getString("emp_name");
+						int dpt_id = rs.getInt("dpt_id");
+						int pos_id = rs.getInt("pos_id");
+						employee = new EmployeeBean(emp_id, emp_name, email, dpt_id, pos_id);
+					}
+				}
+			}catch(SQLException e) {
+				System.out.println("SQLエラー");
+				System.out.println(e.getMessage());
+				return null;
+			}
+			dbClose(con);
+
+			return employee;
+		}
 }

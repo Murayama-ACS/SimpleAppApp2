@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,7 +13,7 @@ import jakarta.servlet.http.HttpSession;
 import DAO.EmployeeDAO;
 import bean.EmployeeBean;
 
-
+@WebServlet("/Login")
 public class Login extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -31,23 +32,32 @@ public class Login extends HttpServlet {
 			EmployeeDAO empDAO = new EmployeeDAO(); 
 			String input = identifier.trim();
 			boolean isEmail = input.contains("@");
+			System.out.println(input);
+			System.out.println(pass);
+
+			System.out.println(isEmail);
 			EmployeeBean empBean = empDAO.empInfo(identifier, pass, isEmail);
+			//System.out.println("employee:" + empBean);
 			if(empBean == null) {
 				//従業員情報が取得できなかった場合はエラーメッセージをセットしてlogin.jspに戻る
 				if(isEmail) {
-					eMsg = "社員IDかパスワードの入力が間違っています。";
-				}else {
 					eMsg = "メールアドレスかパスワードの入力が間違っています。";
+				}else {
+					eMsg = "社員IDかパスワードの入力が間違っています。";
 				}
 				request.setAttribute("eMsg",eMsg);
 			}else {
 				//従業員情報を取得できたらセッションスコープにセットしてtoppage.jspにフォワードする
 				HttpSession session = request.getSession();
 				session.setAttribute("empBean", empBean);
-				url = "WEB-INF/jsp/toppage.jsp";
+				if(pass.equals("1234")) {
+					url = "WEB-INF/jsp/pass_reset1.jsp";
+				}else {
+					url = "WEB-INF/jsp/toppage.jsp";
+				}
 			}
 		}
-
+		System.out.println(url + "+" + pass);
 		RequestDispatcher rd = request.getRequestDispatcher(url);
 		rd.forward(request, response);
 	}

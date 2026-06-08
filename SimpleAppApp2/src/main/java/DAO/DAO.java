@@ -11,7 +11,7 @@ public class DAO {
 			//ドライバロード
 			Class.forName("org.mariadb.jdbc.Driver");
 			//データベースの確認
-			con = DriverManager.getConnection("jdbc:mariadb://localhost/simplechatapp?user=root&password=Maria1234");
+			con = DriverManager.getConnection("jdbc:mariadb://localhost/simpleappapp2?user=root&password=Maria1234");
 		}catch(ClassNotFoundException e) {
 			System.out.println("JDBCドライバが見つかりません。");
 			System.out.println(e.getMessage());

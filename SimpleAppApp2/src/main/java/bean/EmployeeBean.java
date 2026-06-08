@@ -13,7 +13,6 @@ public class EmployeeBean {
 	String emp_id;
 	String emp_name;
 	String email;
-	String password;
 	int dpt_id;
 	int pos_id;
 	boolean is_deleted = false;
@@ -36,12 +35,7 @@ public class EmployeeBean {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	public String getPassword() {
-		return password;
-	}
-	public void setPassword(String password) {
-		this.password = password;
-	}
+
 	public int getDpt_id() {
 		return dpt_id;
 	}
