@@ -8,40 +8,65 @@ import java.sql.SQLException;
 import bean.QuizBean;
 
 public class QuizDAO extends DAO{
-	public int insertQuiz(QuizBean quizBean) {//userBeanの内容をデータベースに登録する関数
-		Connection con = dbConnect();
-		int result = 0;
-		String sql = "insert into security_quiz (emp_id, quiz, answer) values (?,?,?)";
-		String[] questions = {
-				"初めて飼ったペットの名前は？",
-				"子どものころに一番よく遊んだ路地や通りの名前は？",
-				"初めて一人で泊まった旅館やホテルの名前は？",
-				"学生時代に仲間から呼ばれていたあだ名は？",
-				"自分で最初に作った料理の名前は？",
-				"初めて自分で買った雑誌やコミックのタイトルは？",
-				"最初に参加したライブやイベントの会場名は？",
-				"幼少期によく遊んだ公園の呼び名や特徴（例：「大きな松のある公園」など）は？",
-				"人生で最初に成し遂げた印象的な出来事を一言で表すと？",
-				"家族やごく親しい友人だけが使う自分の呼び名（愛称）は？"
-				};
-		try {
-			if(con != null) {
+//	public int insertQuiz(QuizBean quizBean) {//QuizBeanの内容をデータベースに登録する関数
+//		Connection con = dbConnect();
+//		int result = 0;
+//		String sql = "insert into security_quiz (emp_id, quiz, answer) values (?,?,?)";
+//		
+//		try {
+//			if(con != null) {
+//
+//				PreparedStatement st = con.prepareStatement(sql);
+//				st.setString(1, quizBean.getEmp_id());
+//				st.setString(2, quizBean.getQuiz());
+//				st.setString(3, quizBean.getAnswer());
+//
+//				int rs = st.executeUpdate();//これなんだっけ
+//				result = rs;
+//			}
+//		}catch(SQLException e) {
+//			System.out.println("SQLエラー");
+//			System.out.println(e.getMessage());
+//			return 0;
+//		}
+//		return result;
+//	}
+	public int insertQuiz(QuizBean quizBean) {
+		String sqlCheck = "SELECT 1 FROM security_quiz WHERE emp_id = ? AND quiz = ?";
+		String sqlInsert = "INSERT INTO security_quiz (emp_id, quiz, answer) VALUES (?,?,?)";
 
-				PreparedStatement st = con.prepareStatement(sql);
-				st.setString(1, quizBean.getEmp_id());
-				st.setString(2, quizBean.getQuiz());
-				st.setString(3, quizBean.getAnswer());
+		try (Connection con = dbConnect()) {
+		    if (con == null) {
+		        System.out.println("DB接続に失敗");
+		        return 0;
+		    }
 
-				int rs = st.executeUpdate();//これなんだっけ
-				result = rs;
-			}
-		}catch(SQLException e) {
-			System.out.println("SQLエラー");
-			System.out.println(e.getMessage());
-			return 0;
+		    // 1) 重複チェック
+		    try (PreparedStatement stCheck = con.prepareStatement(sqlCheck)) {
+		        stCheck.setString(1, quizBean.getEmp_id());
+		        stCheck.setString(2, quizBean.getQuiz());
+		        try (ResultSet rs = stCheck.executeQuery()) {
+		            if (rs.next()) {
+		                System.out.println("既に同じ emp_id と quiz の組が存在します");
+		                return -1; // 重複を示す戻り値（呼び出し側で扱ってください）
+		            }
+		        }
+		    }
+
+		    // 2) 挿入
+		    try (PreparedStatement stIns = con.prepareStatement(sqlInsert)) {
+		        stIns.setString(1, quizBean.getEmp_id());
+		        stIns.setString(2, quizBean.getQuiz());
+		        stIns.setString(3, quizBean.getAnswer()); // ※後述の注意点参照
+		        int rows = stIns.executeUpdate();
+		        return rows;
+		    }
+
+		} catch (SQLException e) {
+		    System.out.println("SQLエラー: " + e.getMessage());
+		    return 0;
 		}
-		return result;
-	}
+		}
 	//public int updateUser(EmployeeBean empBean, String newPass) {
 	//	Connection con = dbConnect();
 	//	int result = 0;

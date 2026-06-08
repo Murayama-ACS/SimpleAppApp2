@@ -3,7 +3,7 @@ package bean;
 public class EmployeeBean {
 	public EmployeeBean(){
 	}
-	public EmployeeBean(String emp_id, String emp_name, String email, int dpt_id, int pos_id){
+	public EmployeeBean(String emp_id, String emp_name, String email, String dpt_id, String pos_id){
 		this.emp_id = emp_id;
 		this.emp_name = emp_name;
 		this.email = email;
@@ -13,8 +13,8 @@ public class EmployeeBean {
 	String emp_id;
 	String emp_name;
 	String email;
-	int dpt_id;
-	int pos_id;
+	String dpt_id;
+	String pos_id;
 	boolean is_deleted = false;
 	
 	public String getEmp_id() {
@@ -36,16 +36,16 @@ public class EmployeeBean {
 		this.email = email;
 	}
 
-	public int getDpt_id() {
+	public String getDpt_id() {
 		return dpt_id;
 	}
-	public void setDpt_id(int dpt_id) {
+	public void setDpt_id(String dpt_id) {
 		this.dpt_id = dpt_id;
 	}
-	public int getPos_id() {
+	public String getPos_id() {
 		return pos_id;
 	}
-	public void setPos_id(int pos_id) {
+	public void setPos_id(String pos_id) {
 		this.pos_id = pos_id;
 	}
 	public boolean isIs_deleted() {

@@ -75,8 +75,8 @@ public class EmployeeDAO extends DAO{
 					String emp_id = rs.getString("emp_id");
 					String emp_name = rs.getString("emp_name");
 					String email = rs.getString("email");
-					int dpt_id = rs.getInt("dpt_id");
-					int pos_id = rs.getInt("pos_id");
+					String dpt_id = rs.getString("dpt_id");
+					String pos_id = rs.getString("pos_id");
 					employee = new EmployeeBean(emp_id, emp_name, email, dpt_id, pos_id);
 				}
 			}
@@ -113,8 +113,8 @@ public class EmployeeDAO extends DAO{
 					
 					while(rs.next()) {
 						String emp_name = rs.getString("emp_name");
-						int dpt_id = rs.getInt("dpt_id");
-						int pos_id = rs.getInt("pos_id");
+						String dpt_id = rs.getString("dpt_id");
+						String pos_id = rs.getString("pos_id");
 						employee = new EmployeeBean(emp_id, emp_name, email, dpt_id, pos_id);
 					}
 				}
