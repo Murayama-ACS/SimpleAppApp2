@@ -19,7 +19,7 @@
     <title>申請一覧（未承認） モック</title>
 </head>
 <body>
-    <h2>申請一覧画面（ステータス: <%= currentStatus %>）</h2>
+    <h2>申請一覧画面（ステータスID: <%= currentStatus %>）</h2>
     <p>ログインユーザー: <%= empName %> さん</p>
 
     <% if (errorMessage != null) { %>
@@ -27,8 +27,8 @@
     <% } %>
 
     <form action="<%= request.getContextPath() %>/ApplicationWaitList" method="get">
-        <label>表示ステータス: </label>
-        <input type="text" name="pendingStatus" value="<%= currentStatus %>" size="5">
+        <label>表示ステータスID: </label>
+        <input type="text" name="pendingStatus" value="<%= currentStatus != null ? currentStatus : "1" %>" size="5">
         <button type="submit">切り替え</button>
     </form>
     <br>
@@ -41,7 +41,7 @@
                 <th>申請種別</th>
                 <th>金額</th>
                 <th>緊急度</th>
-                <th>状態</th>
+                <th>状態(ID)</th>
                 <th>申請日時</th>
                 <th>操作</th>
             </tr>
@@ -55,7 +55,7 @@
                         <td><%= app.getType() %></td>
                         <td><%= app.getAmount() %> 円</td>
                         <td><%= app.getUrgent() %></td>
-                        <td><%= app.getStatus() %></td>
+                        <td><%= app.getStatus_id() %></td> <%-- getStatus() から getStatus_id() に修正 --%>
                         <td><%= app.getCreateDate() %></td>
                         <td>
                             <form action="<%= request.getContextPath() %>/ApplicationComment" method="post" style="margin:0;">

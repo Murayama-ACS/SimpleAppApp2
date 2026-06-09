@@ -55,8 +55,8 @@
                 <td><%= app.getUrgent() %></td>
             </tr>
             <tr>
-                <th style="background-color: #f2f2f2;">ステータス (status)</th>
-                <td><%= app.getStatus() %></td>
+                <th style="background-color: #f2f2f2;">ステータスID (status_id)</th>
+                <td><%= app.getStatus_id() %></td> <%-- getStatus() から getStatus_id() に修正 --%>
             </tr>
             <tr>
                 <th style="background-color: #f2f2f2;">作成日時 (create_date)</th>

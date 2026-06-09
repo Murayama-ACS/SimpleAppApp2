@@ -5,10 +5,10 @@
     String action = request.getParameter("action");
     if ("login".equals(action)) {
         String empId = request.getParameter("emp_id");
-        String empName = "テスト太郎";
-        String email = "test@example.com";
-        String dptId = "D01";
-        String posId = "P01";
+        String empName = "test";
+        String email = "test@test.jp";
+        String dptId = "D400";
+        String posId = "EY1";
         
         if (empId != null && !empId.trim().isEmpty()) {
             EmployeeBean mockEmployee = new EmployeeBean(empId, empName, email, dptId, posId);
