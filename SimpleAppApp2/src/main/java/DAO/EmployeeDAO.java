@@ -35,8 +35,12 @@ public class EmployeeDAO extends DAO{
 		Connection con = dbConnect();
 		int result = 0;
 		String sql = "update employees set password=? where emp_id=?";
+		String pattern =  "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$";
+		System.out.println(!newPass.matches(pattern));
 		if(newPass.equals("1234")){
 			return -1;
+		}else if(!newPass.matches(pattern)) {
+			return -2;
 		}
 		try {
 			if(con != null) {

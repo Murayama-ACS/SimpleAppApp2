@@ -39,14 +39,18 @@ public class PassReset2 extends HttpServlet {
 		String answer = request.getParameter("answer");
 
 		if(quiz.equals("") || answer.equals("")){
-			request.setAttribute("eMsg", "秘密の質問、秘密の回答への入力が正しくありません。");
+			request.setAttribute("eMsg", "秘密の質問、秘密の回答が入力されていません。");
 		}else {//verify2→pass_reset2への遷移
 			//秘密の質問に答えられるか判定
 			empBean = (EmployeeBean)session.getAttribute("empBean");
 			String emp_id = empBean.getEmp_id();
 			QuizDAO quizDAO = new QuizDAO();
 			quizBean = quizDAO.quizInfo(quiz,answer,emp_id);
-			url = "WEB-INF/jsp/pass_reset2.jsp";
+			if(quizBean == null) {
+				request.setAttribute("eMsg", "秘密の質問もしくは秘密の回答が正しくありません。");
+			}else {
+				url = "WEB-INF/jsp/pass_reset2.jsp";
+			}
 		}
 		
 		RequestDispatcher rd = request.getRequestDispatcher(url);

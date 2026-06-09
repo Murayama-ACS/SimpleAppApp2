@@ -49,12 +49,15 @@ public class InitPassReset extends HttpServlet {
 			QuizDAO quizDAO = new QuizDAO();
 			QuizBean quizBean = new QuizBean(empBean.getEmp_id(), quiz, answer);
 			int resultPass = empDAO.updatePassword(empBean, pass);
-			if(resultPass == 0) {
+			if(resultPass == 0) {//パスワードのリセット時にエラー発生の場合
 				System.out.println("パスワードリセット失敗 in InitPassReset");
 				eMsg = "パスワードリセットが失敗しました。";
 				request.setAttribute("eMsg", eMsg);
-			}else if(resultPass == -1) {
+			}else if(resultPass == -1) {//入力したパスワードが初期パスワード（1234）の場合
 				eMsg = "初期パスワードから変更されていません。新しいパスワードを入力してください。";
+				request.setAttribute("eMsg", eMsg);
+			}else if(resultPass == -2){//パスワードの制約に則していない場合
+				eMsg = "パスワードは8文字以上で、英大文字・英小文字・数字・記号をそれぞれ1文字以上含めてください。";
 				request.setAttribute("eMsg", eMsg);
 			}else { 
 				int resultQuiz = quizDAO.insertQuiz(quizBean);
