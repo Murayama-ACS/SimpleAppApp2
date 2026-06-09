@@ -1,79 +1,98 @@
 package bean;
 
-public class ApprovalBean{
+import java.time.LocalDateTime;
+
+public class ApprovalBean {
 	
-	// 承認履歴ID（あれば）
+	// 履歴ID (DB: approval_id)
 	private String approvalId;
 
-	// 対象申請ID（application.apct_id に対応）
-	private String applicationId;
+	// 申請ID (DB: apct_id)
+	private String apctId;
 
-	// 承認者情報
-	private String approverId;
-	private String approverName;
+	// 社員ID (DB: emp_id)
+	private String employeeId;
 
-	// コメント／備考
+	// 申請種別 (DB: apct_type)
+	private String apctType;
+
+	// コメント (DB: comment)
 	private String comment;
 
-	// ステータス（例: "APPROVED", "REJECTED" など）
-	private String status;
+	// 承認時間 (DB: time)
+	private LocalDateTime createDate;
 
-	// 承認日時（DB に合わせて型を調整。ここでは LocalDateTime を利用）
-	private java.time.LocalDateTime decisionAt;
-
-	// 論理削除フラグ等
-	private boolean isDeleted;
-
+	// コンストラクタ（引数なし）
 	public ApprovalBean() {}
 
-	public ApprovalBean(String approvalId, String applicationId, String approverId, String approverName,
-			String comment, String status, java.time.LocalDateTime decisionAt, boolean isDeleted) {
+	// コンストラクタ（全フィールド指定）
+	public ApprovalBean(String approvalId, String apctId, String employeeId, String apctType, String comment, LocalDateTime createDate) {
 		this.approvalId = approvalId;
-		this.applicationId = applicationId;
-		this.approverId = approverId;
-		this.approverName = approverName;
+		this.apctId = apctId;
+		this.employeeId = employeeId;
+		this.apctType = apctType;
 		this.comment = comment;
-		this.status = status;
-		this.decisionAt = decisionAt;
-		this.isDeleted = isDeleted;
+		this.createDate = createDate;
 	}
 
-	// getters / setters
-	public String getApprovalId() { return approvalId; }
-	public void setApprovalId(String approvalId) { this.approvalId = approvalId; }
+	// getter / setter
+	public String getApprovalId() {
+		return approvalId;
+	}
 
-	public String getApplicationId() { return applicationId; }
-	public void setApplicationId(String applicationId) { this.applicationId = applicationId; }
+	public void setApprovalId(String approvalId) {
+		this.approvalId = approvalId;
+	}
 
-	public String getApproverId() { return approverId; }
-	public void setApproverId(String approverId) { this.approverId = approverId; }
+	public String getApctId() {
+		return apctId;
+	}
 
-	public String getApproverName() { return approverName; }
-	public void setApproverName(String approverName) { this.approverName = approverName; }
+	public void setApctId(String apctId) {
+		this.apctId = apctId;
+	}
 
-	public String getComment() { return comment; }
-	public void setComment(String comment) { this.comment = comment; }
+	public String getEmployeeId() {
+		return employeeId;
+	}
 
-	public String getStatus() { return status; }
-	public void setStatus(String status) { this.status = status; }
+	public void setEmployeeId(String employeeId) {
+		this.employeeId = employeeId;
+	}
 
-	public java.time.LocalDateTime getDecisionAt() { return decisionAt; }
-	public void setDecisionAt(java.time.LocalDateTime decisionAt) { this.decisionAt = decisionAt; }
+	public String getApctType() {
+		return apctType;
+	}
 
-	public boolean isDeleted() { return isDeleted; }
-	public void setDeleted(boolean deleted) { isDeleted = deleted; }
+	public void setApctType(String apctType) {
+		this.apctType = apctType;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
+	public LocalDateTime getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(LocalDateTime createDate) {
+		this.createDate = createDate;
+	}
 
 	@Override
 	public String toString() {
 		return "ApprovalBean{" +
 				"approvalId='" + approvalId + '\'' +
-				", applicationId='" + applicationId + '\'' +
-				", approverId='" + approverId + '\'' +
-				", approverName='" + approverName + '\'' +
+				", apctId='" + apctId + '\'' +
+				", employeeId='" + employeeId + '\'' +
+				", apctType='" + apctType + '\'' +
 				", comment='" + comment + '\'' +
-				", status='" + status + '\'' +
-				", decisionAt=" + decisionAt +
-				", isDeleted=" + isDeleted +
+				", createDate=" + createDate +
 				'}';
 	}
 }
