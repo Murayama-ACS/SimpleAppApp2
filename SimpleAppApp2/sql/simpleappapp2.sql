@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS `applications` (
   `reason` varchar(200) NOT NULL,
   `remark` varchar(200) DEFAULT NULL,
   `urgent` varchar(50) NOT NULL DEFAULT '0',
-  `status_id` int(10) NOT NULL DEFAULT 0,
+  `status_id` int(10) NOT NULL,
   `create_date` datetime NOT NULL,
   `update_date` datetime NOT NULL,
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
@@ -149,14 +149,19 @@ CREATE TABLE IF NOT EXISTS `employees` (
   PRIMARY KEY (`emp_id`),
   KEY `dpt_id` (`dpt_id`),
   KEY `pos_id` (`pos_id`),
-  CONSTRAINT `FK_employees_departments` FOREIGN KEY (`dpt_id`) REFERENCES `departments` (`dpt_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `FK_employees_positions` FOREIGN KEY (`pos_id`) REFERENCES `positions` (`pos_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `FK_employees_departments` FOREIGN KEY (`dpt_id`) REFERENCES `departments` (`dpt_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `FK_employees_positions` FOREIGN KEY (`pos_id`) REFERENCES `positions` (`pos_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- テーブル simpleappapp2.employees: ~1 rows (約) のデータをダンプしています
+-- テーブル simpleappapp2.employees: ~6 rows (約) のデータをダンプしています
 DELETE FROM `employees`;
 INSERT INTO `employees` (`emp_id`, `emp_name`, `email`, `password`, `dpt_id`, `pos_id`, `is_deleted`) VALUES
-	('1111', 'test', 'test@test.jp', '2222', 'D400', 'EY1', 0);
+	('A00000001', '山田 太一', 'ceo@example.com', 'aaaaaaaaaa', 'D000', 'E04', 0),
+	('A20160108', '山田 真央', 'user64@example.com', '11111111', 'D710', 'E01', 0),
+	('A20180926', '鈴木 健', 'user117@example.com', '1111', 'D700', 'E03', 0),
+	('A20190103', '渡辺 一郎', 'user2@example.com', '1111', 'D100', 'E02', 0),
+	('A20190524', '加藤 健', 'user119@example.com', '1111', 'D740', 'E00', 0),
+	('A20221203', '佐藤 直樹', 'user1@example.com', '1111', 'D410', 'E00', 0);
 
 --  テーブル simpleappapp2.positions の構造をダンプしています
 DROP TABLE IF EXISTS `positions`;
@@ -170,11 +175,11 @@ CREATE TABLE IF NOT EXISTS `positions` (
 -- テーブル simpleappapp2.positions: ~5 rows (約) のデータをダンプしています
 DELETE FROM `positions`;
 INSERT INTO `positions` (`pos_id`, `pos_name`, `pos_amount`) VALUES
-	('EB1', '部長', 300000),
-	('EH1', '本部長', NULL),
-	('EK1', '課長', 100000),
-	('ES1', '社長', NULL),
-	('EY1', '一般社員', 30000);
+	('E00', '一般社員', 30000),
+	('E01', '課長', 100000),
+	('E02', '部長', 300000),
+	('E03', '本部長', NULL),
+	('E04', '社長', NULL);
 
 --  テーブル simpleappapp2.security_quiz の構造をダンプしています
 DROP TABLE IF EXISTS `security_quiz`;
@@ -186,10 +191,17 @@ CREATE TABLE IF NOT EXISTS `security_quiz` (
   PRIMARY KEY (`sq_id`) USING BTREE,
   KEY `emp_id` (`emp_id`),
   CONSTRAINT `emp_id` FOREIGN KEY (`emp_id`) REFERENCES `employees` (`emp_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- テーブル simpleappapp2.security_quiz: ~0 rows (約) のデータをダンプしています
+-- テーブル simpleappapp2.security_quiz: ~6 rows (約) のデータをダンプしています
 DELETE FROM `security_quiz`;
+INSERT INTO `security_quiz` (`sq_id`, `emp_id`, `quiz`, `answer`) VALUES
+	(4, 'A00000001', '初めて飼ったペットの名前は？', 'cat'),
+	(5, 'A00000001', '幼少期によく遊んだ公園の呼び名や特徴は？', 'park'),
+	(6, 'A00000001', '自分で最初に作った料理の名前は？', 'rice'),
+	(7, 'A20160108', '自分で最初に作った料理の名前は？', '123'),
+	(8, 'A20160108', '幼少期によく遊んだ公園の呼び名や特徴は？', '123'),
+	(9, 'A20160108', '初めて飼ったペットの名前は？', '123');
 
 --  テーブル simpleappapp2.status の構造をダンプしています
 DROP TABLE IF EXISTS `status`;
