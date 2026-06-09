@@ -100,7 +100,7 @@ public class ApplicationServlet extends HttpServlet {
             bean.setReason(reason);                   // 申請理由
             bean.setNote(note);                       // 備考(remark)
             bean.setUrgent(urgentStr);                // 緊急度
-            bean.setStatus("申請中");                 // 申請状態の初期値
+            bean.setStatus_id(1);                 // 申請状態の初期値
             bean.setCreateDate(now);                  // 作成時間
             bean.setUpdateDate(now);                  // 変更時間
             bean.setDeleted(false);                   // 削除フラグ

@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 申請データを保持する Bean（テーブル定義の全項目を網羅）
+ * 申請データを保持する Bean（完成版DAOに対応）
  */
 public class ApplicationBean implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -18,8 +18,8 @@ public class ApplicationBean implements Serializable {
     private int amount;             // amount (申請金額)
     private String reason;          // reason (申請理由)
     private String note;            // remark (備考)
-    private String urgent;          // urgent (緊急度) ※DBのVARCHAR(20)に適合
-    private String status;          // status (申請状態)
+    private String urgent;          // urgent (緊急度)
+    private int status_id;          // status_id (申請状態ID) ※String status から変更
     private LocalDateTime createDate; // create_date (作成時間)
     private LocalDateTime updateDate; // update_date (変更時間)
     private boolean isDeleted;      // is_deleted (削除)
@@ -31,7 +31,7 @@ public class ApplicationBean implements Serializable {
     // 全フィールドを網羅した便利コンストラクタ
     public ApplicationBean(String apctId, String employeeId, String content, String type, 
                            String paymentMethod, int amount, String reason, String note, 
-                           String urgent, String status, LocalDateTime createDate, 
+                           String urgent, int status_id, LocalDateTime createDate, 
                            LocalDateTime updateDate, boolean isDeleted) {
         this.apctId = apctId;
         this.employeeId = employeeId;
@@ -42,7 +42,7 @@ public class ApplicationBean implements Serializable {
         this.reason = reason;
         this.note = note;
         this.urgent = urgent;
-        this.status = status;
+        this.status_id = status_id;
         this.createDate = createDate;
         this.updateDate = updateDate;
         this.isDeleted = isDeleted;
@@ -121,12 +121,12 @@ public class ApplicationBean implements Serializable {
         this.urgent = urgent;
     }
 
-    public String getStatus() {
-        return status;
+    public int getStatus_id() {
+        return status_id;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setStatus_id(int status_id) {
+        this.status_id = status_id;
     }
 
     public LocalDateTime getCreateDate() {
@@ -157,7 +157,7 @@ public class ApplicationBean implements Serializable {
     public String toString() {
         return "ApplicationBean [apctId=" + apctId + ", employeeId=" + employeeId + ", content=" + content
                 + ", type=" + type + ", paymentMethod=" + paymentMethod + ", amount=" + amount + ", reason=" + reason
-                + ", note=" + note + ", urgent=" + urgent + ", status=" + status + ", createDate=" + createDate
+                + ", note=" + note + ", urgent=" + urgent + ", status_id=" + status_id + ", createDate=" + createDate
                 + ", updateDate=" + updateDate + ", isDeleted=" + isDeleted + "]";
     }
 }

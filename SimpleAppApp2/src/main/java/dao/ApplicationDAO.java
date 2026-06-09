@@ -10,7 +10,7 @@ import bean.ApplicationBean;
 import bean.EmployeeBean;
 
 public class ApplicationDAO extends DAO {
-
+	
 	/**
 	 * 申請データをデータベースに登録する（網羅版Beanに対応）
 	 */
@@ -19,7 +19,7 @@ public class ApplicationDAO extends DAO {
 		int result = 0;
 		
 		// テーブル定義の全13カラムに適合するINSERT文
-		String sql = "INSERT INTO applications (apct_id, emp_id, content, type, method, amount, reason, remark, urgent, status, create_date, update_date, is_deleted) "
+		String sql = "INSERT INTO applications (apct_id, emp_id, content, type, method, amount, reason, remark, urgent, status_id, create_date, update_date, is_deleted) "
 				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 				
 		try {
@@ -36,7 +36,7 @@ public class ApplicationDAO extends DAO {
 				st.setString(7, bean.getReason());
 				st.setString(8, bean.getNote());
 				st.setString(9, bean.getUrgent());
-				st.setString(10, bean.getStatus());
+				st.setInt(10, bean.getStatus_id());
 				
 				// LocalDateTime から Timestamp への変換処理
 				if (bean.getCreateDate() != null) {
@@ -135,4 +135,5 @@ public class ApplicationDAO extends DAO {
 		}
 		return dptName;
 	}
+
 }
