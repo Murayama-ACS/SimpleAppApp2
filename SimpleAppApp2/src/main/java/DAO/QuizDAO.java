@@ -121,5 +121,42 @@ public class QuizDAO extends DAO{
 		
 		return quizBean;
 	}
+	
+	private FailedLoginDAO failedLoginDao = new FailedLoginDAO();
 
+    // 秘密質問認証（成功時 QuizBean、失敗時 null）
+    public QuizBean authenticateQuiz(String quiz, String answer, String empId) throws SQLException {
+        // 1) まずロックチェック
+        if (failedLoginDao.isLocked(empId)) {
+            return null;
+        }
+
+        String sql = "SELECT sq_id, answer FROM security_quiz WHERE quiz = ? AND emp_id = ?";
+        try (Connection con = dbConnect();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, quiz);
+            ps.setString(2, empId);
+            try (ResultSet rs = ps.executeQuery()) {
+                boolean matched = false;
+                String sqId = null;
+                while (rs.next()) {
+                    String storedAnswer = rs.getString("answer");
+                    // answer は現状平文比較。可能ならハッシュ化して照合する
+                    if (storedAnswer != null && storedAnswer.equals(answer)) {
+                        matched = true;
+                        sqId = rs.getString("sq_id");
+                        break;
+                    }
+                }
+                if (matched) {
+                    // 成功時は quiz_attempts をリセットする実装（failedLoginDao.resetOnSuccess も可）
+                    failedLoginDao.resetOnSuccess(empId); // 全リセットでも良い
+                    return new QuizBean(empId, quiz, answer);
+                } else {
+                    failedLoginDao.recordQuizFailure(empId);
+                    return null;
+                }
+            }
+        }
+    }
 }
