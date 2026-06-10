@@ -40,24 +40,22 @@ public class ApplicationWaitListServlet extends HttpServlet {
 			return;
 		}
 
-		String pendingStatus = request.getParameter("pendingStatus");
-		if (pendingStatus == null || pendingStatus.trim().isEmpty()) {
-			pendingStatus = "1"; 
-		}
-
 		try {
 			ApplicationDAO dao = new ApplicationDAO();
-			List<ApplicationBean> list = dao.getPendingApplications(pendingStatus);
+			
+			// ログインユーザーのBeanをそのまま渡して、適切な一覧を取得
+			List<ApplicationBean> list = dao.getPendingApplications(employee);
 
 			request.setAttribute("applications", list);
-			request.setAttribute("currentStatus", pendingStatus);
+			// 画面表示用のステータスは、ユーザーの役職等に合わせて固定、または省略可能
+			request.setAttribute("currentStatus", employee.getPos_id()); 
 
 			RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/jsp/app_wait.jsp");
 			rd.forward(request, response);
 
 		} catch (Exception e) {
 			log("ApplicationWaitListServlet doGet error", e);
-			forwardToWaitListWithError(request, response, pendingStatus, "申請一覧の読み込み中にエラーが発生しました。");
+			forwardToWaitListWithError(request, response, employee.getPos_id(), "申請一覧の読み込み中にエラーが発生しました。");
 		}
 	}
 
@@ -67,12 +65,12 @@ public class ApplicationWaitListServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) 
 			throws ServletException, IOException {
-		
+
 		request.setCharacterEncoding("UTF-8");
 
 		HttpSession session = request.getSession();
 		EmployeeBean employee = (EmployeeBean) session.getAttribute("loginEmployee"); 
-		
+
 		if (employee == null) {
 			response.sendRedirect(request.getContextPath() + "/login_mock.jsp");
 			return;
@@ -115,19 +113,20 @@ public class ApplicationWaitListServlet extends HttpServlet {
 			int insertResult = approvalDao.insert(approval);
 
 			if (insertResult > 0) {
-				ApplicationBean appBean = applicationDao.findById(apctId);
-				if (appBean != null) {
-					appBean.setStatus_id(nextStatusId);
-					appBean.setUpdateDate(LocalDateTime.now());
-					applicationDao.insert(appBean); // 上書き仕様流用
+				// 4. UPDATE専用メソッドを呼び出してapplicationsテーブルのstatus_idを更新
+				int updateResult = applicationDao.updateStatus(apctId, nextStatusId, LocalDateTime.now());
+				if (updateResult == 0) {
+					forwardToWaitListWithError(request, response, pendingStatus, "対象の申請データが見つからないか、更新に失敗しました。");
+					return;
 				}
 			} else {
 				forwardToWaitListWithError(request, response, pendingStatus, "承認データの登録に失敗しました。");
 				return;
 			}
 
-			// 成功したら一覧の再読込
-			doGet(request, response);
+			request.setAttribute("processType", nextStatusId == 5 ? "却下" : "承認");
+			RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/jsp/app_done.jsp");
+			rd.forward(request, response);
 
 		} catch (Exception e) {
 			log("ApplicationWaitListServlet doPost error", e);
@@ -142,7 +141,7 @@ public class ApplicationWaitListServlet extends HttpServlet {
 			request.setAttribute("applications", emptyList);
 			request.setAttribute("currentStatus", pendingStatus);
 			request.setAttribute("errorMessage", errorMessage);
-			
+
 			RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/jsp/app_wait.jsp");
 			rd.forward(request, response);
 		} catch (Exception ex) {

@@ -3,11 +3,8 @@
 --%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="bean.ApplicationBean" %>
-<%@ page import="bean.ApprovalBean" %>
 <%
     ApplicationBean app = (ApplicationBean) request.getAttribute("application");
-    ApprovalBean approval = (ApprovalBean) request.getAttribute("approvalData");
-    
     int currentStatusId = (app != null) ? app.getStatus_id() : 1;
 %>
 <!DOCTYPE html>
@@ -15,9 +12,23 @@
 <head>
     <meta charset="UTF-8">
     <title>申請詳細・コメント モック</title>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto; padding: 20px;
+            border: 1px solid #888; width: 400px;
+        }
+    </style>
 </head>
 <body>
-    <h2>申請詳細・承認情報</h2>
+    <h2>申請詳細情報</h2>
 
     <% if (app != null) { %>
         <h3>【申請内容】</h3>
@@ -69,70 +80,81 @@
         </table>
 
         <h3>【承認・コメントの入力】</h3>
-        <%-- action送信先を詳細画面用のサーブレットdoPostに設定 --%>
-        <form action="<%= request.getContextPath() %>/ApplicationComment" method="post" id="commentForm">
-            <input type="hidden" name="apct_id" value="<%= app.getApctId() %>">
-            <input type="hidden" name="next_status_id" id="commentNextStatus">
-            
-            <table border="1" cellpadding="5" cellspacing="0">
-                <tr>
-                    <th style="background-color: #f2f2f2; width: 150px;">コメント (comment)</th>
-                    <td>
-                        <textarea name="comment" rows="4" style="width: 400px;" required></textarea>
-                    </td>
-                </tr>
-            </table>
-            <br>
-            
-            <div style="display: flex; gap: 10px;">
-                <button type="button" onclick="submitWithStatus(<%= currentStatusId + 1 %>)">承認する</button>
-                <button type="button" onclick="submitWithStatus(5)">却下する</button>
-            </div>
-        </form>
-
-        <h3>【過去の承認・コメント履歴】</h3>
-        <% if (approval != null) { %>
-            <table border="1" cellpadding="5" cellspacing="0">
-                <tr>
-                    <th style="background-color: #f2f2f2; width: 150px;">履歴ID (approval_id)</th>
-                    <td><%= approval.getApprovalId() %></td>
-                </tr>
-                <tr>
-                    <th style="background-color: #f2f2f2;">対応者社員ID (emp_id)</th>
-                    <td><%= approval.getEmployeeId() %></td>
-                </tr>
-                <tr>
-                    <th style="background-color: #f2f2f2;">ステータスID (status_id)</th>
-                    <td><%= approval.getStatusId() %></td>
-                </tr>
-                <tr>
-                    <th style="background-color: #f2f2f2;">コメント (comment)</th>
-                    <td><%= approval.getComment() %></td>
-                </tr>
-                <tr>
-                    <th style="background-color: #f2f2f2;">処理時間 (time)</th>
-                    <td><%= approval.getCreateDate() %></td>
-                </tr>
-            </table>
-        <% } else { %>
-            <p style="color: gray;">この申請に対する承認・コメント履歴はまだ登録されていません。</p>
-        <% } %>
+        <table border="1" cellpadding="5" cellspacing="0">
+            <tr>
+                <th style="background-color: #f2f2f2; width: 150px;">コメント (comment)</th>
+                <td>
+                    <textarea id="commentInput" rows="4" style="width: 400px;" required></textarea>
+                </td>
+            </tr>
+        </table>
+        <br>
+        
+        <div style="display: flex; gap: 10px;">
+            <button type="button" onclick="openConfirmModal(<%= currentStatusId + 1 %>, '承認')">承認する</button>
+            <button type="button" onclick="submitReject(<%= currentStatusId %>)">却下する</button>
+        </div>
 
     <% } else { %>
         <p style="color: red;">申請データが正常に読み込めませんでした。</p>
     <% } %>
 
+    <%-- 処理確認用ポップアップモーダル --%>
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">処理確認</h3>
+            <p>この内容でよろしいですか？</p>
+            
+            <form action="<%= request.getContextPath() %>/ApplicationComment" method="post" id="commentForm">
+                <input type="hidden" name="apct_id" value="<%= app != null ? app.getApctId() : "" %>">
+                <input type="hidden" name="next_status_id" id="commentNextStatus">
+                <%-- サーブレット側でコメントを取得できるように隠しフィールドへJavaScriptで同期します --%>
+                <input type="hidden" name="comment" id="modalCommentHidden">
+                
+                <div style="display: flex; justify-content: space-between;">
+                    <button type="button" onclick="closeModal()">戻る</button>
+                    <button type="submit" id="modalSubmitBtn">確定</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <br>
     <form action="<%= request.getContextPath() %>/ApplicationWaitList" method="get">
-        <%-- 元の画面構成へ戻るキーを、現在のstatus_idを利用して制御 --%>
         <input type="hidden" name="pendingStatus" value="<%= currentStatusId %>">
         <button type="submit">一覧画面へ戻る</button>
     </form>
 
     <script>
-        function submitWithStatus(nextStatusId) {
-            document.getElementById("commentNextStatus").value = nextStatusId;
-            document.getElementById("commentForm").submit();
+        var modal = document.getElementById("confirmModal");
+        var commentInput = document.getElementById("commentInput");
+        var commentNextStatus = document.getElementById("commentNextStatus");
+        var modalCommentHidden = document.getElementById("modalCommentHidden");
+        var modalTitle = document.getElementById("modalTitle");
+        var modalSubmitBtn = document.getElementById("modalSubmitBtn");
+
+        function openConfirmModal(nextStatusId, actionName) {
+            // テキストエリアの入力チェック
+            if (!commentInput.value.trim()) {
+                alert("コメントを入力してください。");
+                return;
+            }
+            
+            commentNextStatus.value = nextStatusId;
+            modalCommentHidden.value = commentInput.value; // 入力内容をフォームにコピー
+            
+            modalTitle.innerText = "申請" + actionName + "確認";
+            modalSubmitBtn.innerText = actionName + "する";
+            modal.style.display = "block";
+        }
+
+        function submitReject(currentStatusId) {
+            // 却下の場合は一律ステータス5
+            openConfirmModal(5, '却下');
+        }
+
+        function closeModal() {
+            modal.style.display = "none";
         }
     </script>
 </body>

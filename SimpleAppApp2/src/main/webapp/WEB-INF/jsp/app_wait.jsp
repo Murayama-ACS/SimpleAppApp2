@@ -6,18 +6,12 @@
 <%@ page import="bean.ApplicationBean" %>
 <%@ page import="bean.EmployeeBean" %>
 <%
-    // セッションからログイン情報を正しく引き出す属性名に適合
     EmployeeBean employee = (EmployeeBean) session.getAttribute("loginEmployee");
     String empName = (employee != null) ? employee.getEmp_name() : "ゲスト";
 
     List<ApplicationBean> list = (List<ApplicationBean>) request.getAttribute("applications");
     String currentStatus = (String) request.getAttribute("currentStatus");
     String errorMessage = (String) request.getAttribute("errorMessage");
-    
-    int statusInt = 1;
-    if (currentStatus != null) {
-        try { statusInt = Integer.parseInt(currentStatus.trim()); } catch(NumberFormatException e) {}
-    }
 %>
 <!DOCTYPE html>
 <html>
@@ -80,7 +74,6 @@
                         <td><%= app.getCreateDate() %></td>
                         <td>
                             <div style="display: flex; gap: 5px;">
-                                <%-- 詳細画面サーブレットへの遷移フォーム --%>
                                 <form action="<%= request.getContextPath() %>/ApplicationComment" method="post" style="margin:0;">
                                     <input type="hidden" name="apct_id" value="<%= app.getApctId() %>">
                                     <button type="submit">詳細</button>
@@ -101,16 +94,12 @@
         </tbody>
     </table>
     
-    <%-- ポップアップ用のモーダル配置 --%>
     <div id="actionModal" class="modal">
         <div class="modal-content">
             <h3 id="modalTitle">申請処理</h3>
-            <%-- action送信先を自サーブレットのdoPostに設定 --%>
             <form action="<%= request.getContextPath() %>/ApplicationWaitList" method="post">
                 <input type="hidden" id="modalApctId" name="apct_id">
                 <input type="hidden" id="modalNextStatus" name="next_status_id">
-                
-                <%-- 再描画・エラー時に表示中のステータスタブを維持するため現在の状況を送る --%>
                 <input type="hidden" name="pendingStatus" value="<%= currentStatus != null ? currentStatus : "1" %>">
                 
                 <p>コメントを入力してください：</p>
@@ -138,7 +127,6 @@
         function openApprovalModal(apctId, currentStatusId) {
             modalApctId.value = apctId;
             modalNextStatus.value = currentStatusId + 1;
-            
             modalTitle.innerText = "申請承認確認";
             modalSubmitBtn.innerText = "承認する";
             modal.style.display = "block";
@@ -147,7 +135,6 @@
         function openRejectModal(apctId) {
             modalApctId.value = apctId;
             modalNextStatus.value = 5;
-            
             modalTitle.innerText = "申請却下確認";
             modalSubmitBtn.innerText = "却下する";
             modal.style.display = "block";

@@ -26,8 +26,7 @@ public class ApplicationCommentServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 詳細画面フォームからの承認・却下登録処理（POST）
-	 * ※一覧画面の「詳細」ボタン、および詳細画面自身の「承認」「却下」ボタンの両方を受け付けます。
+	 * 詳細画面の表示、および詳細画面からの承認・却下登録処理（POST）
 	 */
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) 
@@ -35,6 +34,7 @@ public class ApplicationCommentServlet extends HttpServlet {
 		
 		request.setCharacterEncoding("UTF-8");
 
+		// セッションからログイン情報をチェック
 		HttpSession session = request.getSession();
 		EmployeeBean employee = (EmployeeBean) session.getAttribute("loginEmployee"); 
 		
@@ -56,7 +56,7 @@ public class ApplicationCommentServlet extends HttpServlet {
 			ApplicationDAO appDao = new ApplicationDAO();
 			ApprovalDAO approvalDao = new ApprovalDAO();
 
-			// 【分岐処理】next_status_id が存在する場合のみ登録処理を実行（詳細表示ボタンからの遷移時はスキップ）
+			// 【分岐処理】JSPの確認ポップアップで確定され、next_status_idが存在する場合のみ登録処理を実行
 			if (nextStatusStr != null && !nextStatusStr.trim().isEmpty()) {
 				int nextStatusId = Integer.parseInt(nextStatusStr.trim());
 
@@ -64,43 +64,49 @@ public class ApplicationCommentServlet extends HttpServlet {
 				String timeStamp = new SimpleDateFormat("yyMMddHHmmssSSS").format(new Date());
 				String approvalId = "APV" + timeStamp;
 
-				// 2. ApprovalBean の作成
+				// 2. ApprovalBean の作成とデータ設定
 				ApprovalBean approval = new ApprovalBean();
 				approval.setApprovalId(approvalId);
 				approval.setApctId(apctId);
-				approval.setEmployeeId(employee.getEmp_id());
+				approval.setEmployeeId(employee.getEmp_id()); // 処理を行ったログインユーザーのID
 				approval.setStatusId(nextStatusId);
 				approval.setComment(comment);
 				approval.setCreateDate(LocalDateTime.now());
 
-				// 3. データの登録・更新
+				// 3. 承認履歴(approvals)テーブルへのデータ登録
 				int insertResult = approvalDao.insert(approval);
 
 				if (insertResult > 0) {
-					ApplicationBean appBean = appDao.findById(apctId);
-					if (appBean != null) {
-						appBean.setStatus_id(nextStatusId);
-						appBean.setUpdateDate(LocalDateTime.now());
-						appDao.insert(appBean); // 上書き仕様流用
+					// 4. 専用のUPDATEメソッドを呼び出してapplicationsテーブルのstatus_idを更新
+					int updateResult = appDao.updateStatus(apctId, nextStatusId, LocalDateTime.now());
+					if (updateResult == 0) {
+						forwardToWaitListWithError(request, response, "対象の申請データが見つからないか、更新に失敗しました。");
+						return;
 					}
 				} else {
 					forwardToWaitListWithError(request, response, "承認データの登録に失敗しました。");
 					return;
 				}
+
+				// --- 処理成功時：完了画面（app_done.jsp）へフォワード ---
+				request.setAttribute("processType", nextStatusId == 5 ? "却下" : "承認");
+				RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/jsp/app_done.jsp");
+				rd.forward(request, response);
+				return; 
 			}
 
-			// 最新の状態をデータベースから再読込して詳細画面を表示
+			// --- next_status_id が無い場合（一覧画面から「詳細」ボタンを押して遷移してきた時など） ---
+			// データベースから該当の申請情報を取得
 			ApplicationBean application = appDao.findById(apctId);
 			if (application == null) {
 				forwardToWaitListWithError(request, response, "指定された申請が見つかりません。");
 				return;
 			}
 
-			ApprovalBean approvalData = approvalDao.selectByApctId(apctId);
-
+			// 画面表示用のリクエスト属性を設定（※過去履歴取得処理は要望に基づき削除）
 			request.setAttribute("application", application);
-			request.setAttribute("approvalData", approvalData);
 
+			// 詳細画面（app_comment.jsp）へフォワード
 			RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/jsp/app_comment.jsp");
 			rd.forward(request, response);
 
@@ -129,7 +135,7 @@ public class ApplicationCommentServlet extends HttpServlet {
 	}
 
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * GETリクエスト時もPOST処理（doPost）に委譲する
 	 */
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) 
