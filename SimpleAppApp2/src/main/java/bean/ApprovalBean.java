@@ -13,8 +13,8 @@ public class ApprovalBean {
 	// 社員ID (DB: emp_id)
 	private String employeeId;
 
-	// 申請種別 (DB: apct_type)
-	private String apctType;
+	// 状態ID (DB: status_id)
+	private int statusId;
 
 	// コメント (DB: comment)
 	private String comment;
@@ -26,11 +26,11 @@ public class ApprovalBean {
 	public ApprovalBean() {}
 
 	// コンストラクタ（全フィールド指定）
-	public ApprovalBean(String approvalId, String apctId, String employeeId, String apctType, String comment, LocalDateTime createDate) {
+	public ApprovalBean(String approvalId, String apctId, String employeeId, int statusId, String comment, LocalDateTime createDate) {
 		this.approvalId = approvalId;
 		this.apctId = apctId;
 		this.employeeId = employeeId;
-		this.apctType = apctType;
+		this.statusId = statusId;
 		this.comment = comment;
 		this.createDate = createDate;
 	}
@@ -60,12 +60,12 @@ public class ApprovalBean {
 		this.employeeId = employeeId;
 	}
 
-	public String getApctType() {
-		return apctType;
+	public int getStatusId() {
+		return statusId;
 	}
 
-	public void setApctType(String apctType) {
-		this.apctType = apctType;
+	public void setStatusId(int statusId) {
+		this.statusId = statusId;
 	}
 
 	public String getComment() {
@@ -90,7 +90,7 @@ public class ApprovalBean {
 				"approvalId='" + approvalId + '\'' +
 				", apctId='" + apctId + '\'' +
 				", employeeId='" + employeeId + '\'' +
-				", apctType='" + apctType + '\'' +
+				", statusId=" + statusId +
 				", comment='" + comment + '\'' +
 				", createDate=" + createDate +
 				'}';

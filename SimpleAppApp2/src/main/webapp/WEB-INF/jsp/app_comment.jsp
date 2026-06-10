@@ -1,10 +1,14 @@
+<%--
+モックのため必ず削除すること 
+--%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="bean.ApplicationBean" %>
 <%@ page import="bean.ApprovalBean" %>
 <%
-    // サーブレットからのリクエスト属性の取得
     ApplicationBean app = (ApplicationBean) request.getAttribute("application");
     ApprovalBean approval = (ApprovalBean) request.getAttribute("approvalData");
+    
+    int currentStatusId = (app != null) ? app.getStatus_id() : 1;
 %>
 <!DOCTYPE html>
 <html>
@@ -56,7 +60,7 @@
             </tr>
             <tr>
                 <th style="background-color: #f2f2f2;">ステータスID (status_id)</th>
-                <td><%= app.getStatus_id() %></td> <%-- getStatus() から getStatus_id() に修正 --%>
+                <td><%= app.getStatus_id() %></td>
             </tr>
             <tr>
                 <th style="background-color: #f2f2f2;">作成日時 (create_date)</th>
@@ -64,7 +68,29 @@
             </tr>
         </table>
 
-        <h3>【承認・コメント履歴】</h3>
+        <h3>【承認・コメントの入力】</h3>
+        <%-- action送信先を詳細画面用のサーブレットdoPostに設定 --%>
+        <form action="<%= request.getContextPath() %>/ApplicationComment" method="post" id="commentForm">
+            <input type="hidden" name="apct_id" value="<%= app.getApctId() %>">
+            <input type="hidden" name="next_status_id" id="commentNextStatus">
+            
+            <table border="1" cellpadding="5" cellspacing="0">
+                <tr>
+                    <th style="background-color: #f2f2f2; width: 150px;">コメント (comment)</th>
+                    <td>
+                        <textarea name="comment" rows="4" style="width: 400px;" required></textarea>
+                    </td>
+                </tr>
+            </table>
+            <br>
+            
+            <div style="display: flex; gap: 10px;">
+                <button type="button" onclick="submitWithStatus(<%= currentStatusId + 1 %>)">承認する</button>
+                <button type="button" onclick="submitWithStatus(5)">却下する</button>
+            </div>
+        </form>
+
+        <h3>【過去の承認・コメント履歴】</h3>
         <% if (approval != null) { %>
             <table border="1" cellpadding="5" cellspacing="0">
                 <tr>
@@ -76,8 +102,8 @@
                     <td><%= approval.getEmployeeId() %></td>
                 </tr>
                 <tr>
-                    <th style="background-color: #f2f2f2;">承認時種別 (apct_type)</th>
-                    <td><%= approval.getApctType() %></td>
+                    <th style="background-color: #f2f2f2;">ステータスID (status_id)</th>
+                    <td><%= approval.getStatusId() %></td>
                 </tr>
                 <tr>
                     <th style="background-color: #f2f2f2;">コメント (comment)</th>
@@ -98,8 +124,16 @@
 
     <br>
     <form action="<%= request.getContextPath() %>/ApplicationWaitList" method="get">
-        <input type="hidden" name="pendingStatus" value="1">
+        <%-- 元の画面構成へ戻るキーを、現在のstatus_idを利用して制御 --%>
+        <input type="hidden" name="pendingStatus" value="<%= currentStatusId %>">
         <button type="submit">一覧画面へ戻る</button>
     </form>
+
+    <script>
+        function submitWithStatus(nextStatusId) {
+            document.getElementById("commentNextStatus").value = nextStatusId;
+            document.getElementById("commentForm").submit();
+        }
+    </script>
 </body>
 </html>

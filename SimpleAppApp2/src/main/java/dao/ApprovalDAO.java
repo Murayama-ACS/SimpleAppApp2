@@ -17,8 +17,8 @@ public class ApprovalDAO extends DAO {
 		Connection con = dbConnect();
 		int result = 0;
 		
-		// 設計書の全6カラム（approval_id, apct_id, emp_id, apct_type, comment, time）に対応するINSERT文
-		String sql = "INSERT INTO approval (approval_id, apct_id, emp_id, apct_type, comment, time) "
+		// テーブル名を approval から approvals に修正
+		String sql = "INSERT INTO approvals (approval_id, apct_id, emp_id, status_id, comment, time) "
 				+ "VALUES (?, ?, ?, ?, ?, ?)";
 				
 		try {
@@ -29,7 +29,7 @@ public class ApprovalDAO extends DAO {
 				st.setString(1, bean.getApprovalId()); // 履歴ID
 				st.setString(2, bean.getApctId());      // 申請ID
 				st.setString(3, bean.getEmployeeId());  // 社員ID
-				st.setString(4, bean.getApctType());    // 申請種別
+				st.setInt(4, bean.getStatusId());       // 状態ID
 				st.setString(5, bean.getComment());     // コメント
 				
 				// テーブルのカラム名「time」に合わせてLocalDateTimeをTimestampに変換して設定
@@ -60,8 +60,8 @@ public class ApprovalDAO extends DAO {
 		ResultSet rs = null;
 		ApprovalBean approval = null;
 
-		// 設計書に存在するカラムのみを取得するSQL文に変更
-		String sql = "SELECT approval_id, apct_id, emp_id, apct_type, comment, time FROM approval WHERE apct_id = ?";
+		// テーブル名を approval から approvals に修正
+		String sql = "SELECT approval_id, apct_id, emp_id, status_id, comment, time FROM approvals WHERE apct_id = ?";
 
 		try {
 			if (con != null) {
@@ -74,8 +74,9 @@ public class ApprovalDAO extends DAO {
 					approval.setApprovalId(rs.getString("approval_id"));
 					approval.setApctId(rs.getString("apct_id"));
 					approval.setEmployeeId(rs.getString("emp_id"));
-					approval.setApctType(rs.getString("apct_type"));
+					approval.setStatusId(rs.getInt("status_id")); // int型としてマッピング
 					approval.setComment(rs.getString("comment"));
+					
 					// データベースの time から取得してセット
 					if (rs.getTimestamp("time") != null) {
 						approval.setCreateDate(rs.getTimestamp("time").toLocalDateTime());

@@ -1,25 +1,46 @@
+<%--
+モックのため必ず削除すること 
+--%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
 <%@ page import="bean.ApplicationBean" %>
 <%@ page import="bean.EmployeeBean" %>
 <%
-    // セッション情報の確認
-    EmployeeBean employee = (EmployeeBean) session.getAttribute("EmployeeBean");
+    // セッションからログイン情報を正しく引き出す属性名に適合
+    EmployeeBean employee = (EmployeeBean) session.getAttribute("loginEmployee");
     String empName = (employee != null) ? employee.getEmp_name() : "ゲスト";
 
-    // サーブレットからのリクエスト属性の取得
     List<ApplicationBean> list = (List<ApplicationBean>) request.getAttribute("applications");
     String currentStatus = (String) request.getAttribute("currentStatus");
     String errorMessage = (String) request.getAttribute("errorMessage");
+    
+    int statusInt = 1;
+    if (currentStatus != null) {
+        try { statusInt = Integer.parseInt(currentStatus.trim()); } catch(NumberFormatException e) {}
+    }
 %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>申請一覧（未承認） モック</title>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto; padding: 20px;
+            border: 1px solid #888; width: 400px;
+        }
+    </style>
 </head>
 <body>
-    <h2>申請一覧画面（ステータスID: <%= currentStatus %>）</h2>
+    <h2>申請一覧画面（ステータスID: <%= currentStatus != null ? currentStatus : "1" %>）</h2>
     <p>ログインユーザー: <%= empName %> さん</p>
 
     <% if (errorMessage != null) { %>
@@ -55,13 +76,20 @@
                         <td><%= app.getType() %></td>
                         <td><%= app.getAmount() %> 円</td>
                         <td><%= app.getUrgent() %></td>
-                        <td><%= app.getStatus_id() %></td> <%-- getStatus() から getStatus_id() に修正 --%>
+                        <td><%= app.getStatus_id() %></td>
                         <td><%= app.getCreateDate() %></td>
                         <td>
-                            <form action="<%= request.getContextPath() %>/ApplicationComment" method="post" style="margin:0;">
-                                <input type="hidden" name="apct_id" value="<%= app.getApctId() %>">
-                                <button type="submit">詳細・コメント</button>
-                            </form>
+                            <div style="display: flex; gap: 5px;">
+                                <%-- 詳細画面サーブレットへの遷移フォーム --%>
+                                <form action="<%= request.getContextPath() %>/ApplicationComment" method="post" style="margin:0;">
+                                    <input type="hidden" name="apct_id" value="<%= app.getApctId() %>">
+                                    <button type="submit">詳細</button>
+                                </form>
+                                
+                                <button type="button" onclick="openApprovalModal('<%= app.getApctId() %>', <%= app.getStatus_id() %>)">承認</button>
+                                
+                                <button type="button" onclick="openRejectModal('<%= app.getApctId() %>')">却下</button>
+                            </div>
                         </td>
                     </tr>
                 <% } %>
@@ -73,7 +101,61 @@
         </tbody>
     </table>
     
+    <%-- ポップアップ用のモーダル配置 --%>
+    <div id="actionModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">申請処理</h3>
+            <%-- action送信先を自サーブレットのdoPostに設定 --%>
+            <form action="<%= request.getContextPath() %>/ApplicationWaitList" method="post">
+                <input type="hidden" id="modalApctId" name="apct_id">
+                <input type="hidden" id="modalNextStatus" name="next_status_id">
+                
+                <%-- 再描画・エラー時に表示中のステータスタブを維持するため現在の状況を送る --%>
+                <input type="hidden" name="pendingStatus" value="<%= currentStatus != null ? currentStatus : "1" %>">
+                
+                <p>コメントを入力してください：</p>
+                <textarea name="comment" rows="4" style="width: 100%;" required></textarea>
+                <br><br>
+                
+                <div style="display: flex; justify-content: space-between;">
+                    <button type="button" onclick="closeModal()">戻る</button>
+                    <button type="submit" id="modalSubmitBtn">確定</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <br>
     <a href="<%= request.getContextPath() %>/login_mock.jsp">ログイン画面へ戻る</a>
+
+    <script>
+        var modal = document.getElementById("actionModal");
+        var modalApctId = document.getElementById("modalApctId");
+        var modalNextStatus = document.getElementById("modalNextStatus");
+        var modalTitle = document.getElementById("modalTitle");
+        var modalSubmitBtn = document.getElementById("modalSubmitBtn");
+
+        function openApprovalModal(apctId, currentStatusId) {
+            modalApctId.value = apctId;
+            modalNextStatus.value = currentStatusId + 1;
+            
+            modalTitle.innerText = "申請承認確認";
+            modalSubmitBtn.innerText = "承認する";
+            modal.style.display = "block";
+        }
+
+        function openRejectModal(apctId) {
+            modalApctId.value = apctId;
+            modalNextStatus.value = 5;
+            
+            modalTitle.innerText = "申請却下確認";
+            modalSubmitBtn.innerText = "却下する";
+            modal.style.display = "block";
+        }
+
+        function closeModal() {
+            modal.style.display = "none";
+        }
+    </script>
 </body>
 </html>
