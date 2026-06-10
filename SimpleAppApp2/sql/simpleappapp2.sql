@@ -59,8 +59,14 @@ CREATE TABLE IF NOT EXISTS `applications` (
   CONSTRAINT `FK_applications_status` FOREIGN KEY (`status_id`) REFERENCES `status` (`status_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- テーブル simpleappapp2.applications: ~0 rows (約) のデータをダンプしています
+-- テーブル simpleappapp2.applications: ~5 rows (約) のデータをダンプしています
 DELETE FROM `applications`;
+INSERT INTO `applications` (`apct_id`, `emp_id`, `content`, `type`, `method`, `amount`, `reason`, `remark`, `urgent`, `status_id`, `create_date`, `update_date`, `is_deleted`) VALUES
+	('AP0609164626', 'A00000001', 'TEST1', 'その他', '立替払い（現金手渡し）', 1000000, 'TEST1', 'TEST1', '緊急', 1, '2026-06-09 16:46:26', '2026-06-09 16:46:26', 0),
+	('AP0609164651', 'A00000001', 'TEST2', 'その他', '立替払い (給与振込)', 2000000, 'TEST2', '', '通常', 1, '2026-06-09 16:46:51', '2026-06-09 16:46:51', 0),
+	('AP0609164910', 'A00000001', 'TEST3', 'その他', '会社直接支払い', 3000000, 'TEST3', 'TEST3', '緊急', 1, '2026-06-09 16:49:10', '2026-06-09 16:49:10', 0),
+	('AP0609165230', 'A00000001', 'TEST4', 'その他', '会社直接支払い', 4000000, 'TEST4', 'TEST4', '緊急', 1, '2026-06-09 16:52:30', '2026-06-09 16:52:30', 0),
+	('AP0610100014', 'A99999999', 'テスト', 'その他', '立替払い（現金手渡し）', 99999, 'テスト', 'テスト', '緊急', 1, '2026-06-10 10:00:14', '2026-06-10 10:00:14', 0);
 
 --  テーブル simpleappapp2.approvals の構造をダンプしています
 DROP TABLE IF EXISTS `approvals`;
@@ -68,7 +74,6 @@ CREATE TABLE IF NOT EXISTS `approvals` (
   `approval_id` varchar(20) NOT NULL,
   `apct_id` varchar(20) NOT NULL,
   `emp_id` varchar(20) NOT NULL,
-  `apct_type` varchar(20) NOT NULL,
   `comment` varchar(200) DEFAULT NULL,
   `time` datetime NOT NULL,
   `status_id` int(10) NOT NULL,
@@ -117,7 +122,7 @@ INSERT INTO `departments` (`dpt_id`, `dpt_name`) VALUES
 	('D720', '情報システム部B課'),
 	('D730', '情報システム部C課'),
 	('D734', '情報システム部C課D課'),
-	('D740', '情報システム部A課');
+	('D740', '情報システム部D課');
 
 --  テーブル simpleappapp2.emp_delete_histories の構造をダンプしています
 DROP TABLE IF EXISTS `emp_delete_histories`;
@@ -147,21 +152,26 @@ CREATE TABLE IF NOT EXISTS `employees` (
   `pos_id` char(10) NOT NULL DEFAULT '',
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`emp_id`),
+  UNIQUE KEY `email` (`email`),
   KEY `dpt_id` (`dpt_id`),
   KEY `pos_id` (`pos_id`),
   CONSTRAINT `FK_employees_departments` FOREIGN KEY (`dpt_id`) REFERENCES `departments` (`dpt_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `FK_employees_positions` FOREIGN KEY (`pos_id`) REFERENCES `positions` (`pos_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- テーブル simpleappapp2.employees: ~6 rows (約) のデータをダンプしています
+-- テーブル simpleappapp2.employees: ~10 rows (約) のデータをダンプしています
 DELETE FROM `employees`;
 INSERT INTO `employees` (`emp_id`, `emp_name`, `email`, `password`, `dpt_id`, `pos_id`, `is_deleted`) VALUES
-	('A00000001', '山田 太一', 'ceo@example.com', 'aaaaaaaaaa', 'D000', 'E04', 0),
-	('A20160108', '山田 真央', 'user64@example.com', '11111111', 'D710', 'E01', 0),
+	('A00000001', '山田 太一', 'ceo@example.com', '1111', 'D000', 'E04', 0),
+	('A20160108', '山田 真央', 'user64@example.com', 'testtest', 'D710', 'E01', 0),
 	('A20180926', '鈴木 健', 'user117@example.com', '1111', 'D700', 'E03', 0),
 	('A20190103', '渡辺 一郎', 'user2@example.com', '1111', 'D100', 'E02', 0),
 	('A20190524', '加藤 健', 'user119@example.com', '1111', 'D740', 'E00', 0),
-	('A20221203', '佐藤 直樹', 'user1@example.com', '1111', 'D410', 'E00', 0);
+	('A20200313', '田中 太郎', 'user87@example.com', '1111', 'D420', 'E01', 0),
+	('A20220613', '伊藤 太郎', 'user92@example.com', '1111', 'D400', 'E00', 0),
+	('A20221203', '佐藤 直樹', 'user1@example.com', '1111', 'D410', 'E00', 0),
+	('A20250314', '渡辺 彩', 'user61@example.com', '1111', 'D200', 'E03', 0),
+	('A99999999', 'テストアカウント', 'test@test.com', '11111111', 'D200', 'E02', 0);
 
 --  テーブル simpleappapp2.positions の構造をダンプしています
 DROP TABLE IF EXISTS `positions`;
@@ -191,17 +201,23 @@ CREATE TABLE IF NOT EXISTS `security_quiz` (
   PRIMARY KEY (`sq_id`) USING BTREE,
   KEY `emp_id` (`emp_id`),
   CONSTRAINT `emp_id` FOREIGN KEY (`emp_id`) REFERENCES `employees` (`emp_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- テーブル simpleappapp2.security_quiz: ~6 rows (約) のデータをダンプしています
+-- テーブル simpleappapp2.security_quiz: ~12 rows (約) のデータをダンプしています
 DELETE FROM `security_quiz`;
 INSERT INTO `security_quiz` (`sq_id`, `emp_id`, `quiz`, `answer`) VALUES
-	(4, 'A00000001', '初めて飼ったペットの名前は？', 'cat'),
-	(5, 'A00000001', '幼少期によく遊んだ公園の呼び名や特徴は？', 'park'),
-	(6, 'A00000001', '自分で最初に作った料理の名前は？', 'rice'),
+	(4, 'A00000001', '初めて飼ったペットの名前は？', 'a'),
+	(5, 'A00000001', '幼少期によく遊んだ公園の呼び名や特徴は？', 'a'),
+	(6, 'A00000001', '自分で最初に作った料理の名前は？', 'a'),
 	(7, 'A20160108', '自分で最初に作った料理の名前は？', '123'),
 	(8, 'A20160108', '幼少期によく遊んだ公園の呼び名や特徴は？', '123'),
-	(9, 'A20160108', '初めて飼ったペットの名前は？', '123');
+	(9, 'A20160108', '初めて飼ったペットの名前は？', '123'),
+	(10, 'A99999999', '初めて飼ったペットの名前は？', 'test'),
+	(11, 'A99999999', '子どものころに一番よく遊んだ路地や通りの名前は？', 'test'),
+	(12, 'A99999999', '初めて一人で泊まった旅館やホテルの名前は？', 'test'),
+	(13, 'A99999999', '初めて飼ったペットの名前は？', 'test'),
+	(14, 'A99999999', '子どものころに一番よく遊んだ路地や通りの名前は？', 'test'),
+	(15, 'A99999999', '初めて一人で泊まった旅館やホテルの名前は？', 'test');
 
 --  テーブル simpleappapp2.status の構造をダンプしています
 DROP TABLE IF EXISTS `status`;
