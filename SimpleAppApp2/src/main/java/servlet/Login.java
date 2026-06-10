@@ -43,7 +43,7 @@ public class Login extends HttpServlet {
 			final String PASS_PATTERN = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$";
 
 			try {
-				if (pass == null || !pass.matches(PASS_PATTERN)) {
+				if (pass == null ||!pass.matches(PASS_PATTERN)) {
 					// ポリシー違反の入力は認証処理しない（failed_login は増やさない）
 					// 表示は汎用のエラーメッセージ（ユーザ存在を漏らさない）
 					request.setAttribute("eMsg", baseMsg);
@@ -90,7 +90,7 @@ public class Login extends HttpServlet {
 						// 認証成功
 						HttpSession session = request.getSession();
 						session.setAttribute("empBean", empBean);
-						if (pass != null && pass.equals("1234")) {
+						if (pass != null && pass.equals("Abcd1234")) {
 							url = "WEB-INF/jsp/pass_reset1.jsp";
 						} else {
 							url = "WEB-INF/jsp/toppage.jsp";

@@ -6,8 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import bean.QuizBean;
+import model.Hash;
 
 public class QuizDAO extends DAO{
+	Hash hash = new Hash();
 //	public int insertQuiz(QuizBean quizBean) {//QuizBeanの内容をデータベースに登録する関数
 //		Connection con = dbConnect();
 //		int result = 0;
@@ -52,12 +54,12 @@ public class QuizDAO extends DAO{
 		            }
 		        }
 		    }
-
+		    
 		    // 2) 挿入
 		    try (PreparedStatement stIns = con.prepareStatement(sqlInsert)) {
 		        stIns.setString(1, quizBean.getEmp_id());
 		        stIns.setString(2, quizBean.getQuiz());
-		        stIns.setString(3, quizBean.getAnswer()); // ※後述の注意点参照
+		        stIns.setString(3, hash.getSHA512(quizBean.getAnswer())); // ※後述の注意点参照
 		        int rows = stIns.executeUpdate();
 		        return rows;
 		    }
@@ -103,7 +105,7 @@ public class QuizDAO extends DAO{
 
 				PreparedStatement st = con.prepareStatement(sql);
 				st.setString(1, quiz);
-				st.setString(2, answer);
+				st.setString(2, hash.getSHA512(answer));
 				st.setString(3, emp_id);
 				ResultSet rs = st.executeQuery();
 
@@ -139,6 +141,8 @@ public class QuizDAO extends DAO{
             try (ResultSet rs = ps.executeQuery()) {
                 boolean matched = false;
                 String sqId = null;
+                answer = hash.getSHA512(answer);
+
                 while (rs.next()) {
                     String storedAnswer = rs.getString("answer");
                     // answer は現状平文比較。可能ならハッシュ化して照合する

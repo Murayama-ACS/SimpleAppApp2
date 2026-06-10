@@ -23,6 +23,6 @@
 			<br>
 		</c:if>
 	</div>
-<a href="PassReset">パスワードリセット</a>
+<a href="PassReset1">パスワードリセット</a>
 </body>
 </html>

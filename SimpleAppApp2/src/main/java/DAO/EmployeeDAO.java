@@ -6,8 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import bean.EmployeeBean;
+import model.Hash;
 
 public class EmployeeDAO extends DAO{
+	Hash hash = new Hash();
 	//	public int insertUser(EmployeeBean empBean, String pass) {//userBeanの内容をデータベースに登録する関数
 	//		Connection con = dbConnect();
 	//		int result = 0;
@@ -37,16 +39,17 @@ public class EmployeeDAO extends DAO{
 		String sql = "update employees set password=? where emp_id=?";
 		String pattern =  "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$";
 		System.out.println(!newPass.matches(pattern));
-		if(newPass.equals("1234")){
+		if(newPass.equals("Abcd1234")){
 			return -1;
 		}else if(!newPass.matches(pattern)) {
 			return -2;
 		}
 		try {
 			if(con != null) {
-
+				
 				PreparedStatement st = con.prepareStatement(sql);
-				st.setString(1, newPass);
+				
+				st.setString(1, hash.getSHA512(newPass));
 				st.setString(2, empBean.getEmp_id());
 
 				int rs = st.executeUpdate();//これなんだっけ
@@ -74,7 +77,7 @@ public class EmployeeDAO extends DAO{
 
 				PreparedStatement st = con.prepareStatement(sql);
 				st.setString(1, identifier);
-				st.setString(2, pass);
+				st.setString(2, hash.getSHA512(pass));
 				ResultSet rs = st.executeQuery();
 
 				while(rs.next()) {
@@ -193,6 +196,6 @@ public class EmployeeDAO extends DAO{
 	private boolean verifyPassword(String plain, String stored) {
 		// TODO: ここでハッシュ方式を使うなら BCrypt/Argon2 ライブラリを使って検証する
 		// 現状 DB が平文なら単純比較（ただし本番ではハッシュを推奨）
-		return plain != null && plain.equals(stored);
+		return plain != null && hash.getSHA512(plain).equals(stored);
 	}
 }
