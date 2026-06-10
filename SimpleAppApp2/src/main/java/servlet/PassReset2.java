@@ -11,10 +11,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-import DAO.FailedLoginDAO;
-import DAO.QuizDAO;
 import bean.EmployeeBean;
 import bean.QuizBean;
+import dao.FailedLoginDAO;
+import dao.QuizDAO;
 
 /**
  * Servlet implementation class PassReset2

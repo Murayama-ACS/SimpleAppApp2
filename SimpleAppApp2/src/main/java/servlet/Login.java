@@ -11,9 +11,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-import DAO.EmployeeDAO;
-import DAO.FailedLoginDAO;
 import bean.EmployeeBean;
+import dao.EmployeeDAO;
+import dao.FailedLoginDAO;
 
 @WebServlet("/Login")
 public class Login extends HttpServlet {

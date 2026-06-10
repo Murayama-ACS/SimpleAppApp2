@@ -10,8 +10,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-import DAO.EmployeeDAO;
 import bean.EmployeeBean;
+import dao.EmployeeDAO;
 
 /**
  * Servlet implementation class PassResetConfirm
