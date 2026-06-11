@@ -70,8 +70,8 @@
                 <td><%= app.getUrgent() %></td>
             </tr>
             <tr>
-                <th style="background-color: #f2f2f2;">ステータスID (status_id)</th>
-                <td><%= app.getStatus_id() %></td>
+                <th style="background-color: #f2f2f2;">ステータス (status)</th>
+                <td><%= app.getStatusName() %></td> <%-- 数値から名称表示へ修正 --%>
             </tr>
             <tr>
                 <th style="background-color: #f2f2f2;">作成日時 (create_date)</th>
@@ -99,7 +99,6 @@
         <p style="color: red;">申請データが正常に読み込めませんでした。</p>
     <% } %>
 
-    <%-- 処理確認用ポップアップモーダル --%>
     <div id="confirmModal" class="modal">
         <div class="modal-content">
             <h3 id="modalTitle">処理確認</h3>
@@ -108,7 +107,6 @@
             <form action="<%= request.getContextPath() %>/ApplicationComment" method="post" id="commentForm">
                 <input type="hidden" name="apct_id" value="<%= app != null ? app.getApctId() : "" %>">
                 <input type="hidden" name="next_status_id" id="commentNextStatus">
-                <%-- サーブレット側でコメントを取得できるように隠しフィールドへJavaScriptで同期します --%>
                 <input type="hidden" name="comment" id="modalCommentHidden">
                 
                 <div style="display: flex; justify-content: space-between;">
@@ -134,14 +132,13 @@
         var modalSubmitBtn = document.getElementById("modalSubmitBtn");
 
         function openConfirmModal(nextStatusId, actionName) {
-            // テキストエリアの入力チェック
             if (!commentInput.value.trim()) {
                 alert("コメントを入力してください。");
                 return;
             }
             
             commentNextStatus.value = nextStatusId;
-            modalCommentHidden.value = commentInput.value; // 入力内容をフォームにコピー
+            modalCommentHidden.value = commentInput.value;
             
             modalTitle.innerText = "申請" + actionName + "確認";
             modalSubmitBtn.innerText = actionName + "する";
@@ -149,7 +146,6 @@
         }
 
         function submitReject(currentStatusId) {
-            // 却下の場合は一律ステータス5
             openConfirmModal(5, '却下');
         }
 

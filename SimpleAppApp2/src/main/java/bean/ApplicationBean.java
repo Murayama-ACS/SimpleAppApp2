@@ -19,10 +19,12 @@ public class ApplicationBean implements Serializable {
     private String reason;          // reason (申請理由)
     private String note;            // remark (備考)
     private String urgent;          // urgent (緊急度)
-    private int status_id;          // status_id (申請状態ID) ※String status から変更
+    private int status_id;          // status_id (申請状態ID)
+    private String statusName;      // statusName (申請状態)
     private LocalDateTime createDate; // create_date (作成時間)
     private LocalDateTime updateDate; // update_date (変更時間)
     private boolean isDeleted;      // is_deleted (削除)
+    
 
     // 無引数コンストラクタ（JavaBean の要件）
     public ApplicationBean() {
@@ -31,7 +33,7 @@ public class ApplicationBean implements Serializable {
     // 全フィールドを網羅した便利コンストラクタ
     public ApplicationBean(String apctId, String employeeId, String content, String type, 
                            String paymentMethod, int amount, String reason, String note, 
-                           String urgent, int status_id, LocalDateTime createDate, 
+                           String urgent, int status_id, String statusName, LocalDateTime createDate, 
                            LocalDateTime updateDate, boolean isDeleted) {
         this.apctId = apctId;
         this.employeeId = employeeId;
@@ -43,6 +45,7 @@ public class ApplicationBean implements Serializable {
         this.note = note;
         this.urgent = urgent;
         this.status_id = status_id;
+        this.statusName = statusName;
         this.createDate = createDate;
         this.updateDate = updateDate;
         this.isDeleted = isDeleted;
@@ -153,6 +156,14 @@ public class ApplicationBean implements Serializable {
         this.isDeleted = isDeleted;
     }
 
+    public String getStatusName() {
+		return statusName;
+	}
+
+	public void setStatusName(String statusName) {
+		this.statusName = statusName;
+	}
+	
     @Override
     public String toString() {
         return "ApplicationBean [apctId=" + apctId + ", employeeId=" + employeeId + ", content=" + content
