@@ -34,19 +34,18 @@
 <body>
     <h2>申請入力フォーム</h2>
 
-    <%
-        // サーブレットがリクエストスコープに入れてくれたオブジェクトと文字列を取り出す
+<%
+        // ① サーブレットがリクエストスコープに格納したオブジェクトと部署名を取得
         EmployeeBean empBean = (EmployeeBean) request.getAttribute("employeeInfo");
         String dptName = (String) request.getAttribute("departmentName");
         
-        // ★【修正】セッションからEmployeeBean型としてログイン情報を取得
+        // ② セッションからログイン情報を取得
         EmployeeBean sessionEmp = (EmployeeBean) session.getAttribute("loginEmployee");
         
         String empId = "未ログイン";
         String empName = "未ログイン";
 
-        // 最優先でリクエストスコープ（サーブレット経由）のデータを使用し、
-        // 取得できない場合はセッションのデータを使用する安全設計
+        // 社員IDと氏名の確定ロジック
         if (empBean != null) {
             empId = empBean.getEmp_id();
             empName = empBean.getEmp_name();
@@ -55,7 +54,9 @@
             empName = sessionEmp.getEmp_name();
         }
         
-        if (dptName == null) {
+        // ★【修正ポイント】
+        // サーブレットからの部署名（dptName）が null、または空文字の場合のみ「未所属」とする
+        if (dptName == null || dptName.trim().isEmpty()) {
             dptName = "未所属";
         }
     %>
