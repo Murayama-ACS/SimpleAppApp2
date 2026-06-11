@@ -55,18 +55,12 @@ CREATE TABLE IF NOT EXISTS `applications` (
   PRIMARY KEY (`apct_id`),
   KEY `emp_id` (`emp_id`),
   KEY `status_id` (`status_id`),
-  CONSTRAINT `FK_applications_employees` FOREIGN KEY (`emp_id`) REFERENCES `employees` (`emp_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `FK_applications_status` FOREIGN KEY (`status_id`) REFERENCES `status` (`status_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `FK_applications_employees` FOREIGN KEY (`emp_id`) REFERENCES `employees` (`emp_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `FK_applications_status` FOREIGN KEY (`status_id`) REFERENCES `status` (`status_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- テーブル simpleappapp2.applications: ~5 rows (約) のデータをダンプしています
+-- テーブル simpleappapp2.applications: ~0 rows (約) のデータをダンプしています
 DELETE FROM `applications`;
-INSERT INTO `applications` (`apct_id`, `emp_id`, `content`, `type`, `method`, `amount`, `reason`, `remark`, `urgent`, `status_id`, `create_date`, `update_date`, `is_deleted`) VALUES
-	('AP0609164626', 'A00000001', 'TEST1', 'その他', '立替払い（現金手渡し）', 1000000, 'TEST1', 'TEST1', '緊急', 1, '2026-06-09 16:46:26', '2026-06-09 16:46:26', 0),
-	('AP0609164651', 'A00000001', 'TEST2', 'その他', '立替払い (給与振込)', 2000000, 'TEST2', '', '通常', 1, '2026-06-09 16:46:51', '2026-06-09 16:46:51', 0),
-	('AP0609164910', 'A00000001', 'TEST3', 'その他', '会社直接支払い', 3000000, 'TEST3', 'TEST3', '緊急', 1, '2026-06-09 16:49:10', '2026-06-09 16:49:10', 0),
-	('AP0609165230', 'A00000001', 'TEST4', 'その他', '会社直接支払い', 4000000, 'TEST4', 'TEST4', '緊急', 1, '2026-06-09 16:52:30', '2026-06-09 16:52:30', 0),
-	('AP0610100014', 'A99999999', 'テスト', 'その他', '立替払い（現金手渡し）', 99999, 'テスト', 'テスト', '緊急', 1, '2026-06-10 10:00:14', '2026-06-10 10:00:14', 0);
 
 --  テーブル simpleappapp2.approvals の構造をダンプしています
 DROP TABLE IF EXISTS `approvals`;
@@ -159,19 +153,150 @@ CREATE TABLE IF NOT EXISTS `employees` (
   CONSTRAINT `FK_employees_positions` FOREIGN KEY (`pos_id`) REFERENCES `positions` (`pos_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- テーブル simpleappapp2.employees: ~10 rows (約) のデータをダンプしています
+-- テーブル simpleappapp2.employees: ~120 rows (約) のデータをダンプしています
 DELETE FROM `employees`;
 INSERT INTO `employees` (`emp_id`, `emp_name`, `email`, `password`, `dpt_id`, `pos_id`, `is_deleted`) VALUES
-	('A00000001', '山田 太一', 'ceo@example.com', '1111', 'D000', 'E04', 0),
-	('A20160108', '山田 真央', 'user64@example.com', 'testtest', 'D710', 'E01', 0),
-	('A20180926', '鈴木 健', 'user117@example.com', '1111', 'D700', 'E03', 0),
-	('A20190103', '渡辺 一郎', 'user2@example.com', '1111', 'D100', 'E02', 0),
-	('A20190524', '加藤 健', 'user119@example.com', '1111', 'D740', 'E00', 0),
-	('A20200313', '田中 太郎', 'user87@example.com', '1111', 'D420', 'E01', 0),
-	('A20220613', '伊藤 太郎', 'user92@example.com', '1111', 'D400', 'E00', 0),
-	('A20221203', '佐藤 直樹', 'user1@example.com', '1111', 'D410', 'E00', 0),
-	('A20250314', '渡辺 彩', 'user61@example.com', '1111', 'D200', 'E03', 0),
-	('A99999999', 'テストアカウント', 'test@test.com', '11111111', 'D200', 'E02', 0);
+	('A00000001', '山田 太一', 'ceo@example.com', 'Abcd1234', 'D000', 'E04', 0),
+	('A20150207', '高橋 優衣', 'user77@example.com', 'Abcd1234', 'D100', 'E00', 0),
+	('A20150212', '小林 直樹', 'user113@example.com', 'Abcd1234', 'D400', 'E02', 0),
+	('A20150624', '山田 彩', 'user48@example.com', 'Abcd1234', 'D730', 'E00', 0),
+	('A20150629', '高橋 優衣', 'user72@example.com', 'Abcd1234', 'D000', 'E02', 0),
+	('A20150807', '山田 優衣', 'user63@example.com', 'Abcd1234', 'D200', 'E00', 0),
+	('A20150909', '田中 健', 'user24@example.com', 'Abcd1234', 'D710', 'E00', 0),
+	('A20160108', '山田 真央', 'user64@example.com', 'Abcd1234', 'D710', 'E01', 0),
+	('A20160111', '田中 太郎', 'user78@example.com', 'Abcd1234', 'D200', 'E02', 0),
+	('A20160611', '渡辺 優衣', 'user19@example.com', 'Abcd1234', 'D620', 'E00', 0),
+	('A20160621', '小林 一郎', 'user55@example.com', 'Abcd1234', 'D730', 'E00', 0),
+	('A20160709', '鈴木 健', 'user45@example.com', 'Abcd1234', 'D720', 'E00', 0),
+	('A20160813', '加藤 美咲', 'user108@example.com', 'Abcd1234', 'D530', 'E00', 0),
+	('A20160828', '佐藤 優衣', 'user40@example.com', 'Abcd1234', 'D520', 'E00', 0),
+	('A20161124', '小林 彩', 'user76@example.com', 'Abcd1234', 'D540', 'E00', 0),
+	('A20161215', '中村 真央', 'user33@example.com', 'Abcd1234', 'D720', 'E00', 0),
+	('A20161216', '山田 健', 'user67@example.com', 'Abcd1234', 'D510', 'E00', 0),
+	('A20161217', '高橋 真央', 'user106@example.com', 'Abcd1234', 'D720', 'E00', 0),
+	('A20170115', '加藤 花子', 'user44@example.com', 'Abcd1234', 'D530', 'E00', 0),
+	('A20170330', '高橋 太郎', 'user7@example.com', 'Abcd1234', 'D520', 'E00', 0),
+	('A20170407', '伊藤 大輔', 'user57@example.com', 'Abcd1234', 'D630', 'E00', 0),
+	('A20170626', '渡辺 美咲', 'user68@example.com', 'Abcd1234', 'D630', 'E00', 0),
+	('A20170802', '伊藤 彩', 'user82@example.com', 'Abcd1234', 'D410', 'E01', 0),
+	('A20170824', '中村 大輔', 'user25@example.com', 'Abcd1234', 'D620', 'E00', 0),
+	('A20171125', '高橋 健', 'user16@example.com', 'Abcd1234', 'D610', 'E00', 0),
+	('A20171208', '山田 大輔', 'user14@example.com', 'Abcd1234', 'D510', 'E00', 0),
+	('A20180119', '中村 直樹', 'user69@example.com', 'Abcd1234', 'D540', 'E00', 0),
+	('A20180407', '渡辺 健', 'user99@example.com', 'Abcd1234', 'D730', 'E01', 0),
+	('A20180504', '加藤 太郎', 'user37@example.com', 'Abcd1234', 'D730', 'E00', 0),
+	('A20180707', '加藤 真央', 'user95@example.com', 'Abcd1234', 'D540', 'E01', 0),
+	('A20180828', '山田 健', 'user105@example.com', 'Abcd1234', 'D740', 'E00', 0),
+	('A20180906', '中村 優衣', 'user47@example.com', 'Abcd1234', 'D720', 'E00', 0),
+	('A20180926', '鈴木 健', 'user117@example.com', 'Abcd1234', 'D700', 'E03', 0),
+	('A20181217', '加藤 一郎', 'user94@example.com', 'Abcd1234', 'D740', 'E00', 0),
+	('A20181223', '高橋 健', 'user34@example.com', 'Abcd1234', 'D540', 'E00', 0),
+	('A20190103', '渡辺 一郎', 'user2@example.com', 'Abcd1234', 'D100', 'E02', 0),
+	('A20190106', '小林 大輔', 'user15@example.com', 'Abcd1234', 'D540', 'E00', 0),
+	('A20190113', '伊藤 健', 'user8@example.com', 'Abcd1234', 'D620', 'E00', 0),
+	('A20190119', '小林 彩', 'user103@example.com', 'Abcd1234', 'D510', 'E00', 0),
+	('A20190211', '伊藤 直樹', 'user66@example.com', 'Abcd1234', 'D620', 'E00', 0),
+	('A20190227', '田中 花子', 'user104@example.com', 'Abcd1234', 'D540', 'E00', 0),
+	('A20190305', '加藤 真央', 'user23@example.com', 'Abcd1234', 'D740', 'E00', 0),
+	('A20190429', '加藤 彩', 'user83@example.com', 'Abcd1234', 'D710', 'E00', 0),
+	('A20190524', '加藤 健', 'user119@example.com', 'Abcd1234', 'D630', 'E00', 0),
+	('A20190725', '高橋 美咲', 'user42@example.com', 'Abcd1234', 'D420', 'E00', 0),
+	('A20190814', '田中 直樹', 'user26@example.com', 'Abcd1234', 'D630', 'E00', 0),
+	('A20190907', '伊藤 優衣', 'user115@example.com', 'Abcd1234', 'D500', 'E02', 0),
+	('A20190908', '山田 直樹', 'user110@example.com', 'Abcd1234', 'D510', 'E00', 0),
+	('A20191126', '鈴木 美咲', 'user73@example.com', 'Abcd1234', 'D720', 'E00', 0),
+	('A20200207', '鈴木 健', 'user35@example.com', 'Abcd1234', 'D740', 'E00', 0),
+	('A20200313', '田中 太郎', 'user87@example.com', 'Abcd1234', 'D420', 'E01', 0),
+	('A20200403', '加藤 一郎', 'user58@example.com', 'Abcd1234', 'D730', 'E00', 0),
+	('A20200413', '渡辺 一郎', 'user46@example.com', 'Abcd1234', 'D730', 'E00', 0),
+	('A20200418', '高橋 大輔', 'user97@example.com', 'Abcd1234', 'D740', 'E00', 0),
+	('A20200519', '田中 優衣', 'user54@example.com', 'Abcd1234', 'D520', 'E00', 0),
+	('A20200528', '中村 一郎', 'user4@example.com', 'Abcd1234', 'D610', 'E00', 0),
+	('A20200717', '佐藤 太郎', 'user80@example.com', 'Abcd1234', 'D730', 'E00', 0),
+	('A20200720', '田中 優衣', 'user98@example.com', 'Abcd1234', 'D540', 'E00', 0),
+	('A20200913', '高橋 健', 'user53@example.com', 'Abcd1234', 'D730', 'E00', 0),
+	('A20200923', '伊藤 美咲', 'user22@example.com', 'Abcd1234', 'D520', 'E00', 0),
+	('A20210330', '高橋 直樹', 'user41@example.com', 'Abcd1234', 'D420', 'E00', 0),
+	('A20210409', '加藤 一郎', 'user49@example.com', 'Abcd1234', 'D630', 'E00', 0),
+	('A20210613', '高橋 真央', 'user86@example.com', 'Abcd1234', 'D520', 'E00', 0),
+	('A20210617', '伊藤 大輔', 'user32@example.com', 'Abcd1234', 'D720', 'E00', 0),
+	('A20210720', '佐藤 優衣', 'user11@example.com', 'Abcd1234', 'D630', 'E00', 0),
+	('A20210904', '伊藤 彩', 'user65@example.com', 'Abcd1234', 'D530', 'E00', 0),
+	('A20210930', '高橋 優衣', 'user118@example.com', 'Abcd1234', 'D400', 'E00', 0),
+	('A20211108', '田中 直樹', 'user30@example.com', 'Abcd1234', 'D410', 'E00', 0),
+	('A20211116', '田中 真央', 'user101@example.com', 'Abcd1234', 'D200', 'E00', 0),
+	('A20220113', '佐藤 健', 'user31@example.com', 'Abcd1234', 'D410', 'E00', 0),
+	('A20220317', '鈴木 彩', 'user27@example.com', 'Abcd1234', 'D710', 'E00', 0),
+	('A20220320', '田中 優衣', 'user6@example.com', 'Abcd1234', 'D530', 'E00', 0),
+	('A20220414', '伊藤 太郎', 'user36@example.com', 'Abcd1234', 'D510', 'E00', 0),
+	('A20220418', '鈴木 健', 'user5@example.com', 'Abcd1234', 'D620', 'E00', 0),
+	('A20220613', '伊藤 太郎', 'user92@example.com', 'Abcd1234', 'D400', 'E00', 0),
+	('A20220707', '高橋 美咲', 'user70@example.com', 'Abcd1234', 'D530', 'E00', 0),
+	('A20220822', '田中 太郎', 'user51@example.com', 'Abcd1234', 'D610', 'E00', 0),
+	('A20220908', '佐藤 美咲', 'user75@example.com', 'Abcd1234', 'D000', 'E00', 0),
+	('A20220910', '小林 太郎', 'user84@example.com', 'Abcd1234', 'D520', 'E01', 0),
+	('A20221023', '渡辺 真央', 'user116@example.com', 'Abcd1234', 'D000', 'E00', 0),
+	('A20221203', '佐藤 直樹', 'user1@example.com', 'Abcd1234', 'D410', 'E00', 0),
+	('A20221207', '伊藤 彩', 'user62@example.com', 'Abcd1234', 'D100', 'E00', 0),
+	('A20221226', '渡辺 大輔', 'user114@example.com', 'Abcd1234', 'D734', 'E02', 0),
+	('A20230111', '渡辺 彩', 'user13@example.com', 'Abcd1234', 'D100', 'E00', 0),
+	('A2023011101', '伊藤 優衣', 'user28@example.com', 'Abcd1234', 'D740', 'E00', 0),
+	('A20230225', '渡辺 彩', 'user17@example.com', 'Abcd1234', 'D710', 'E00', 0),
+	('A20230226', '鈴木 美咲', 'user56@example.com', 'Abcd1234', 'D420', 'E00', 0),
+	('A20230324', '高橋 大輔', 'user59@example.com', 'Abcd1234', 'D740', 'E00', 0),
+	('A20230419', '小林 健', 'user111@example.com', 'Abcd1234', 'D300', 'E02', 0),
+	('A20230425', '山田 美咲', 'user100@example.com', 'Abcd1234', 'D400', 'E00', 0),
+	('A20230709', '高橋 優衣', 'user52@example.com', 'Abcd1234', 'D740', 'E00', 0),
+	('A20230812', '山田 花子', 'user112@example.com', 'Abcd1234', 'D710', 'E00', 0),
+	('A20230905', '加藤 直樹', 'user89@example.com', 'Abcd1234', 'D740', 'E01', 0),
+	('A20230916', '高橋 直樹', 'user18@example.com', 'Abcd1234', 'D630', 'E00', 0),
+	('A20231205', '小林 花子', 'user88@example.com', 'Abcd1234', 'D530', 'E01', 0),
+	('A20231208', '鈴木 大輔', 'user29@example.com', 'Abcd1234', 'D720', 'E00', 0),
+	('A20240203', '小林 優衣', 'user21@example.com', 'Abcd1234', 'D710', 'E00', 0),
+	('A20240329', '加藤 優衣', 'user39@example.com', 'Abcd1234', 'D530', 'E00', 0),
+	('A20240409', '佐藤 美咲', 'user12@example.com', 'Abcd1234', 'D710', 'E00', 0),
+	('A20240411', '佐藤 健', 'user109@example.com', 'Abcd1234', 'D712', 'E02', 0),
+	('A20240702', '山田 優衣', 'user107@example.com', 'Abcd1234', 'D740', 'E00', 0),
+	('A20240704', '山田 花子', 'user71@example.com', 'Abcd1234', 'D400', 'E00', 0),
+	('A20240828', '渡辺 彩', 'user3@example.com', 'Abcd1234', 'D610', 'E00', 0),
+	('A20241112', '渡辺 優衣', 'user60@example.com', 'Abcd1234', 'D730', 'E00', 0),
+	('A20250113', '小林 美咲', 'user91@example.com', 'Abcd1234', 'D620', 'E01', 0),
+	('A20250307', '佐藤 大輔', 'user10@example.com', 'Abcd1234', 'D100', 'E00', 0),
+	('A20250314', '渡辺 彩', 'user61@example.com', 'Abcd1234', 'D200', 'E00', 0),
+	('A20250415', '佐藤 大輔', 'user90@example.com', 'Abcd1234', 'D400', 'E00', 0),
+	('A20250516', '田中 大輔', 'user79@example.com', 'Abcd1234', 'D620', 'E00', 0),
+	('A20250729', '中村 美咲', 'user93@example.com', 'Abcd1234', 'D630', 'E01', 0),
+	('A20250816', '中村 太郎', 'user85@example.com', 'Abcd1234', 'D610', 'E01', 0),
+	('A20251115', '渡辺 優衣', 'user9@example.com', 'Abcd1234', 'D530', 'E00', 0),
+	('A20251224', '小林 健', 'user20@example.com', 'Abcd1234', 'D510', 'E00', 0),
+	('A20251229', '田中 彩', 'user50@example.com', 'Abcd1234', 'D720', 'E00', 0),
+	('A2025122901', '渡辺 花子', 'user102@example.com', 'Abcd1234', 'D600', 'E02', 0),
+	('A20260109', '田中 優衣', 'user43@example.com', 'Abcd1234', 'D610', 'E00', 0),
+	('A20260112', '高橋 美咲', 'user81@example.com', 'Abcd1234', 'D510', 'E01', 0),
+	('A20260307', '小林 直樹', 'user96@example.com', 'Abcd1234', 'D720', 'E01', 0),
+	('A20260315', '中村 健', 'user38@example.com', 'Abcd1234', 'D610', 'E00', 0),
+	('A20260327', '伊藤 一郎', 'user74@example.com', 'Abcd1234', 'D610', 'E00', 0);
+
+--  テーブル simpleappapp2.failed_logins の構造をダンプしています
+DROP TABLE IF EXISTS `failed_logins`;
+CREATE TABLE IF NOT EXISTS `failed_logins` (
+  `emp_id` varchar(20) NOT NULL,
+  `quiz_attempts` int(11) NOT NULL DEFAULT 0,
+  `password_attempts` int(11) NOT NULL DEFAULT 0,
+  `first_failed_password_at` datetime DEFAULT NULL,
+  `first_failed_quiz_at` datetime DEFAULT NULL,
+  `last_failed_password_at` datetime DEFAULT NULL,
+  `last_failed_quiz_at` datetime DEFAULT NULL,
+  `lock_count` int(11) NOT NULL DEFAULT 0,
+  `locked_until` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`emp_id`),
+  CONSTRAINT `FK_failed_logins_employees` FOREIGN KEY (`emp_id`) REFERENCES `employees` (`emp_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+-- テーブル simpleappapp2.failed_logins: ~0 rows (約) のデータをダンプしています
+DELETE FROM `failed_logins`;
 
 --  テーブル simpleappapp2.positions の構造をダンプしています
 DROP TABLE IF EXISTS `positions`;
@@ -201,23 +326,10 @@ CREATE TABLE IF NOT EXISTS `security_quiz` (
   PRIMARY KEY (`sq_id`) USING BTREE,
   KEY `emp_id` (`emp_id`),
   CONSTRAINT `emp_id` FOREIGN KEY (`emp_id`) REFERENCES `employees` (`emp_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- テーブル simpleappapp2.security_quiz: ~12 rows (約) のデータをダンプしています
+-- テーブル simpleappapp2.security_quiz: ~0 rows (約) のデータをダンプしています
 DELETE FROM `security_quiz`;
-INSERT INTO `security_quiz` (`sq_id`, `emp_id`, `quiz`, `answer`) VALUES
-	(4, 'A00000001', '初めて飼ったペットの名前は？', 'a'),
-	(5, 'A00000001', '幼少期によく遊んだ公園の呼び名や特徴は？', 'a'),
-	(6, 'A00000001', '自分で最初に作った料理の名前は？', 'a'),
-	(7, 'A20160108', '自分で最初に作った料理の名前は？', '123'),
-	(8, 'A20160108', '幼少期によく遊んだ公園の呼び名や特徴は？', '123'),
-	(9, 'A20160108', '初めて飼ったペットの名前は？', '123'),
-	(10, 'A99999999', '初めて飼ったペットの名前は？', 'test'),
-	(11, 'A99999999', '子どものころに一番よく遊んだ路地や通りの名前は？', 'test'),
-	(12, 'A99999999', '初めて一人で泊まった旅館やホテルの名前は？', 'test'),
-	(13, 'A99999999', '初めて飼ったペットの名前は？', 'test'),
-	(14, 'A99999999', '子どものころに一番よく遊んだ路地や通りの名前は？', 'test'),
-	(15, 'A99999999', '初めて一人で泊まった旅館やホテルの名前は？', 'test');
 
 --  テーブル simpleappapp2.status の構造をダンプしています
 DROP TABLE IF EXISTS `status`;
