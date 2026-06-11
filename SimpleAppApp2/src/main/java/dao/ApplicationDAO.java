@@ -164,7 +164,7 @@ public class ApplicationDAO extends DAO {
     }
 
     /**
-	 * ログインユーザーの役職・部署・権限に応じた未承認申請一覧を取得する（ステータス名取得対応版）
+	 * ログインユーザーの役職・部署・権限に応じた未承認申請一覧を取得する（部署名・社員名取得対応版）
 	 */
 	public List<ApplicationBean> getPendingApplications(EmployeeBean employee) {
 		Connection con = dbConnect();
@@ -183,11 +183,14 @@ public class ApplicationDAO extends DAO {
 		boolean isManagementDept = "D400".equals(userDpt); 
 		boolean isManager = userPos != null && userPos.matches("^E0[1-4]$");
 
+		// 【修正】departmentsテーブルとemployeesテーブルを結合し、部署名と名前を取得するSQLに変更
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT a.apct_id, a.emp_id, a.content, a.type, a.method, a.amount, a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, s.status_name ");
+		sql.append("SELECT a.apct_id, a.emp_id, a.content, a.type, a.method, a.amount, a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, ");
+		sql.append("       s.status_name, e.emp_name, d.dpt_name "); // 部署名と名前、ステータス名を選択
 		sql.append("FROM applications a ");
 		sql.append("JOIN employees e ON a.emp_id = e.emp_id ");
-		sql.append("JOIN status s ON a.status_id = s.status_id "); // 追加：statusテーブルの結合
+		sql.append("JOIN status s ON a.status_id = s.status_id ");
+		sql.append("JOIN departments d ON e.dpt_id = d.dpt_id "); // 追加：部署テーブルを結合
 		sql.append("WHERE a.is_deleted = 0 ");
 
 		String targetPosId = null;
@@ -241,6 +244,10 @@ public class ApplicationDAO extends DAO {
 					b.setDeleted(rs.getInt("is_deleted") == 1); 
 					b.setStatusName(rs.getString("status_name"));
 
+					// 【追加】新しく結合して取得した部署名と社員名をBeanに格納
+					b.setDepartmentName(rs.getString("dpt_name"));
+					b.setEmployeeName(rs.getString("emp_name"));
+
 					Timestamp createTs = rs.getTimestamp("create_date");
 					if (createTs != null) {
 						b.setCreateDate(createTs.toLocalDateTime());
@@ -262,9 +269,8 @@ public class ApplicationDAO extends DAO {
 		}
 		return list;
 	}
-	
 	/**
-	 * 申請IDをキーに、ステータス名を含めた単一の申請データを取得する
+	 * 申請IDをキーに、部署名・氏名・ステータス名を含めた単一の申請データを取得する
 	 */
 	public ApplicationBean findById(String apctId) {
 		Connection con = dbConnect();
@@ -272,14 +278,19 @@ public class ApplicationDAO extends DAO {
 		ResultSet rs = null;
 		ApplicationBean b = null;
 
-		String sql = "SELECT a.apct_id, a.emp_id, a.content, a.type, a.method, a.amount, a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, s.status_name "
-				   + "FROM applications a "
-				   + "JOIN status s ON a.status_id = s.status_id " // 追加：statusテーブルの結合
-				   + "WHERE a.apct_id = ? AND a.is_deleted = 0";
+		// SQL文を修正：必要な情報を網羅するため4つのテーブルを結合
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT a.apct_id, a.emp_id, a.content, a.type, a.method, a.amount, a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, ");
+		sql.append("       s.status_name, e.emp_name, d.dpt_name ");
+		sql.append("FROM applications a ");
+		sql.append("JOIN status s ON a.status_id = s.status_id ");
+		sql.append("JOIN employees e ON a.emp_id = e.emp_id ");
+		sql.append("JOIN departments d ON e.dpt_id = d.dpt_id "); // 部署テーブルを結合
+		sql.append("WHERE a.apct_id = ? AND a.is_deleted = 0");
 
 		try {
 			if (con != null) {
-				st = con.prepareStatement(sql);
+				st = con.prepareStatement(sql.toString());
 				st.setString(1, apctId);
 				rs = st.executeQuery();
 
@@ -296,7 +307,11 @@ public class ApplicationDAO extends DAO {
 					b.setUrgent(rs.getString("urgent"));
 					b.setStatus_id(rs.getInt("status_id"));
 					b.setDeleted(rs.getInt("is_deleted") == 1);
+
+					// 外部参照で取得した名称をBeanにマッピング
 					b.setStatusName(rs.getString("status_name"));
+					b.setEmployeeName(rs.getString("emp_name"));
+					b.setDepartmentName(rs.getString("dpt_name"));
 
 					Timestamp createTs = rs.getTimestamp("create_date");
 					if (createTs != null) {

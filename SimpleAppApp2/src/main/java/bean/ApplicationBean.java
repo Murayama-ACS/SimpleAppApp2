@@ -20,11 +20,14 @@ public class ApplicationBean implements Serializable {
     private String note;            // remark (備考)
     private String urgent;          // urgent (緊急度)
     private int status_id;          // status_id (申請状態ID)
-    private String statusName;      // statusName (申請状態)
     private LocalDateTime createDate; // create_date (作成時間)
     private LocalDateTime updateDate; // update_date (変更時間)
     private boolean isDeleted;      // is_deleted (削除)
     
+    // 【外部参照フィールド】結合SQLによって取得したデータを格納
+    private String statusName;      // statusName (申請状態名)
+    private String employeeName;    // employeeName (申請者の名前)
+    private String departmentName;  // departmentName (申請者の部署名)
 
     // 無引数コンストラクタ（JavaBean の要件）
     public ApplicationBean() {
@@ -33,8 +36,8 @@ public class ApplicationBean implements Serializable {
     // 全フィールドを網羅した便利コンストラクタ
     public ApplicationBean(String apctId, String employeeId, String content, String type, 
                            String paymentMethod, int amount, String reason, String note, 
-                           String urgent, int status_id, String statusName, LocalDateTime createDate, 
-                           LocalDateTime updateDate, boolean isDeleted) {
+                           String urgent, int status_id, LocalDateTime createDate, LocalDateTime updateDate, 
+                           boolean isDeleted, String statusName, String employeeName, String departmentName) {
         this.apctId = apctId;
         this.employeeId = employeeId;
         this.content = content;
@@ -45,13 +48,15 @@ public class ApplicationBean implements Serializable {
         this.note = note;
         this.urgent = urgent;
         this.status_id = status_id;
-        this.statusName = statusName;
         this.createDate = createDate;
         this.updateDate = updateDate;
         this.isDeleted = isDeleted;
+        this.statusName = statusName;
+        this.employeeName = employeeName;
+        this.departmentName = departmentName;
     }
 
-    // getter / setter
+    // --- getter / setter ---
     public String getApctId() {
         return apctId;
     }
@@ -157,18 +162,35 @@ public class ApplicationBean implements Serializable {
     }
 
     public String getStatusName() {
-		return statusName;
-	}
+        return statusName;
+    }
 
-	public void setStatusName(String statusName) {
-		this.statusName = statusName;
-	}
-	
+    public void setStatusName(String statusName) {
+        this.statusName = statusName;
+    }
+
+    public String getEmployeeName() {
+        return employeeName;
+    }
+
+    public void setEmployeeName(String employeeName) {
+        this.employeeName = employeeName;
+    }
+
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
+    }
+    
     @Override
     public String toString() {
         return "ApplicationBean [apctId=" + apctId + ", employeeId=" + employeeId + ", content=" + content
                 + ", type=" + type + ", paymentMethod=" + paymentMethod + ", amount=" + amount + ", reason=" + reason
-                + ", note=" + note + ", urgent=" + urgent + ", status_id=" + status_id + ", createDate=" + createDate
+                + ", note=" + note + ", urgent=" + urgent + ", status_id=" + status_id + ", statusName=" + statusName 
+                + ", employeeName=" + employeeName + ", departmentName=" + departmentName + ", createDate=" + createDate
                 + ", updateDate=" + updateDate + ", isDeleted=" + isDeleted + "]";
     }
 }

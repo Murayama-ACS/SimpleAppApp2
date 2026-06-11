@@ -34,48 +34,52 @@
         <h3>【申請内容】</h3>
         <table border="1" cellpadding="5" cellspacing="0">
             <tr>
-                <th style="background-color: #f2f2f2; width: 150px;">申請ID (apct_id)</th>
+                <th style="background-color: #f2f2f2; width: 150px;">申請日</th>
+                <td><%= app.getCreateDate() %></td>
+            </tr>
+            <tr>
+                <th style="background-color: #f2f2f2;">申請ID</th>
                 <td><%= app.getApctId() %></td>
             </tr>
             <tr>
-                <th style="background-color: #f2f2f2;">社員ID (emp_id)</th>
-                <td><%= app.getEmployeeId() %></td>
+                <th style="background-color: #f2f2f2;">申請者の部署</th>
+                <td><%= app.getDepartmentName() %></td>
             </tr>
             <tr>
-                <th style="background-color: #f2f2f2;">申請種別 (type)</th>
+                <th style="background-color: #f2f2f2;">申請者の氏名</th>
+                <td><%= app.getEmployeeName() %></td>
+            </tr>
+            <tr>
+                <th style="background-color: #f2f2f2;">申請種別</th>
                 <td><%= app.getType() %></td>
             </tr>
             <tr>
-                <th style="background-color: #f2f2f2;">精算方式 (method)</th>
-                <td><%= app.getPaymentMethod() %></td>
-            </tr>
-            <tr>
-                <th style="background-color: #f2f2f2;">申請金額 (amount)</th>
+                <th style="background-color: #f2f2f2;">申請金額</th>
                 <td><%= app.getAmount() %> 円</td>
             </tr>
             <tr>
-                <th style="background-color: #f2f2f2;">申請内容 (content)</th>
+                <th style="background-color: #f2f2f2;">申請内容</th>
                 <td><%= app.getContent() %></td>
             </tr>
             <tr>
-                <th style="background-color: #f2f2f2;">申請理由 (reason)</th>
+                <th style="background-color: #f2f2f2;">申請理由</th>
                 <td><%= app.getReason() %></td>
             </tr>
             <tr>
-                <th style="background-color: #f2f2f2;">備考 (remark)</th>
-                <td><%= app.getNote() %></td>
+                <th style="background-color: #f2f2f2;">精算方法</th>
+                <td><%= app.getPaymentMethod() %></td>
             </tr>
             <tr>
-                <th style="background-color: #f2f2f2;">緊急度 (urgent)</th>
+                <th style="background-color: #f2f2f2;">備考</th>
+                <td><%= app.getNote() != null ? app.getNote() : "" %></td>
+            </tr>
+            <tr>
+                <th style="background-color: #f2f2f2;">緊急度</th>
                 <td><%= app.getUrgent() %></td>
             </tr>
             <tr>
-                <th style="background-color: #f2f2f2;">ステータス (status)</th>
-                <td><%= app.getStatusName() %></td> <%-- 数値から名称表示へ修正 --%>
-            </tr>
-            <tr>
-                <th style="background-color: #f2f2f2;">作成日時 (create_date)</th>
-                <td><%= app.getCreateDate() %></td>
+                <th style="background-color: #f2f2f2;">申請状態</th>
+                <td><%= app.getStatusName() %></td>
             </tr>
         </table>
 
@@ -92,13 +96,14 @@
         
         <div style="display: flex; gap: 10px;">
             <button type="button" onclick="openConfirmModal(<%= currentStatusId + 1 %>, '承認')">承認する</button>
-            <button type="button" onclick="submitReject(<%= currentStatusId %>)">却下する</button>
+            <button type="button" onclick="submitReject()">却下する</button>
         </div>
 
     <% } else { %>
         <p style="color: red;">申請データが正常に読み込めませんでした。</p>
     <% } %>
 
+    <%-- 処理確認用ポップアップモーダル --%>
     <div id="confirmModal" class="modal">
         <div class="modal-content">
             <h3 id="modalTitle">処理確認</h3>
@@ -145,7 +150,7 @@
             modal.style.display = "block";
         }
 
-        function submitReject(currentStatusId) {
+        function submitReject() {
             openConfirmModal(5, '却下');
         }
 
