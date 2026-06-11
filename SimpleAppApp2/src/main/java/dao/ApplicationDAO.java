@@ -180,7 +180,7 @@ public class ApplicationDAO extends DAO {
 		String userDpt = employee.getDpt_id();
 
 		// 管理部部署ID（実際の環境に合わせて調整してください）
-		boolean isManagementDept = "D400".equals(userDpt); 
+		boolean isManagementDept = "D100".equals(userDpt); 
 		boolean isManager = userPos != null && userPos.matches("^E0[1-4]$");
 
 		// 【修正】departmentsテーブルとemployeesテーブルを結合し、部署名と名前を取得するSQLに変更
