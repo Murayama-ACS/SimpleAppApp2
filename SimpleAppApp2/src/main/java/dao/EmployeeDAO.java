@@ -63,7 +63,7 @@ public class EmployeeDAO extends DAO{
 		return result;
 	}
 	
-	//社員ID or メールアドレスとパスワードが一致する社員の情報をデータベースから取得するメソッド
+	/*//社員ID or メールアドレスとパスワードが一致する社員の情報をデータベースから取得するメソッド
 		public ArryayList<EmployeeBean> empInfo(String ide) {
 			Connection con = dbConnect();
 			EmployeeBean employee = null;
@@ -74,12 +74,12 @@ public class EmployeeDAO extends DAO{
 			}
 			try {
 				if(con != null) {
-
+	
 					PreparedStatement st = con.prepareStatement(sql);
 					st.setString(1, identifier);
 					st.setString(2, hash.getSHA512(pass));
 					ResultSet rs = st.executeQuery();
-
+	
 					while(rs.next()) {
 						String emp_id = rs.getString("emp_id");
 						String emp_name = rs.getString("emp_name");
@@ -95,15 +95,15 @@ public class EmployeeDAO extends DAO{
 				return null;
 			}
 			dbClose(con);
-
+	
 			//		System.out.println("emp_id in EmployeeDAO:" + employee.getEmp_id());
 			//		System.out.println("emp_name in EmployeeDAO:" + employee.getEmp_name());
 			//		System.out.println("emp_email in EmployeeDAO:" + employee.getEmail());
 			//		System.out.println("dpt_id in EmployeeDAO:" + employee.getDpt_id());
 			//		System.out.println("pos_id in EmployeeDAO:" + employee.getPos_id());
-
+	
 			return employee;
-		}
+		}*/
 		
 	//社員ID or メールアドレスとパスワードが一致する社員の情報をデータベースから取得するメソッド
 	public EmployeeBean empInfo(String identifier, String pass, boolean isEmail) {
