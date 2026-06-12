@@ -34,17 +34,15 @@ public class ApplicationHistoryServlet extends HttpServlet {
 		String posId = employee.getPos_id();
 		String dptId = employee.getDpt_id();
 
-		// パラメータの取得
 		String scope = request.getParameter("scope");
 		if (scope == null || scope.isEmpty()) {
 			scope = "self";
 		}
 
-		// 【制約反映】一般社員(E00)の場合は強制的に「自身(self)」しか選択できないようにする
-		if ("E00".equals(posId)) {
+		if ("E00".equals(posId) && !"D100".equals(dptId)) {
 			scope = "self";
 		}
-		// 【制約反映】管理部(D100)以外が「management」を要求した場合は「self」に落とす
+		
 		if ("management".equals(scope) && !"D100".equals(dptId)) {
 			scope = "self";
 		}
@@ -63,7 +61,6 @@ public class ApplicationHistoryServlet extends HttpServlet {
 			ApplicationDAO dao = new ApplicationDAO();
 			String dptName = dao.selectDepartmentName(dptId);
 			
-			// データの抽出（scope、statusFilterの条件をDAO側へ引き渡し）
 			List<ApplicationBean> list = dao.getHistoryApplications(employee, scope, statusFilter);
 
 			request.setAttribute("empBean", employee);
@@ -77,8 +74,17 @@ public class ApplicationHistoryServlet extends HttpServlet {
 
 		} catch (Exception e) {
 			e.printStackTrace(); 
+			
+			// 【修正】自身のページ(history.jsp)でエラーを表示するための設定
 			request.setAttribute("errorMessage", "履歴情報の取得中にシステムエラーが発生しました。詳細: " + e.getMessage());
-			request.getRequestDispatcher("/login_mock.jsp").forward(request, response);
+			
+			// history.jsp上部のスクリプトレットが初期表示でヌルポインタ(NullPointerException)を起こさないための最低限の補填
+			request.setAttribute("empBean", employee);
+			request.setAttribute("currentScope", scope);
+			request.setAttribute("currentStatusFilter", statusFilter);
+			
+			// 遷移先を login_mock.jsp から history.jsp へ変更
+			request.getRequestDispatcher("/history.jsp").forward(request, response);
 		}
 	}
 

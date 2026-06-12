@@ -22,7 +22,6 @@
     String currentStatusFilter = (String) request.getAttribute("currentStatusFilter");
     String errorMessage = (String) request.getAttribute("errorMessage");
 
-    // 画面に「操作」列を表示するかどうかの判定（表示しているリスト内にstatus_idが1〜3のデータが1つでもある、または未完了フィルタ時）
     boolean showActionColumn = "incomplete".equals(currentStatusFilter);
     if (!showActionColumn && historyList != null) {
         for (ApplicationBean app : historyList) {
@@ -58,11 +57,15 @@
 
     <form action="<%= request.getContextPath() %>/ApplicationHistoryServlet" method="get" style="background:#f9f9f9; padding:10px; border:1px solid #ccc;">
         
-        <% if (!"E00".equals(posId)) { %>
+        <% if (!"E00".equals(posId) || "D100".equals(dptId)) { %>
             <div class="tab-group">
                 <label>【対象範囲】</label>
                 <a href="ApplicationHistoryServlet?scope=self&filter=<%= "incomplete".equals(currentStatusFilter) ? "unapproved" : "all" %>" class="tab <%= "self".equals(currentScope) ? "active" : "" %>">自身</a>
-                <a href="ApplicationHistoryServlet?scope=subordinate&filter=<%= "incomplete".equals(currentStatusFilter) ? "unapproved" : "all" %>" class="tab <%= "subordinate".equals(currentScope) ? "active" : "" %>">配下</a>
+                
+                <% if (!"E00".equals(posId)) { %>
+                    <a href="ApplicationHistoryServlet?scope=subordinate&filter=<%= "incomplete".equals(currentStatusFilter) ? "unapproved" : "all" %>" class="tab <%= "subordinate".equals(currentScope) ? "active" : "" %>">配下</a>
+                <% } %>
+                
                 <% if ("D100".equals(dptId)) { %>
                     <a href="ApplicationHistoryServlet?scope=management&filter=<%= "incomplete".equals(currentStatusFilter) ? "unapproved" : "all" %>" class="tab <%= "management".equals(currentScope) ? "active" : "" %>">管理</a>
                 <% } %>
@@ -120,10 +123,10 @@
                                         int sid = app.getStatus_id();
                                         boolean isOwnApplication = empId.equals(app.getEmployeeId());
                                         
-                                        // 通常の修正・削除判定（未承認(1) かつ 自身の申請であること）
+                                        // 修正・削除は「未承認かつ自身の申請」のみ
                                         boolean canEditOrDelete = (sid == 1 && isOwnApplication);
                                         
-                                        // 管理部が「管理」スコープで全社員を表示している時の特別ルール（完了(4)であれば削除可能）
+                                        // 管理部（D100）が「管理」表示している時は、完了（4）の削除が可能
                                         boolean isManagementDelete = ("management".equals(currentScope) && "D100".equals(dptId) && sid == 4);
                                     %>
 

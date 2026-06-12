@@ -36,7 +36,10 @@
     <h2>申請編集フォーム（モック）</h2>
     <p>履歴一覧から指定された申請情報を編集し、提出します。</p>
 
-    <form action="<%= request.getContextPath() %>/ApplicationHistory" method="post">
+    <form action="<%= request.getContextPath() %>/ApplicationEdit" method="post">
+        
+        <input type="hidden" name="isSubmit" value="true">
+
         <table border="1" cellpadding="5" cellspacing="0">
             <tr>
                 <td><label>申請ID (apct_id):</label></td>
@@ -81,6 +84,6 @@
     </form>
     
     <br>
-    <a href="<%= request.getContextPath() %>/ApplicationHistory">変更せずに履歴一覧へ戻る</a>
+    <a href="<%= request.getContextPath() %>/ApplicationHistoryServlet">変更せずに履歴一覧へ戻る</a>
 </body>
 </html>

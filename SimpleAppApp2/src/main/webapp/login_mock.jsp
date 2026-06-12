@@ -28,7 +28,8 @@
                     // セッションにEmployeeBeanオブジェクトを格納
                     session.setAttribute("loginEmployee", employee);
                     // 【変更】申請履歴画面を制御するサーブレットへと遷移させます
-response.sendRedirect(request.getContextPath() + "/ApplicationHistoryServlet");                    return;
+                    response.sendRedirect(request.getContextPath() + "/ApplicationHistoryServlet");
+                    return;
                 } else {
                     out.println("<p style='color:red;'>エラー: ID「" + testEmpId + "」の社員データがDBに見つかりません。先にemployeesテーブルへデータを登録するか、SQLが反映されているか確認してください。</p>");
                 }
@@ -44,17 +45,21 @@ response.sendRedirect(request.getContextPath() + "/ApplicationHistoryServlet"); 
         <label for="emp_select">ログインユーザー選択: </label>
         <select name="emp_id" id="emp_select" style="padding: 5px; width: 450px;">
             <option value="">-- アカウントを選択してください --</option>
-            <option value="A20230905">加藤 直樹（役職: E01 / 部署: D740）</option>
-            <option value="A20190524">加藤 健（役職: E00 / 部署: D740）</option>
-            <option value="A20160108">山田 真 Mao（役職: E01 / 部署: D710）</option>
-            <option value="A20180926">鈴木 健（役職: E03 / 部署: D700）</option>
-            <option value="A20200313">田中 太郎（役職: E01 / 部署: D420）</option>
-            <option value="A20221203">佐藤 直樹（役職: E00 / 部署: D410）</option>
-            <option value="A20220613">伊藤 太郎（役職: E00 / 部署: D400）</option>
-            <option value="A20250314">渡辺 彩（役職: E03 / 部署: D200）</option>
-            <option value="A99999999">テストアカウント（役職: E02 / 部署: D200）</option>
-            <option value="A20190103">渡辺 一郎（役職: E02 / 部署: D100）</option>
-            <option value="A00000001">山田 太一［社長］（役職: E04 / 部署: D000）</option>
+            <option value="A00000001">山田 太一（役職: 社長 / 部署: 経営企画部）</option>
+            <option value="A20180926">鈴木 健（役職: 本部長 / 部署: 情報システム部）</option>
+            <option value="A20221226">渡辺 大輔（役職: 部長 / 部署: 情報システム部C課D課）</option>
+            <option value="A20240411">佐藤 健（役職: 部長 / 部署: 情報システム部A課B課）</option>
+            <option value="A20160108">山田 真央（役職: 課長 / 部署: 情報システム部A課）</option>
+            
+            <option value="A20190103">渡辺 一郎（役職: 部長 / 部署: 管理部）</option>
+            <option value="A20250307">佐藤 大輔（役職: 一般社員 / 部署: 管理部）</option>
+            <option value="A20260112">高橋 美咲（役職: 課長 / 部署: 開発部A課）</option>
+            <option value="A20171208">山田 大輔（役職: 一般社員 / 部署: 開発部A課）</option>
+            <option value="A20200923">伊藤 美咲（役職: 一般社員 / 部署: 開発部B課）</option>
+            <option value="A20240409">佐藤 美咲（役職: 一般社員 / 部署: 情報システム部A課）</option>
+            <option value="A20231208">鈴木 大輔（役職: 一般社員 / 部署: 情報システム部B課）</option>
+            <option value="A20230324">高橋 大輔（役職: 一般社員 / 部署: 情報システム部D課）</option>
+            <option value="A20230905">加藤 直樹（役職: 課長 / 部署: 情報システム部D課）</option>
         </select>
         <br><br>
         

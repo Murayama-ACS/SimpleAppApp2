@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import dao.ApplicationDAO;
+
 @WebServlet("/ApplicationDelete")
 public class ApplicationDeleteServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -17,11 +19,26 @@ public class ApplicationDeleteServlet extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		String apctId = request.getParameter("apct_id");
 
-		// TODO: 実際の削除ロジック（dao.delete等）が必要な場合はここに追記します
-
-		request.setAttribute("deletedId", apctId);
-		
-		// 【修正】WEBルート直下の app_delete.jsp へフォワード
-		request.getRequestDispatcher("/app_delete.jsp").forward(request, response);
+		try {
+			ApplicationDAO dao = new ApplicationDAO();
+			int result = 0;
+			
+			if (apctId != null && !apctId.trim().isEmpty()) {
+				result = dao.logicalDelete(apctId);
+			}
+			
+			if (result == 0) {
+				throw new Exception("対象の申請データが存在しないか、既に削除されています。");
+			}
+			
+			// 正常完了時はリダイレクト
+			response.sendRedirect(request.getContextPath() + "/ApplicationHistoryServlet");
+			
+		} catch (Exception e) {
+			log("ApplicationDeleteServlet error", e);
+			// 【修正】エラー時はメッセージを持たせて一覧サーブレットへ処理をフォワード
+			request.setAttribute("errorMessage", "申請の削除に失敗しました。理由: " + e.getMessage());
+			request.getRequestDispatcher("/ApplicationHistoryServlet").forward(request, response);
+		}
 	}
 }

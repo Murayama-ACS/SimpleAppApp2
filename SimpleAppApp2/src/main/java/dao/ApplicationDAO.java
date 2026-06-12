@@ -400,13 +400,42 @@ public class ApplicationDAO extends DAO {
 			params.add(employee.getEmp_id());
 			
 		} else if ("subordinate".equals(scope)) {
-			// 配下：自分の部署（dpt_id）かつ、自分以下の役職（pos_id）の申請
-			// 文字列比較（例: ログインユーザーがE02であれば、E01やE00など職位が数値的に小さい、または等しいものを比較）
-			// ※ 役職IDの命名規則や職位の上下関係の仕様（E01〜E04）に合わせ、同じ部署の所属者を抽出します
-			sql.append("AND e.dpt_id = ? AND e.pos_id <= ? ");
-			params.add(employee.getDpt_id());
-			params.add(employee.getPos_id());
+			// =================================================================
+			// 役職・部署の階層に応じた「配下」のデータ抽出ロジック
+			// =================================================================
+			String userPos = employee.getPos_id(); // 自身の役職 (E01〜E03)
+			String userDpt = employee.getDpt_id(); // 自身の部署 (D000〜D740)
+
+			// 1. 部署の絞り込み条件の組み立て
+			if ("D712".equals(userDpt)) {
+				// 情報システム部A課B課（D712）の部長は、A課(D710)、B課(D720)、および自身(D712)が対象
+				sql.append("AND e.dpt_id IN ('D710', 'D720', 'D712') ");
+			} else if ("D734".equals(userDpt)) {
+				// 情報システム部C課D課（D734）の部長は、C課(D730)、D課(D740)、および自身(D734)が対象
+				sql.append("AND e.dpt_id IN ('D730', 'D740', 'D734') ");
+			} else if (userDpt != null && userDpt.length() >= 3) {
+				// 通常の部署：
+				// 本部長(E03)・部長(E02)の場合は、部傘下すべて（例: D500番台なら上2桁 'D5%' で前方一致）
+				// 課長(E01)の場合は、自身の課のみ（完全一致）
+				if ("E03".equals(userPos) || "E02".equals(userPos)) {
+					String dptPrefix = userDpt.substring(0, 2) + "%";
+					sql.append("AND e.dpt_id LIKE ? ");
+					params.add(dptPrefix);
+				} else if ("E01".equals(userPos)) {
+					sql.append("AND e.dpt_id = ? ");
+					params.add(userDpt);
+				}
+			}
+
+			// 2. 役職の上下関係（職位）による絞り込み
+			// 自分より下の役職（pos_idの数値が自分より小さいもの）を対象とする
+			// 例：本部長(E03)ならE02以下、部長(E02)ならE01以下、課長(E01)ならE00のみ
+			sql.append("AND e.pos_id < ? ");
+			params.add(userPos);
 			
+			// 3. 安全ガード：自分自身の申請データは「配下」からは除外する
+			sql.append("AND a.emp_id != ? ");
+			params.add(employee.getEmp_id());
 		} else if ("management".equals(scope)) {
 			// 管理：管理部（D100）の場合は、全社員の申請を確認可能とする（emp_idの絞り込みを付与しない）
 			if ("D100".equals(employee.getDpt_id())) {
@@ -471,5 +500,67 @@ public class ApplicationDAO extends DAO {
 			dbClose(con);
 		}
 		return list;
+	}
+	/**
+	 * 修正画面から送られた申請データを更新する（UPDATE専用）
+	 */
+	public int update(ApplicationBean bean) {
+		Connection con = dbConnect();
+		int result = 0;
+		
+		String sql = "UPDATE applications SET type = ?, method = ?, amount = ?, content = ?, reason = ?, remark = ?, urgent = ?, update_date = ? "
+				   + "WHERE apct_id = ? AND is_deleted = 0";
+				
+		try {
+			if (con != null) {
+				PreparedStatement st = con.prepareStatement(sql);
+				
+				st.setString(1, bean.getType());
+				st.setString(2, bean.getPaymentMethod());
+				st.setInt(3, bean.getAmount());
+				st.setString(4, bean.getContent());
+				st.setString(5, bean.getReason());
+				st.setString(6, bean.getNote());
+				st.setString(7, bean.getUrgent());
+				st.setTimestamp(8, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
+				st.setString(9, bean.getApctId());
+
+				result = st.executeUpdate();
+			}
+		} catch (SQLException e) {
+			System.out.println("ApplicationDAO updateエラー");
+			System.out.println(e.getMessage());
+		} finally {
+			dbClose(con);
+		}
+		
+		return result;
+	}
+	/**
+	 * 指定された申請IDの削除フラグ(is_deleted)を1（削除済み）に更新する（論理削除）
+	 */
+	public int logicalDelete(String apctId) {
+		Connection con = dbConnect();
+		int result = 0;
+		
+		// is_deletedを1に更新するSQL
+		String sql = "UPDATE applications SET is_deleted = 1, update_date = ? WHERE apct_id = ? AND is_deleted = 0";
+		
+		try {
+			if (con != null) {
+				PreparedStatement st = con.prepareStatement(sql);
+				st.setTimestamp(1, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
+				st.setString(2, apctId);
+				
+				result = st.executeUpdate();
+			}
+		} catch (SQLException e) {
+			System.out.println("ApplicationDAO logicalDeleteエラー");
+			System.out.println(e.getMessage());
+		} finally {
+			dbClose(con);
+		}
+		
+		return result;
 	}
 }
