@@ -4,35 +4,46 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 
 import bean.EmployeeBean;
 import model.Hash;
 
 public class EmployeeDAO extends DAO{
 	Hash hash = new Hash();
-	//	public int insertUser(EmployeeBean empBean, String pass) {//userBeanの内容をデータベースに登録する関数
-	//		Connection con = dbConnect();
-	//		int result = 0;
-	//		String sql = "insert into user (email, name, pass) values (?,?,?)";
-	//		
-	//		try {
-	//			if(con != null) {
-	//				
-	//				PreparedStatement st = con.prepareStatement(sql);
-	//				st.setString(1, userBean.getEmail());
-	//				st.setString(2, userBean.getName());
-	//				st.setString(3, pass);
-	//
-	//				int rs = st.executeUpdate();//これなんだっけ
-	//				result = rs;
-	//			}
-	//		}catch(SQLException e) {
-	//			System.out.println("SQLエラー");
-	//			System.out.println(e.getMessage());
-	//			return 0;
-	//		}
-	//		return result;
-	//	}
+	public int insertEmployee(EmployeeBean empBean) {//userBeanの内容をデータベースに登録する関数
+		Connection con = dbConnect();
+		int result = 0;
+		String sql = "insert into employees (emp_id, emp_name, email, dpt_id, pos_id) values (?,?,?,?,?)";
+
+		try {
+			if(con != null) {
+
+				PreparedStatement st = con.prepareStatement(sql);
+				st.setString(1, empBean.getEmp_id());
+				st.setString(2, empBean.getEmp_name());
+				st.setString(3, empBean.getEmail());
+				st.setString(4, empBean.getDpt_id());
+				st.setString(5, empBean.getPos_id());
+
+				int rs = st.executeUpdate();//これなんだっけ
+				result = rs;
+			}
+		}catch(SQLException e) {
+			System.out.println("SQLエラー");
+			String eMsg = e.getMessage();
+			System.out.println(eMsg);
+			//すでに登録されている社員ID（Primary）、もしくはメールアドレス（Unique）が挿入された場合
+			if(eMsg.contains("Duplicate entry")) {
+				result = -1;
+			}else {
+				result = 0;
+			}
+			return result;
+		}
+		return result;
+	}
 	public int updatePassword(EmployeeBean empBean, String newPass) {
 		Connection con = dbConnect();
 		int result = 0;
@@ -46,9 +57,9 @@ public class EmployeeDAO extends DAO{
 		}
 		try {
 			if(con != null) {
-				
+
 				PreparedStatement st = con.prepareStatement(sql);
-				
+
 				st.setString(1, hash.getSHA512(newPass));
 				st.setString(2, empBean.getEmp_id());
 
@@ -62,49 +73,102 @@ public class EmployeeDAO extends DAO{
 		}
 		return result;
 	}
-	
-	/*//社員ID or メールアドレスとパスワードが一致する社員の情報をデータベースから取得するメソッド
-		public ArryayList<EmployeeBean> empInfo(String ide) {
-			Connection con = dbConnect();
-			EmployeeBean employee = null;
-			//identifierがメールか社員IDかでsql文を変更
-			String sql = "SELECT * FROM employees WHERE emp_id = ? and password = ?";
-			if(isEmail) {
-				sql = "SELECT * FROM employees WHERE email = ? and password = ?";
+	//	public int updateEmpInfo(EmployeeBean empBean) {
+	//		Connection con = dbConnect();
+	//		int result = 0;
+	//		String sql = "update employees set password=? where emp_id=?";
+	//		
+	//		try {
+	//			if(con != null) {
+	//				
+	//				PreparedStatement st = con.prepareStatement(sql);
+	//				
+	//				st.setString(1, hash.getSHA512(newPass));
+	//				st.setString(2, empBean.getEmp_id());
+	//
+	//				int rs = st.executeUpdate();//これなんだっけ
+	//				result = rs;
+	//			}
+	//		}catch(SQLException e) {
+	//			System.out.println("SQLエラー");
+	//			System.out.println(e.getMessage());
+	//			return 0;
+	//		}
+	//		return result;
+	//	}
+
+	public int deleteEmpInfo(String emp_id) {
+		Connection con = dbConnect();
+		int result = 0;
+		String sql = "update employees SET is_deleted = 1 WHERE emp_id=? AND is_deleted = 0";
+
+		try {
+			if(con != null) {
+				PreparedStatement st = con.prepareStatement(sql);
+				st.setString(1, emp_id);
+				
+				int rs = st.executeUpdate();//これなんだっけ
+				result = rs;
 			}
-			try {
-				if(con != null) {
-	
-					PreparedStatement st = con.prepareStatement(sql);
-					st.setString(1, identifier);
-					st.setString(2, hash.getSHA512(pass));
-					ResultSet rs = st.executeQuery();
-	
-					while(rs.next()) {
-						String emp_id = rs.getString("emp_id");
-						String emp_name = rs.getString("emp_name");
-						String email = rs.getString("email");
-						String dpt_id = rs.getString("dpt_id");
-						String pos_id = rs.getString("pos_id");
-						employee = new EmployeeBean(emp_id, emp_name, email, dpt_id, pos_id);
-					}
+		}catch(SQLException e) {
+			System.out.println("SQLエラー");
+			String eMsg = e.getMessage();
+			System.out.println(eMsg);
+			//すでに登録されている社員ID（Primary）、もしくはメールアドレス（Unique）が挿入された場合
+			if(e.getMessage().contains("Unknown column")) {
+				result = -1;
+			}else {
+				result = 0;
+			}
+			
+			return result;
+		}
+		return result;
+	}
+	//社員ID or メールアドレスとパスワードが一致する社員の情報をデータベースから取得するメソッド
+	public ArrayList<EmployeeBean> empInfo() {
+		Connection con = dbConnect();
+		EmployeeBean employee = null;
+		ArrayList<EmployeeBean> empList = new ArrayList<EmployeeBean>();
+		//identifierがメールか社員IDかでsql文を変更
+		String sql = "SELECT e.emp_id as '社員ID', e.emp_name as '名前', e.email, d.dpt_name AS '部署', p.pos_name AS '役職' "
+				+ "from employees e left outer join departments d on e.dpt_id = d.dpt_id "
+				+ "left outer JOIN positions p on e.pos_id = p.pos_id WHERE e.is_deleted = 0";
+
+		try {
+			if(con != null) {
+
+				//					PreparedStatement st = con.prepareStatement(sql);
+				Statement st = con.createStatement();
+				ResultSet rs = st.executeQuery(sql);
+				//					ResultSet rs = st.executeQuery();
+
+				while(rs.next()) {
+					String emp_id = rs.getString("社員ID");
+					String emp_name = rs.getString("名前");
+					String email = rs.getString("e.email");
+					String dpt_name = rs.getString("部署");
+					String pos_name = rs.getString("役職");
+					employee = new EmployeeBean(emp_id, emp_name, email, dpt_name, pos_name);
+					empList.add(employee);
 				}
-			}catch(SQLException e) {
-				System.out.println("SQLエラー");
-				System.out.println(e.getMessage());
-				return null;
 			}
-			dbClose(con);
-	
-			//		System.out.println("emp_id in EmployeeDAO:" + employee.getEmp_id());
-			//		System.out.println("emp_name in EmployeeDAO:" + employee.getEmp_name());
-			//		System.out.println("emp_email in EmployeeDAO:" + employee.getEmail());
-			//		System.out.println("dpt_id in EmployeeDAO:" + employee.getDpt_id());
-			//		System.out.println("pos_id in EmployeeDAO:" + employee.getPos_id());
-	
-			return employee;
-		}*/
-		
+		}catch(SQLException e) {
+			System.out.println("SQLエラーこれですか？");
+			System.out.println(e.getMessage());
+			return null;
+		}
+		dbClose(con);
+
+		//		System.out.println("emp_id in EmployeeDAO:" + employee.getEmp_id());
+		//		System.out.println("emp_name in EmployeeDAO:" + employee.getEmp_name());
+		//		System.out.println("emp_email in EmployeeDAO:" + employee.getEmail());
+		//		System.out.println("dpt_id in EmployeeDAO:" + employee.getDpt_id());
+		//		System.out.println("pos_id in EmployeeDAO:" + employee.getPos_id());
+
+		return empList;
+	}
+
 	//社員ID or メールアドレスとパスワードが一致する社員の情報をデータベースから取得するメソッド
 	public EmployeeBean empInfo(String identifier, String pass, boolean isEmail) {
 		Connection con = dbConnect();
