@@ -1,31 +1,30 @@
-<%--
-モックのため必ず削除すること 
---%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
 <%@ page import="bean.ApplicationBean" %>
 <%@ page import="bean.EmployeeBean" %>
 <%
+    // セッションからログインユーザー情報を取得（ヌルチェックはサーブレットで実施済み）
     EmployeeBean employee = (EmployeeBean) session.getAttribute("loginEmployee");
-    String empName = (employee != null) ? employee.getEmp_name() : "ゲスト";
-    String empId = (employee != null) ? employee.getEmp_id() : "未ログイン";
-    String posId = (employee != null) ? employee.getPos_id() : "";
+    String empId = (employee != null) ? employee.getEmp_id() : "";
     String dptId = (employee != null) ? employee.getDpt_id() : "";
-    
-    String dptName = (String) request.getAttribute("dpt_name");
-    if (dptName == null || dptName.trim().isEmpty()) {
-        dptName = "未所属";
-    }
+    String posId = (employee != null) ? employee.getPos_id() : "";
 
+    // サーブレットから渡された各種属性を取得
     List<ApplicationBean> historyList = (List<ApplicationBean>) request.getAttribute("appList");
+    String dptName = (String) request.getAttribute("dpt_name");
     String currentScope = (String) request.getAttribute("currentScope");
     String currentStatusFilter = (String) request.getAttribute("currentStatusFilter");
-    String errorMessage = (String) request.getAttribute("errorMessage");
 
+    // デフォルト値の安全な補填
+    if (currentScope == null) currentScope = "self";
+    if (currentStatusFilter == null) currentStatusFilter = "incomplete";
+
+    // 【修正】画面に「操作」列を表示するかどうかの判定
+    // フィルターが未完了（incomplete）であるか、リスト内にstatus_idが1〜4（未承認〜社長承認）のデータが1つでもある場合
     boolean showActionColumn = "incomplete".equals(currentStatusFilter);
     if (!showActionColumn && historyList != null) {
         for (ApplicationBean app : historyList) {
-            if (app.getStatus_id() >= 1 && app.getStatus_id() <= 3) {
+            if (app.getStatus_id() >= 1 && app.getStatus_id() <= 4) {
                 showActionColumn = true;
                 break;
             }
@@ -35,128 +34,158 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>申請履歴一覧 モック</title>
-    <style>
-        .tab-group { margin-bottom: 10px; }
-        .tab { padding: 5px 10px; border: 1px solid #ccc; background: #e0e0e0; text-decoration: none; color: #000; }
-        .active { background: #007bff; color: white; font-weight: bold; }
-    </style>
+<meta charset="UTF-8">
+<title>申請履歴一覧</title>
+<style>
+    body { font-family: sans-serif; margin: 20px; }
+    .header-info { margin-bottom: 20px; padding: 10px; background-color: #f0f0f0; }
+    .tab-group { margin-bottom: 15px; }
+    .tab { display: inline-block; padding: 10px 20px; margin-right: 5px; background-color: #e0e0e0; text-decoration: none; color: #333; border-radius: 4px; }
+    .tab.active { background-color: #007bff; color: white; font-weight: bold; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+    th { background-color: #f5f5f5; }
+    .btn { padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; text-decoration: none; color: white; font-size: 13px; }
+    .btn-edit { background-color: #28a745; margin-right: 5px; }
+    .btn-delete { background-color: #dc3545; }
+</style>
+<script type="text/javascript">
+    function confirmDelete() {
+        return confirm("この申請を削除してもよろしいですか？");
+    }
+</script>
 </head>
 <body>
-    <h2>申請履歴一覧画面（モック）</h2>
-    
-    <div style="background-color: #f0f0f0; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc;">
-        <strong>申請者情報:</strong><br>
-        社員ID: <%= empId %> | 氏名: <%= empName %> | 所属部署: <%= dptName %>
+
+    <h2>申請履歴一覧</h2>
+
+    <div class="header-info">
+        ログイン社員: <%= (employee != null) ? employee.getEmp_name() : "" %> 
+        (部署: <%= dptName != null ? dptName : "未設定" %> / 
+         役職: <% 
+            if("E04".equals(posId)) out.print("社長");
+            else if("E03".equals(posId)) out.print("本部長");
+            else if("E02".equals(posId)) out.print("部長");
+            else if("E01".equals(posId)) out.print("課長");
+            else out.print("一般社員");
+         %>)
     </div>
 
-    <% if (errorMessage != null) { %>
-        <p style="color: red;"><%= errorMessage %></p>
-    <% } %>
-
-    <form action="<%= request.getContextPath() %>/ApplicationHistoryServlet" method="get" style="background:#f9f9f9; padding:10px; border:1px solid #ccc;">
+    <% if (!"E00".equals(posId) || "D100".equals(dptId)) { %>
+    <div class="tab-group">
+        <a href="ApplicationHistoryServlet?scope=self&filter=<%= "incomplete".equals(currentStatusFilter) ? "unapproved" : "all" %>" 
+           class="tab <%= "self".equals(currentScope) ? "active" : "" %>">自身</a>
         
-        <% if (!"E00".equals(posId) || "D100".equals(dptId)) { %>
-            <div class="tab-group">
-                <label>【対象範囲】</label>
-                <a href="ApplicationHistoryServlet?scope=self&filter=<%= "incomplete".equals(currentStatusFilter) ? "unapproved" : "all" %>" class="tab <%= "self".equals(currentScope) ? "active" : "" %>">自身</a>
-                
-                <% if (!"E00".equals(posId)) { %>
-                    <a href="ApplicationHistoryServlet?scope=subordinate&filter=<%= "incomplete".equals(currentStatusFilter) ? "unapproved" : "all" %>" class="tab <%= "subordinate".equals(currentScope) ? "active" : "" %>">配下</a>
-                <% } %>
-                
-                <% if ("D100".equals(dptId)) { %>
-                    <a href="ApplicationHistoryServlet?scope=management&filter=<%= "incomplete".equals(currentStatusFilter) ? "unapproved" : "all" %>" class="tab <%= "management".equals(currentScope) ? "active" : "" %>">管理</a>
-                <% } %>
-            </div>
+        <% if (!"E00".equals(posId)) { // 上長用 %>
+            <a href="ApplicationHistoryServlet?scope=subordinate&filter=<%= "incomplete".equals(currentStatusFilter) ? "unapproved" : "all" %>" 
+               class="tab <%= "subordinate".equals(currentScope) ? "active" : "" %>">配下</a>
         <% } %>
         
-        <div class="tab-group">
-            <label>【状態切替】</label>
-            <a href="ApplicationHistoryServlet?scope=<%= currentScope %>&filter=unapproved" class="tab <%= "incomplete".equals(currentStatusFilter) ? "active" : "" %>">未完了</a>
-            <a href="ApplicationHistoryServlet?scope=<%= currentScope %>&filter=all" class="tab <%= "all".equals(currentStatusFilter) ? "active" : "" %>">全て表示</a>
-        </div>
-    </form>
-    <br>
+        <% if ("D100".equals(dptId)) { // 管理部特権 %>
+            <a href="ApplicationHistoryServlet?scope=management&filter=<%= "incomplete".equals(currentStatusFilter) ? "unapproved" : "all" %>" 
+               class="tab <%= "management".equals(currentScope) ? "active" : "" %>">管理</a>
+        <% } %>
+    </div>
+    <% } %>
 
-    <table border="1" cellpadding="5" cellspacing="0" style="width:100%; text-align: left;">
+    <div class="tab-group">
+        <a href="ApplicationHistoryServlet?scope=<%= currentScope %>&filter=unapproved" 
+           class="tab <%= "incomplete".equals(currentStatusFilter) ? "active" : "" %>">未完了</a>
+        <a href="ApplicationHistoryServlet?scope=<%= currentScope %>&filter=all" 
+           class="tab <%= "all".equals(currentStatusFilter) ? "active" : "" %>">全て表示</a>
+    </div>
+
+    <table>
         <thead>
-            <tr style="background-color: #f2f2f2;">
+            <tr>
                 <th>申請ID</th>
-                <th>申請者</th>
+                <th>申請者名</th>
                 <th>申請種別</th>
-                <th>申請金額</th>
-                <th>精算方法</th>
+                <th>支払方法</th>
+                <th>金額</th>
+                <th>申請内容</th>
                 <th>緊急度</th>
-                <th>申請状態</th>
-                <th>申請時間</th>
-                <th>更新時間</th>
+                <th>ステータス</th>
                 <% if (showActionColumn) { %>
                     <th>操作</th>
                 <% } %>
             </tr>
         </thead>
         <tbody>
-            <% if (historyList != null && !historyList.isEmpty()) { %>
-                <% for (ApplicationBean app : historyList) { %>
-                    <tr>
-                        <td><%= app.getApctId() %></td>
-                        <td><%= app.getEmployeeName() %></td>
-                        <td><%= app.getType() %></td>
-                        <td>￥<%= app.getAmount() %></td>
-                        <td><%= app.getPaymentMethod() %></td>
-                        <td><%= app.getUrgent() %></td>
-                        <td><%= app.getStatusName() %></td>
-                        <td><%= app.getCreateDate() %></td>
-                        <td><%= app.getUpdateDate() %></td>
+            <% 
+                if (historyList != null && !historyList.isEmpty()) { 
+                    for (ApplicationBean app : historyList) {
+                        int sid = app.getStatus_id();
+                        boolean isOwnApplication = empId.equals(app.getEmployeeId());
                         
-                        <% if (showActionColumn) { %>
-                            <td>
-                                <div style="display: flex; gap: 5px;">
-                                    <form action="<%= request.getContextPath() %>/ApplicationComment" method="post" style="margin:0;">
-                                        <input type="hidden" name="apct_id" value="<%= app.getApctId() %>">
-                                        <button type="submit">詳細</button>
-                                    </form>
-
-                                    <% 
-                                        int sid = app.getStatus_id();
-                                        boolean isOwnApplication = empId.equals(app.getEmployeeId());
-                                        
-                                        // 修正・削除は「未承認かつ自身の申請」のみ
-                                        boolean canEditOrDelete = (sid == 1 && isOwnApplication);
-                                        
-                                        // 管理部（D100）が「管理」表示している時は、完了（4）の削除が可能
-                                        boolean isManagementDelete = ("management".equals(currentScope) && "D100".equals(dptId) && sid == 4);
-                                    %>
-
-                                    <% if (canEditOrDelete) { %>
-                                        <form action="<%= request.getContextPath() %>/ApplicationEdit" method="post" style="margin:0;">
-                                            <input type="hidden" name="apct_id" value="<%= app.getApctId() %>">
-                                            <button type="submit">修正</button>
-                                        </form>
-                                    <% } %>
-
-                                    <% if (canEditOrDelete || isManagementDelete) { %>
-                                        <form action="<%= request.getContextPath() %>/ApplicationDelete" method="post" style="margin:0;" onsubmit="return confirm('本当にこの申請を削除しますか？');">
-                                            <input type="hidden" name="apct_id" value="<%= app.getApctId() %>">
-                                            <button type="submit">削除</button>
-                                        </form>
-                                    <% } %>
-                                </div>
-                            </td>
-                        <% } %>
-                    </tr>
-                <% } %>
-            <% } else { %>
+                        // 【判定ルール】
+                        // 修正・削除：未承認(1) かつ 自身の申請であること
+                        boolean canEditOrDelete = (sid == 1 && isOwnApplication);
+                        
+                        // 【修正ルール】
+                        // 管理部削除特権：管理スコープでの全社表示時、ステータスが完了(5)であれば削除可能
+                        boolean isManagementDelete = ("management".equals(currentScope) && "D100".equals(dptId) && sid == 5);
+            %>
                 <tr>
-                    <td colspan="<%= showActionColumn ? 10 : 9 %>" style="text-align: center;">該当する申請履歴がありません。</td>
+                    <td><%= app.getApctId() %></td>
+                    <td><%= app.getEmployeeName() %></td>
+                    <td><%= app.getType() %></td>
+                    <td><%= app.getPaymentMethod() %></td>
+                    <td><%= String.format("%,d円", app.getAmount()) %></td>
+                    <td><%= app.getContent() %></td>
+                    <td><%= app.getUrgent() %></td>
+                    <td>
+                        <%
+                            // 【修正】新ステータスマスタのマッピング
+                            if (sid == 1) out.print("未承認");
+                            else if (sid == 2) out.print("上長承認");
+                            else if (sid == 3) out.print("管理部承認");
+                            else if (sid == 4) out.print("社長承認");
+                            else if (sid == 5) out.print("完了");
+                            else if (sid == 6) out.print("却下");
+                            else if (sid == 7) out.print("削除");
+                            else out.print("不明(" + sid + ")");
+                        %>
+                    </td>
+                    <% if (showActionColumn) { %>
+                        <td>
+                            <% if (canEditOrDelete) { %>
+                                <form action="ApplicationEdit" method="post" style="display:inline;">
+                                    <input type="hidden" name="apct_id" value="<%= app.getApctId() %>">
+                                    <input type="submit" value="修正" class="btn btn-edit">
+                                </form>
+                            <% } %>
+                            
+                            <% if (canEditOrDelete || isManagementDelete) { %>
+                                <form action="ApplicationDelete" method="post" style="display:inline;" onsubmit="return confirmDelete();">
+                                    <input type="hidden" name="apct_id" value="<%= app.getApctId() %>">
+                                    <input type="submit" value="削除" class="btn btn-delete">
+                                </form>
+                            <% } %>
+                        </td>
+                    <% } %>
+                </tr>
+            <% 
+                    } 
+                } else { 
+            %>
+                <tr>
+                    <td colspan="<%= showActionColumn ? 9 : 8 %>" style="text-align:center;">該当する申請履歴がありません。</td>
                 </tr>
             <% } %>
         </tbody>
     </table>
-    
-    <br>
-    <a href="<%= request.getContextPath() %>/login_mock.jsp">ログイン模擬画面へ戻る</a>
+
+    <%
+        // 各サーブレットからエラーメッセージ（errorMessage）が転送されてきた場合、その場でブラウザのアラートで表示する
+        String errorMsg = (String) request.getAttribute("errorMessage");
+        if (errorMsg != null && !errorMsg.isEmpty()) {
+    %>
+        <script type="text/javascript">
+            alert("<%= errorMsg %>");
+        </script>
+    <%
+        }
+    %>
 </body>
 </html>

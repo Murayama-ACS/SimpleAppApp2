@@ -449,8 +449,8 @@ public class ApplicationDAO extends DAO {
 
 		// --- 2. ステータスによる絞り込み（未完了 / 全て） ---
 		if ("incomplete".equals(statusFilter)) {
-			// 【要件変更】状態が未完了（status_idが1〜3）の表示に対応
-			sql.append("AND a.status_id IN (1, 2, 3) ");
+			// 【要件変更】状態が未完了（status_idが1〜4）の表示に対応
+			sql.append("AND a.status_id IN (1, 2, 3, 4) ");
 		}
 
 		sql.append("ORDER BY a.create_date DESC");
