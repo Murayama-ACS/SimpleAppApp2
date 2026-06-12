@@ -63,8 +63,7 @@ public class EmployeeDAO extends DAO{
 				st.setString(1, hash.getSHA512(newPass));
 				st.setString(2, empBean.getEmp_id());
 
-				int rs = st.executeUpdate();//これなんだっけ
-				result = rs;
+				result = st.executeUpdate();//これなんだっけ
 			}
 		}catch(SQLException e) {
 			System.out.println("SQLエラー");
@@ -73,40 +72,46 @@ public class EmployeeDAO extends DAO{
 		}
 		return result;
 	}
-	//	public int updateEmpInfo(EmployeeBean empBean) {
-	//		Connection con = dbConnect();
-	//		int result = 0;
-	//		String sql = "update employees set password=? where emp_id=?";
-	//		
-	//		try {
-	//			if(con != null) {
-	//				
-	//				PreparedStatement st = con.prepareStatement(sql);
-	//				
-	//				st.setString(1, hash.getSHA512(newPass));
-	//				st.setString(2, empBean.getEmp_id());
-	//
-	//				int rs = st.executeUpdate();//これなんだっけ
-	//				result = rs;
-	//			}
-	//		}catch(SQLException e) {
-	//			System.out.println("SQLエラー");
-	//			System.out.println(e.getMessage());
-	//			return 0;
-	//		}
-	//		return result;
-	//	}
-
+	public int updateEmpInfo(EmployeeBean emp){
+		String sql = "UPDATE employees SET emp_name = ?, email = ?, dpt_id = ?, pos_id = ? WHERE emp_id = ?";
+		int result = 0;
+		try (
+			Connection con = dbConnect();
+			PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setString(1, emp.getEmp_name());
+			ps.setString(2, emp.getEmail());
+			ps.setString(3, emp.getDpt_id());
+			ps.setString(4, emp.getPos_id());
+			ps.setString(5, emp.getEmp_id());
+			
+			result = ps.executeUpdate();
+		}catch(SQLException e) {
+			System.out.println("SQLエラー");
+			String eMsg = e.getMessage();
+			System.out.println(eMsg);
+			//すでに登録されているメールアドレス（Unique）に更新しようとした場合
+			if(eMsg.contains("Duplicate entry")) {
+				result = -1;
+			}else {
+				result = 0;
+			}
+			return result;
+		}
+		return result;
+	}
+	
+	//引数の社員IDを持つ社員を削除するメソッド
 	public int deleteEmpInfo(String emp_id) {
 		Connection con = dbConnect();
 		int result = 0;
+		//削除対象の削除フラグを更新、データ自体はDBに残存
 		String sql = "update employees SET is_deleted = 1 WHERE emp_id=? AND is_deleted = 0";
 
 		try {
 			if(con != null) {
 				PreparedStatement st = con.prepareStatement(sql);
 				st.setString(1, emp_id);
-				
+
 				int rs = st.executeUpdate();//これなんだっけ
 				result = rs;
 			}
@@ -114,13 +119,13 @@ public class EmployeeDAO extends DAO{
 			System.out.println("SQLエラー");
 			String eMsg = e.getMessage();
 			System.out.println(eMsg);
-			//すでに登録されている社員ID（Primary）、もしくはメールアドレス（Unique）が挿入された場合
+			//すでに削除フラグが更新されている社員を削除しようとした場合
 			if(e.getMessage().contains("Unknown column")) {
 				result = -1;
 			}else {
 				result = 0;
 			}
-			
+
 			return result;
 		}
 		return result;
@@ -160,12 +165,6 @@ public class EmployeeDAO extends DAO{
 		}
 		dbClose(con);
 
-		//		System.out.println("emp_id in EmployeeDAO:" + employee.getEmp_id());
-		//		System.out.println("emp_name in EmployeeDAO:" + employee.getEmp_name());
-		//		System.out.println("emp_email in EmployeeDAO:" + employee.getEmail());
-		//		System.out.println("dpt_id in EmployeeDAO:" + employee.getDpt_id());
-		//		System.out.println("pos_id in EmployeeDAO:" + employee.getPos_id());
-
 		return empList;
 	}
 
@@ -201,12 +200,6 @@ public class EmployeeDAO extends DAO{
 			return null;
 		}
 		dbClose(con);
-
-		//		System.out.println("emp_id in EmployeeDAO:" + employee.getEmp_id());
-		//		System.out.println("emp_name in EmployeeDAO:" + employee.getEmp_name());
-		//		System.out.println("emp_email in EmployeeDAO:" + employee.getEmail());
-		//		System.out.println("dpt_id in EmployeeDAO:" + employee.getDpt_id());
-		//		System.out.println("pos_id in EmployeeDAO:" + employee.getPos_id());
 
 		return employee;
 	}
