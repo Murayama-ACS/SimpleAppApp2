@@ -43,7 +43,7 @@ public class ApplicationWaitListServlet extends HttpServlet {
 		// 2. 権限チェック
 		String posId = employee.getPos_id();
 		if ("E00".equals(posId)) {
-			request.setAttribute("errorMessage", "アクセス権限がありません。この画面は各部上長、または管理部上長専用です。");
+			request.setAttribute("eMsg", "アクセス権限がありません。");
 			request.getRequestDispatcher("/login_mock.jsp").forward(request, response);
 			return;
 		}
