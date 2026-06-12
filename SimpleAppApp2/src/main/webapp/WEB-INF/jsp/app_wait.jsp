@@ -5,9 +5,11 @@
 <%@ page import="java.util.List" %>
 <%@ page import="bean.ApplicationBean" %>
 <%@ page import="bean.EmployeeBean" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
 <%
     EmployeeBean employee = (EmployeeBean) session.getAttribute("loginEmployee");
     String empName = (employee != null) ? employee.getEmp_name() : "ゲスト";
+    String empPos = (employee != null) ? employee.getPos_id() : ""; // 役職コード（E00〜E04）を取得
 
     List<ApplicationBean> list = (List<ApplicationBean>) request.getAttribute("applications");
     String currentStatus = (String) request.getAttribute("currentStatus");
@@ -66,7 +68,16 @@
             <% if (list != null && !list.isEmpty()) { %>
                 <% for (ApplicationBean app : list) { %>
                     <tr>
-                        <td><%= app.getCreateDate() %></td>
+                        <td>
+                            <% 
+                                if (app.getCreateDate() != null) {
+                                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy年M月d日 HH:mm:ss");
+                                    out.print(app.getCreateDate().format(formatter));
+                                } else {
+                                    out.print("-");
+                                }
+                            %>
+                        </td>
                         <td><%= app.getApctId() %></td>
                         <td><%= app.getDepartmentName() %></td>
                         <td><%= app.getEmployeeName() %></td>
@@ -99,7 +110,8 @@
     <div id="actionModal" class="modal">
         <div class="modal-content">
             <h3 id="modalTitle">申請処理</h3>
-            <form action="<%= request.getContextPath() %>/ApplicationWaitList" method="post">
+            <%-- 【変更】onsubmitに二重送信防止関数を指定 --%>
+            <form action="<%= request.getContextPath() %>/ApplicationWaitList" method="post" onsubmit="return handleFormSubmit(this)">
                 <input type="hidden" id="modalApctId" name="apct_id">
                 <input type="hidden" id="modalNextStatus" name="next_status_id">
                 <input type="hidden" name="pendingStatus" value="<%= currentStatus != null ? currentStatus : "1" %>">
@@ -120,31 +132,73 @@
     <a href="<%= request.getContextPath() %>/login_mock.jsp">ログイン画面へ戻る</a>
 
     <script>
-        var modal = document.getElementById("actionModal");
-        var modalApctId = document.getElementById("modalApctId");
-        var modalNextStatus = document.getElementById("modalNextStatus");
-        var modalTitle = document.getElementById("modalTitle");
-        var modalSubmitBtn = document.getElementById("modalSubmitBtn");
+    var modal = document.getElementById("actionModal");
+    var modalApctId = document.getElementById("modalApctId");
+    var modalNextStatus = document.getElementById("modalNextStatus");
+    var modalTitle = document.getElementById("modalTitle");
+    var modalSubmitBtn = document.getElementById("modalSubmitBtn");
+    var currentUserPos = "<%= empPos %>"; 
+    var currentUserDpt = "<%= employee != null ? employee.getDpt_id() : "" %>"; // ★追加：部署IDのJavaScript変数を定義
 
-        function openApprovalModal(apctId, currentStatusId) {
-            modalApctId.value = apctId;
-            modalNextStatus.value = currentStatusId + 1;
-            modalTitle.innerText = "申請承認確認";
-            modalSubmitBtn.innerText = "承認する";
-            modal.style.display = "block";
+    function openApprovalModal(apctId, currentStatusId) {
+        modalApctId.value = apctId;
+        
+        if (currentUserDpt === "D100") {
+            // ★追加：管理部の上長が承認する場合は、次の一覧表示状態は一律「3」にする
+            modalNextStatus.value = 3;
+        } else if (currentStatusId === 1 && currentUserPos === "E04") {
+            modalNextStatus.value = 4; 
+        } else {
+            modalNextStatus.value = currentStatusId + 1; 
         }
+        
+        modalTitle.innerText = "申請承認確認";
+        modalSubmitBtn.innerText = "承認する";
+        modal.style.display = "block";
+    }
 
-        function openRejectModal(apctId) {
-            modalApctId.value = apctId;
-            modalNextStatus.value = 5;
-            modalTitle.innerText = "申請却下確認";
+    function openRejectModal(apctId) {
+        isSubmitting = false;
+        if (modalSubmitBtn) {
             modalSubmitBtn.innerText = "却下する";
-            modal.style.display = "block";
         }
 
-        function closeModal() {
-            modal.style.display = "none";
+        modalApctId.value = apctId;
+        modalNextStatus.value = 6; 
+        modalTitle.innerText = "申請却下確認";
+        modalSubmitBtn.innerText = "却下する";
+        modal.style.display = "block";
+    }
+
+    function closeModal() {
+        modal.style.display = "none";
+    }
+
+    // ★修正：ボタンを非活性にするのではなく、JavaScript側で送信をブロックする
+    function handleFormSubmit(form) {
+        if (isSubmitting) {
+            return false; // すでに送信中なら、それ以降のリクエストをすべて完全に遮断する
         }
+        isSubmitting = true; // 送信開始マークを立てる
+
+        var submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.innerText = "処理中..."; // テキストの変更だけに留める
+        }
+        return true;
+    }
+
+    window.addEventListener('load', function() {
+        var urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === 'true') {
+            alert('処理が完了しました。');
+            var cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            if (urlParams.get('pendingStatus')) {
+                cleanUrl += "?pendingStatus=" + urlParams.get('pendingStatus');
+            }
+            window.history.replaceState({}, document.title, cleanUrl);
+        }
+    });
     </script>
 </body>
 </html>
