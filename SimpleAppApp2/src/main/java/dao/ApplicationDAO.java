@@ -13,7 +13,7 @@ import bean.ApplicationBean;
 import bean.EmployeeBean;
 
 public class ApplicationDAO extends DAO {
-    
+	
 	/**
 	 * 申請データをデータベースに登録する（新規登録専用）
 	 */
@@ -66,6 +66,42 @@ public class ApplicationDAO extends DAO {
 	}
 
 	/**
+	 * 修正画面から送られた申請データを更新する（UPDATE専用）
+	 */
+	public int update(ApplicationBean bean) {
+		Connection con = dbConnect();
+		int result = 0;
+		
+		String sql = "UPDATE applications SET type = ?, method = ?, amount = ?, content = ?, reason = ?, remark = ?, urgent = ?, update_date = ? "
+				   + "WHERE apct_id = ? AND is_deleted = 0";
+				
+		try {
+			if (con != null) {
+				PreparedStatement st = con.prepareStatement(sql);
+				
+				st.setString(1, bean.getType());
+				st.setString(2, bean.getPaymentMethod());
+				st.setInt(3, bean.getAmount());
+				st.setString(4, bean.getContent());
+				st.setString(5, bean.getReason());
+				st.setString(6, bean.getNote());
+				st.setString(7, bean.getUrgent());
+				st.setTimestamp(8, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
+				st.setString(9, bean.getApctId());
+
+				result = st.executeUpdate();
+			}
+		} catch (SQLException e) {
+			System.out.println("ApplicationDAO updateエラー");
+			System.out.println(e.getMessage());
+		} finally {
+			dbClose(con);
+		}
+		
+		return result;
+	}
+
+	/**
 	 * 申請のステータスIDと更新日時を個別に上書き更新する（UPDATE専用）
 	 */
 	public int updateStatus(String apctId, int nextStatusId, LocalDateTime updateDate) {
@@ -93,182 +129,140 @@ public class ApplicationDAO extends DAO {
 		return result;
 	}
 
-    /**
-     * 社員IDを基に、指定されたEmployeeBeanを取得する
-     */
-    public EmployeeBean selectEmployee(String empId) {
-        Connection con = dbConnect();
-        PreparedStatement st = null;
-        ResultSet rs = null;
-        EmployeeBean employee = null;
-
-        String sql = "SELECT emp_id, emp_name, email, dpt_id, pos_id, is_deleted FROM employees WHERE emp_id = ? AND is_deleted = 0";
-
-        try {
-            if (con != null) {
-                st = con.prepareStatement(sql);
-                st.setString(1, empId);
-                rs = st.executeQuery();
-
-                if (rs.next()) {
-                    employee = new EmployeeBean();
-                    employee.setEmp_id(rs.getString("emp_id"));
-                    employee.setEmp_name(rs.getString("emp_name"));
-                    employee.setEmail(rs.getString("email"));
-                    employee.setDpt_id(rs.getString("dpt_id"));
-                    employee.setPos_id(rs.getString("pos_id"));
-                    employee.setIs_deleted(rs.getBoolean("is_deleted"));
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("selectEmployeeエラー");
-            System.out.println(e.getMessage());
-        } finally {
-            if (rs != null) try { rs.close(); } catch (SQLException e) {}
-            if (st != null) try { st.close(); } catch (SQLException e) {}
-            dbClose(con);
-        }
-        return employee;
-    }
-
-    /**
-     * 部署IDを基に、部署名を取得する
-     */
-    public String selectDepartmentName(String dptId) {
-        Connection con = dbConnect();
-        PreparedStatement st = null;
-        ResultSet rs = null;
-        String dptName = "未所属";
-
-        String sql = "SELECT dpt_name FROM departments WHERE dpt_id = ?";
-
-        try {
-            if (con != null) {
-                st = con.prepareStatement(sql);
-                st.setString(1, dptId);
-                rs = st.executeQuery();
-
-                if (rs.next()) {
-                    dptName = rs.getString("dpt_name");
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("selectDepartmentNameエラー");
-            System.out.println(e.getMessage());
-        } finally {
-            if (rs != null) try { rs.close(); } catch (SQLException e) {}
-            if (st != null) try { st.close(); } catch (SQLException e) {}
-            dbClose(con);
-        }
-        return dptName;
-    }
-
-    /**
-	 * ログインユーザーの役職・部署・権限に応じた未承認申請一覧を取得する（部署名・社員名取得対応版）
+	/**
+	 * 指定された申請IDの削除フラグ(is_deleted)を1（削除済み）に更新する（論理削除）
 	 */
-	public List<ApplicationBean> getPendingApplications(EmployeeBean employee) {
+	public int logicalDelete(String apctId) {
+		Connection con = dbConnect();
+		int result = 0;
+		
+		String sql = "UPDATE applications SET is_deleted = 1, update_date = ? WHERE apct_id = ? AND is_deleted = 0";
+		
+		try {
+			if (con != null) {
+				PreparedStatement st = con.prepareStatement(sql);
+				st.setTimestamp(1, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
+				st.setString(2, apctId);
+				
+				result = st.executeUpdate();
+			}
+		} catch (SQLException e) {
+			System.out.println("ApplicationDAO logicalDeleteエラー");
+			System.out.println(e.getMessage());
+		} finally {
+			dbClose(con);
+		}
+		
+		return result;
+	}
+
+	/**
+	 * 社員IDを基に、指定されたEmployeeBeanを取得する
+	 */
+	public EmployeeBean selectEmployee(String empId) {
 		Connection con = dbConnect();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-		List<ApplicationBean> list = new ArrayList<>();
+		EmployeeBean employee = null;
 
-		if (employee == null) {
-			return list;
-		}
-
-		String userPos = employee.getPos_id();
-		String userDpt = employee.getDpt_id();
-
-		// 管理部部署ID（実際の環境に合わせて調整してください）
-		boolean isManagementDept = "D400".equals(userDpt); 
-		boolean isManager = userPos != null && userPos.matches("^E0[1-4]$");
-
-		// 【修正】departmentsテーブルとemployeesテーブルを結合し、部署名と名前を取得するSQLに変更
-		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT a.apct_id, a.emp_id, a.content, a.type, a.method, a.amount, a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, ");
-		sql.append("       s.status_name, e.emp_name, d.dpt_name "); // 部署名と名前、ステータス名を選択
-		sql.append("FROM applications a ");
-		sql.append("JOIN employees e ON a.emp_id = e.emp_id ");
-		sql.append("JOIN status s ON a.status_id = s.status_id ");
-		sql.append("JOIN departments d ON e.dpt_id = d.dpt_id "); // 追加：部署テーブルを結合
-		sql.append("WHERE a.is_deleted = 0 ");
-
-		String targetPosId = null;
-		if (isManager) {
-			try {
-				int posNum = Integer.parseInt(userPos.substring(2));
-				targetPosId = "E0" + (posNum - 1);
-			} catch (Exception e) {
-				System.out.println("役職IDの解析エラー: " + userPos);
-			}
-		}
-
-		if (isManagementDept && isManager) {
-			sql.append("AND ((a.status_id = 2) OR (a.status_id = 1 AND e.dpt_id = ? AND e.pos_id = ?)) ");
-		} else if (isManagementDept) {
-			sql.append("AND a.status_id = 2 ");
-		} else if (isManager) {
-			sql.append("AND a.status_id = 1 AND e.dpt_id = ? AND e.pos_id = ? ");
-		} else {
-			sql.append("AND 1 = 0 ");
-		}
-
-		sql.append("ORDER BY a.create_date DESC");
+		String sql = "SELECT emp_id, emp_name, email, dpt_id, pos_id, is_deleted FROM employees WHERE emp_id = ? AND is_deleted = 0";
 
 		try {
 			if (con != null) {
-				st = con.prepareStatement(sql.toString());
-				
-				if (isManagementDept && isManager) {
-					st.setString(1, userDpt);
-					st.setString(2, targetPosId);
-				} else if (!isManagementDept && isManager) {
-					st.setString(1, userDpt);
-					st.setString(2, targetPosId);
-				}
-
+				st = con.prepareStatement(sql);
+				st.setString(1, empId);
 				rs = st.executeQuery();
 
-				while (rs.next()) {
-					ApplicationBean b = new ApplicationBean();
-					b.setApctId(rs.getString("apct_id"));
-					b.setEmployeeId(rs.getString("emp_id"));
-					b.setContent(rs.getString("content"));
-					b.setType(rs.getString("type"));
-					b.setPaymentMethod(rs.getString("method"));
-					b.setAmount(rs.getInt("amount"));
-					b.setReason(rs.getString("reason"));
-					b.setNote(rs.getString("remark"));
-					b.setUrgent(rs.getString("urgent")); 
-					b.setStatus_id(rs.getInt("status_id"));
-					b.setDeleted(rs.getInt("is_deleted") == 1); 
-					b.setStatusName(rs.getString("status_name"));
-
-					// 【追加】新しく結合して取得した部署名と社員名をBeanに格納
-					b.setDepartmentName(rs.getString("dpt_name"));
-					b.setEmployeeName(rs.getString("emp_name"));
-
-					Timestamp createTs = rs.getTimestamp("create_date");
-					if (createTs != null) {
-						b.setCreateDate(createTs.toLocalDateTime());
-					}
-					Timestamp updateTs = rs.getTimestamp("update_date");
-					if (updateTs != null) {
-						b.setUpdateDate(updateTs.toLocalDateTime());
-					}
-					list.add(b);
+				if (rs.next()) {
+					employee = new EmployeeBean();
+					employee.setEmp_id(rs.getString("emp_id"));
+					employee.setEmp_name(rs.getString("emp_name"));
+					employee.setEmail(rs.getString("email"));
+					employee.setDpt_id(rs.getString("dpt_id"));
+					employee.setPos_id(rs.getString("pos_id"));
+					employee.setIs_deleted(rs.getBoolean("is_deleted"));
 				}
 			}
 		} catch (SQLException e) {
-			System.out.println("getPendingApplicationsエラー");
+			System.out.println("selectEmployeeエラー");
 			System.out.println(e.getMessage());
 		} finally {
 			if (rs != null) try { rs.close(); } catch (SQLException e) {}
 			if (st != null) try { st.close(); } catch (SQLException e) {}
 			dbClose(con);
 		}
-		return list;
+		return employee;
 	}
+
+	/**
+	 * 部署IDを基に、部署名を取得する
+	 */
+	public String selectDepartmentName(String dptId) {
+		Connection con = dbConnect();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		String dptName = "未所属";
+
+		String sql = "SELECT dpt_name FROM departments WHERE dpt_id = ?";
+
+		try {
+			if (con != null) {
+				st = con.prepareStatement(sql);
+				st.setString(1, dptId);
+				rs = st.executeQuery();
+
+				if (rs.next()) {
+					dptName = rs.getString("dpt_name");
+				}
+			}
+		} catch (SQLException e) {
+			System.out.println("selectDepartmentNameエラー");
+			System.out.println(e.getMessage());
+		} finally {
+			if (rs != null) try { rs.close(); } catch (SQLException e) {}
+			if (st != null) try { st.close(); } catch (SQLException e) {}
+			dbClose(con);
+		}
+		return dptName;
+	}
+
+	/**
+	 * 役職IDを基に、その役職の申請上限金額を取得する
+	 * @param posId 役職ID
+	 * @return 上限金額（上限がない場合は null を返す）
+	 */
+	public Integer selectPositionAmount(String posId) {
+		Connection con = dbConnect();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		Integer posAmount = null;
+
+		String sql = "SELECT pos_amount FROM positions WHERE pos_id = ?";
+
+		try {
+			if (con != null) {
+				st = con.prepareStatement(sql);
+				st.setString(1, posId);
+				rs = st.executeQuery();
+
+				if (rs.next()) {
+					int amount = rs.getInt("pos_amount");
+					if (!rs.wasNull()) {
+						posAmount = amount;
+					}
+				}
+			}
+		} catch (SQLException e) {
+			System.out.println("selectPositionAmountエラー");
+			System.out.println(e.getMessage());
+		} finally {
+			if (rs != null) try { rs.close(); } catch (SQLException e) {}
+			if (st != null) try { st.close(); } catch (SQLException e) {}
+			dbClose(con);
+		}
+		return posAmount;
+	}
+
 	/**
 	 * 申請IDをキーに、部署名・氏名・ステータス名を含めた単一の申請データを取得する
 	 */
@@ -278,14 +272,13 @@ public class ApplicationDAO extends DAO {
 		ResultSet rs = null;
 		ApplicationBean b = null;
 
-		// SQL文を修正：必要な情報を網羅するため4つのテーブルを結合
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT a.apct_id, a.emp_id, a.content, a.type, a.method, a.amount, a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, ");
 		sql.append("       s.status_name, e.emp_name, d.dpt_name ");
 		sql.append("FROM applications a ");
 		sql.append("JOIN status s ON a.status_id = s.status_id ");
 		sql.append("JOIN employees e ON a.emp_id = e.emp_id ");
-		sql.append("JOIN departments d ON e.dpt_id = d.dpt_id "); // 部署テーブルを結合
+		sql.append("JOIN departments d ON e.dpt_id = d.dpt_id ");
 		sql.append("WHERE a.apct_id = ? AND a.is_deleted = 0");
 
 		try {
@@ -308,7 +301,6 @@ public class ApplicationDAO extends DAO {
 					b.setStatus_id(rs.getInt("status_id"));
 					b.setDeleted(rs.getInt("is_deleted") == 1);
 
-					// 外部参照で取得した名称をBeanにマッピング
 					b.setStatusName(rs.getString("status_name"));
 					b.setEmployeeName(rs.getString("emp_name"));
 					b.setDepartmentName(rs.getString("dpt_name"));
@@ -334,42 +326,146 @@ public class ApplicationDAO extends DAO {
 		return b;
 	}
 
-    /**
-     * ResultSet -> Bean マッピング（内部補助関数）
-     */
-    private ApplicationBean mapRowToBean(ResultSet rs) throws SQLException {
-        ApplicationBean b = new ApplicationBean();
-        
-        b.setApctId(rs.getString("apct_id"));
-        b.setEmployeeId(rs.getString("emp_id"));
-        b.setContent(rs.getString("content"));
-        b.setType(rs.getString("type"));
-        b.setPaymentMethod(rs.getString("method"));
-        b.setAmount(rs.getInt("amount"));
-        b.setReason(rs.getString("reason"));
-        b.setNote(rs.getString("remark"));
-        b.setUrgent(rs.getString("urgent")); 
-        b.setStatus_id(rs.getInt("status_id")); // int型としてマッピング
-        b.setDeleted(rs.getInt("is_deleted") == 1); 
+	/**
+	 * 管理部の上長のみに権限を絞り、status_id=2 も合算して取得する未承認申請一覧取得ロジック
+	 */
+	public List<ApplicationBean> getPendingApplications(EmployeeBean employee) {
+		Connection con = dbConnect();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		List<ApplicationBean> list = new ArrayList<>();
 
-        Timestamp createTs = rs.getTimestamp("create_date");
-        if (createTs != null) {
-            b.setCreateDate(createTs.toLocalDateTime());
-        }
-        
-        Timestamp updateTs = rs.getTimestamp("update_date");
-        if (updateTs != null) {
-            b.setUpdateDate(updateTs.toLocalDateTime());
-        }
-        
-        return b;
-    }
-    
-    /**
+		if (employee == null) {
+			return list;
+		}
+
+		String userDpt = employee.getDpt_id();
+		String userPos = employee.getPos_id();
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT a.apct_id, a.emp_id, a.content, a.type, a.method, a.amount, a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, ");
+		sql.append("       s.status_name, e.emp_name, d.dpt_name ");
+		sql.append("FROM applications a ");
+		sql.append("JOIN employees e ON a.emp_id = e.emp_id ");
+		sql.append("JOIN status s ON a.status_id = s.status_id ");
+		sql.append("JOIN departments d ON e.dpt_id = d.dpt_id ");
+		sql.append("WHERE a.is_deleted = 0 ");
+
+		List<Object> params = new ArrayList<>();
+
+		if ("E04".equals(userPos)) {
+			// 【社長ルール】（変更なし）
+			sql.append("AND a.status_id = 1 ");
+			sql.append("AND ( ");
+			sql.append("  (e.dpt_id NOT LIKE 'D7%' AND e.pos_id = 'E02') ");
+			sql.append("  OR (e.dpt_id LIKE 'D7%' AND e.pos_id = 'E03') ");
+			sql.append(") ");
+
+		} else if ("E03".equals(userPos)) {
+			// 【本部長ルール】（変更なし）
+			if (userDpt.startsWith("D7")) {
+				sql.append("AND a.status_id = 1 AND e.dpt_id LIKE 'D7%' AND e.pos_id = 'E02' ");
+			} else {
+				String deptPrefix = userDpt.substring(0, 3) + "%";
+				sql.append("AND a.status_id = 1 AND e.dpt_id LIKE ? AND e.emp_id != ? ");
+				params.add(deptPrefix);
+				params.add(employee.getEmp_id());
+			}
+
+		} else if ("E02".equals(userPos)) {
+			// 【部長ルール】
+			if ("D100".equals(userDpt)) {
+				// 管理部部長の場合：
+				// ①管理部内の部下の未承認申請(status_id=1)
+				// ②他部署から上がってきた管理部承認待ち申請(status_id=2) の両方を表示
+				sql.append("AND ( ");
+				sql.append("  (a.status_id = 1 AND e.dpt_id = 'D100' AND e.emp_id != ?) ");
+				sql.append("  OR (a.status_id = 2) ");
+				sql.append(") ");
+				params.add(employee.getEmp_id());
+			} else if ("D712".equals(userDpt)) {
+				sql.append("AND a.status_id = 1 AND e.dpt_id IN ('D710', 'D720') AND e.pos_id = 'E01' ");
+			} else if ("D734".equals(userDpt)) {
+				sql.append("AND a.status_id = 1 AND e.dpt_id IN ('D730', 'D740') AND e.pos_id = 'E01' ");
+			} else {
+				String deptPrefix = userDpt.substring(0, 3) + "%";
+				sql.append("AND a.status_id = 1 AND e.dpt_id LIKE ? AND e.emp_id != ? ");
+				params.add(deptPrefix);
+				params.add(employee.getEmp_id());
+			}
+
+		} else if ("E01".equals(userPos)) {
+			// 【課長ルール】
+			if ("D100".equals(userDpt)) {
+				// 管理部課長の場合：
+				// ①管理部内の一般社員の未承認申請(status_id=1)
+				// ②他部署から上がってきた管理部承認待ち申請(status_id=2) の両方を表示
+				sql.append("AND ( ");
+				sql.append("  (a.status_id = 1 AND e.dpt_id = 'D100' AND e.pos_id = 'E00' AND e.emp_id != ?) ");
+				sql.append("  OR (a.status_id = 2) ");
+				sql.append(") ");
+				params.add(employee.getEmp_id());
+			} else {
+				sql.append("AND a.status_id = 1 AND e.dpt_id = ? AND e.pos_id = 'E00' AND e.emp_id != ? ");
+				params.add(userDpt);
+				params.add(employee.getEmp_id());
+			}
+
+		} else {
+			// 管理部の一般社員(E00)もここに含まれ、他人の申請は見えなくなります
+			sql.append("AND 1 = 0 ");
+		}
+
+		sql.append("ORDER BY a.create_date DESC");
+
+		try {
+			if (con != null) {
+				st = con.prepareStatement(sql.toString());
+				for (int i = 0; i < params.size(); i++) {
+					st.setObject(i + 1, params.get(i));
+				}
+				rs = st.executeQuery();
+
+				while (rs.next()) {
+					ApplicationBean b = new ApplicationBean();
+					b.setApctId(rs.getString("apct_id"));
+					b.setEmployeeId(rs.getString("emp_id"));
+					b.setContent(rs.getString("content"));
+					b.setType(rs.getString("type"));
+					b.setPaymentMethod(rs.getString("method"));
+					b.setAmount(rs.getInt("amount"));
+					b.setReason(rs.getString("reason"));
+					b.setNote(rs.getString("remark"));
+					b.setUrgent(rs.getString("urgent")); 
+					b.setStatus_id(rs.getInt("status_id"));
+					b.setDeleted(rs.getInt("is_deleted") == 1); 
+					b.setStatusName(rs.getString("status_name"));
+					b.setDepartmentName(rs.getString("dpt_name"));
+					b.setEmployeeName(rs.getString("emp_name"));
+
+					Timestamp createTs = rs.getTimestamp("create_date");
+					if (createTs != null) {
+						b.setCreateDate(createTs.toLocalDateTime());
+					}
+					Timestamp updateTs = rs.getTimestamp("update_date");
+					if (updateTs != null) {
+						b.setUpdateDate(updateTs.toLocalDateTime());
+					}
+					list.add(b);
+				}
+			}
+		} catch (SQLException e) {
+			System.out.println("getPendingApplications管理部上長限定版エラー: " + e.getMessage());
+		} finally {
+			if (rs != null) try { rs.close(); } catch (SQLException ex) {}
+			if (st != null) try { st.close(); } catch (SQLException ex) {}
+			dbClose(con);
+		}
+		return list;
+	}
+
+	/**
 	 * 申請履歴一覧を条件（対象範囲、ステータス、ログインユーザーの役職・部署）に応じて取得する
-	 * @param employee ログインユーザーの情報
-	 * @param scope 対象範囲（"self": 自身, "subordinate": 配下, "management": 管理）
-	 * @param statusFilter ステータス絞り込み（"incomplete": 未完了, "all": 全て）
 	 */
 	public List<ApplicationBean> getHistoryApplications(EmployeeBean employee, String scope, String statusFilter) {
 		Connection con = dbConnect();
@@ -388,35 +484,23 @@ public class ApplicationDAO extends DAO {
 		sql.append("JOIN employees e ON a.emp_id = e.emp_id ");
 		sql.append("JOIN status s ON a.status_id = s.status_id ");
 		sql.append("JOIN departments d ON e.dpt_id = d.dpt_id ");
-		
 		sql.append("WHERE a.is_deleted = 0 ");
 
 		List<Object> params = new ArrayList<>();
 		
-		// --- 1. 対象範囲（scope）による絞り込み条件の調整 ---
 		if ("self".equals(scope) || scope == null || scope.isEmpty()) {
-			// 自身：自分が申請者のデータ
 			sql.append("AND a.emp_id = ? ");
 			params.add(employee.getEmp_id());
 			
 		} else if ("subordinate".equals(scope)) {
-			// =================================================================
-			// 役職・部署の階層に応じた「配下」のデータ抽出ロジック
-			// =================================================================
-			String userPos = employee.getPos_id(); // 自身の役職 (E01〜E03)
-			String userDpt = employee.getDpt_id(); // 自身の部署 (D000〜D740)
+			String userPos = employee.getPos_id();
+			String userDpt = employee.getDpt_id();
 
-			// 1. 部署の絞り込み条件の組み立て
 			if ("D712".equals(userDpt)) {
-				// 情報システム部A課B課（D712）の部長は、A課(D710)、B課(D720)、および自身(D712)が対象
 				sql.append("AND e.dpt_id IN ('D710', 'D720', 'D712') ");
 			} else if ("D734".equals(userDpt)) {
-				// 情報システム部C課D課（D734）の部長は、C課(D730)、D課(D740)、および自身(D734)が対象
 				sql.append("AND e.dpt_id IN ('D730', 'D740', 'D734') ");
 			} else if (userDpt != null && userDpt.length() >= 3) {
-				// 通常の部署：
-				// 本部長(E03)・部長(E02)の場合は、部傘下すべて（例: D500番台なら上2桁 'D5%' で前方一致）
-				// 課長(E01)の場合は、自身の課のみ（完全一致）
 				if ("E03".equals(userPos) || "E02".equals(userPos)) {
 					String dptPrefix = userDpt.substring(0, 2) + "%";
 					sql.append("AND e.dpt_id LIKE ? ");
@@ -427,29 +511,21 @@ public class ApplicationDAO extends DAO {
 				}
 			}
 
-			// 2. 役職の上下関係（職位）による絞り込み
-			// 自分より下の役職（pos_idの数値が自分より小さいもの）を対象とする
-			// 例：本部長(E03)ならE02以下、部長(E02)ならE01以下、課長(E01)ならE00のみ
 			sql.append("AND e.pos_id < ? ");
 			params.add(userPos);
 			
-			// 3. 安全ガード：自分自身の申請データは「配下」からは除外する
 			sql.append("AND a.emp_id != ? ");
 			params.add(employee.getEmp_id());
 		} else if ("management".equals(scope)) {
-			// 管理：管理部（D100）の場合は、全社員の申請を確認可能とする（emp_idの絞り込みを付与しない）
 			if ("D100".equals(employee.getDpt_id())) {
-				// 条件なし（全社員をロード）
+				// 全社員をロードするため追加の条件なし
 			} else {
-				// 管理部以外は自身のデータのみにフォールバック（安全対策）
 				sql.append("AND a.emp_id = ? ");
 				params.add(employee.getEmp_id());
 			}
 		}
 
-		// --- 2. ステータスによる絞り込み（未完了 / 全て） ---
 		if ("incomplete".equals(statusFilter)) {
-			// 【要件変更】状態が未完了（status_idが1〜4）の表示に対応
 			sql.append("AND a.status_id IN (1, 2, 3, 4) ");
 		}
 
@@ -501,66 +577,94 @@ public class ApplicationDAO extends DAO {
 		}
 		return list;
 	}
-	/**
-	 * 修正画面から送られた申請データを更新する（UPDATE専用）
-	 */
-	public int update(ApplicationBean bean) {
-		Connection con = dbConnect();
-		int result = 0;
-		
-		String sql = "UPDATE applications SET type = ?, method = ?, amount = ?, content = ?, reason = ?, remark = ?, urgent = ?, update_date = ? "
-				   + "WHERE apct_id = ? AND is_deleted = 0";
-				
-		try {
-			if (con != null) {
-				PreparedStatement st = con.prepareStatement(sql);
-				
-				st.setString(1, bean.getType());
-				st.setString(2, bean.getPaymentMethod());
-				st.setInt(3, bean.getAmount());
-				st.setString(4, bean.getContent());
-				st.setString(5, bean.getReason());
-				st.setString(6, bean.getNote());
-				st.setString(7, bean.getUrgent());
-				st.setTimestamp(8, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
-				st.setString(9, bean.getApctId());
 
-				result = st.executeUpdate();
-			}
-		} catch (SQLException e) {
-			System.out.println("ApplicationDAO updateエラー");
-			System.out.println(e.getMessage());
-		} finally {
-			dbClose(con);
-		}
-		
-		return result;
-	}
 	/**
-	 * 指定された申請IDの削除フラグ(is_deleted)を1（削除済み）に更新する（論理削除）
+	 * 経理部用に、管理部承認済み(3)または社長承認済み(4)の申請一覧を取得する
 	 */
-	public int logicalDelete(String apctId) {
+	public List<ApplicationBean> getAccountingApplications() {
 		Connection con = dbConnect();
-		int result = 0;
-		
-		// is_deletedを1に更新するSQL
-		String sql = "UPDATE applications SET is_deleted = 1, update_date = ? WHERE apct_id = ? AND is_deleted = 0";
-		
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		List<ApplicationBean> list = new ArrayList<>();
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT a.apct_id, a.emp_id, a.content, a.type, a.method, a.amount, a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, ");
+		sql.append("       s.status_name, e.emp_name, d.dpt_name ");
+		sql.append("FROM applications a ");
+		sql.append("JOIN employees e ON a.emp_id = e.emp_id ");
+		sql.append("JOIN status s ON a.status_id = s.status_id ");
+		sql.append("JOIN departments d ON e.dpt_id = d.dpt_id ");
+		sql.append("WHERE a.is_deleted = 0 AND a.status_id IN (3, 4) ");
+		sql.append("ORDER BY a.create_date DESC");
+
 		try {
 			if (con != null) {
-				PreparedStatement st = con.prepareStatement(sql);
-				st.setTimestamp(1, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
-				st.setString(2, apctId);
-				
-				result = st.executeUpdate();
+				st = con.prepareStatement(sql.toString());
+				rs = st.executeQuery();
+
+				while (rs.next()) {
+					ApplicationBean b = new ApplicationBean();
+					b.setApctId(rs.getString("apct_id"));
+					b.setEmployeeId(rs.getString("emp_id"));
+					b.setContent(rs.getString("content"));
+					b.setType(rs.getString("type"));
+					b.setPaymentMethod(rs.getString("method"));
+					b.setAmount(rs.getInt("amount"));
+					b.setReason(rs.getString("reason"));
+					b.setNote(rs.getString("remark"));
+					b.setUrgent(rs.getString("urgent")); 
+					b.setStatus_id(rs.getInt("status_id"));
+					b.setDeleted(rs.getInt("is_deleted") == 1); 
+					b.setStatusName(rs.getString("status_name"));
+					b.setDepartmentName(rs.getString("dpt_name"));
+					b.setEmployeeName(rs.getString("emp_name"));
+
+					Timestamp createTs = rs.getTimestamp("create_date");
+					if (createTs != null) b.setCreateDate(createTs.toLocalDateTime());
+					Timestamp updateTs = rs.getTimestamp("update_date");
+					if (updateTs != null) b.setUpdateDate(updateTs.toLocalDateTime());
+					
+					list.add(b);
+				}
 			}
 		} catch (SQLException e) {
-			System.out.println("ApplicationDAO logicalDeleteエラー");
-			System.out.println(e.getMessage());
+			System.out.println("getAccountingApplicationsエラー: " + e.getMessage());
 		} finally {
+			if (rs != null) try { rs.close(); } catch (SQLException ex) {}
+			if (st != null) try { st.close(); } catch (SQLException ex) {}
 			dbClose(con);
 		}
+		return list;
+	}
+
+	/**
+	 * ResultSet -> Bean マッピング（内部補助関数）
+	 */
+	private ApplicationBean mapRowToBean(ResultSet rs) throws SQLException {
+		ApplicationBean b = new ApplicationBean();
 		
-		return result;
+		b.setApctId(rs.getString("apct_id"));
+		b.setEmployeeId(rs.getString("emp_id"));
+		b.setContent(rs.getString("content"));
+		b.setType(rs.getString("type"));
+		b.setPaymentMethod(rs.getString("method"));
+		b.setAmount(rs.getInt("amount"));
+		b.setReason(rs.getString("reason"));
+		b.setNote(rs.getString("remark"));
+		b.setUrgent(rs.getString("urgent")); 
+		b.setStatus_id(rs.getInt("status_id"));
+		b.setDeleted(rs.getInt("is_deleted") == 1); 
+
+		Timestamp createTs = rs.getTimestamp("create_date");
+		if (createTs != null) {
+			b.setCreateDate(createTs.toLocalDateTime());
+		}
+		
+		Timestamp updateTs = rs.getTimestamp("update_date");
+		if (updateTs != null) {
+			b.setUpdateDate(updateTs.toLocalDateTime());
+		}
+		
+		return b;
 	}
 }
