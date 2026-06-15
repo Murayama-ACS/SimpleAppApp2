@@ -23,13 +23,16 @@ import dao.ApprovalDAO;
 public class ApplicationStatusEditServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
+    // =========================================================================
+    // 【POSTリクエスト処理ブロック】詳細画面からの完了指示に伴うDB更新制御
+    // =========================================================================
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
 
-        // 1. ログインチェック
+        // 【1. ログイン検証】
         HttpSession session = request.getSession();
         EmployeeBean employee = (EmployeeBean) session.getAttribute("loginEmployee");
 
@@ -38,7 +41,7 @@ public class ApplicationStatusEditServlet extends HttpServlet {
             return;
         }
 
-        // 2. 権限チェック（経理部限定）
+        // 【2. 経理部権限検証】
         String dptId = employee.getDpt_id();
         if (!"D200".equals(dptId)) {
             request.setAttribute("eMsg", "アクセス権限がありません。経理部専用の機能です。");
@@ -46,7 +49,7 @@ public class ApplicationStatusEditServlet extends HttpServlet {
             return;
         }
 
-        // 3. パラメータの取得
+        // 【3. リクエストパラメータ取得・検証】
         String apctId = request.getParameter("apct_id");
 
         if (apctId == null || apctId.trim().isEmpty()) {
@@ -54,50 +57,50 @@ public class ApplicationStatusEditServlet extends HttpServlet {
             return;
         }
 
-        // 【修正点】JSPのコメント欄削除に伴い、変数を null で固定
-        // これにより、履歴テーブル（approvals）の comment カラムには確実に NULL が挿入されます
+        // 履歴テーブル(approvals)のcommentカラム挿入用。null固定によりDBにはNULLが保持されます
         String commentValue = null;
 
+        // 【4. 申請状況のチェックおよび更新データの作成】
         try {
             ApplicationDAO appDao = new ApplicationDAO();
             ApprovalDAO approvalDao = new ApprovalDAO();
 
-            // 対象データの存在確認
+            // 対象申請データの存在確認
             ApplicationBean application = appDao.findById(apctId);
             if (application == null) {
                 forwardToError(request, response, "対象の申請データが見つかりません。");
                 return;
             }
 
-            // ステータスチェック（3:管理部承認 または 4:社長承認 のみ経理処理可能）
+            // 現在の状態検証（3:管理部承認 または 4:社長承認 のみ経理処理可能）
             int currentStatus = application.getStatus_id();
             if (currentStatus != 3 && currentStatus != 4) {
                 forwardToError(request, response, "この申請は現在、経理処理を実行できるステータスではありません。");
                 return;
             }
 
-            // 次のステータスIDは「5（経理完了）」にサーバー側で決定
+            // 更新用ステータス（5:経理完了）と現在日時の確定
             int nextStatusId = 5;
             LocalDateTime now = LocalDateTime.now();
 
-            // 4. 承認履歴ID (approval_id) の生成
+            // 承認履歴ID(approval_id)のユニークキー生成
             String timeStamp = new SimpleDateFormat("yyMMddHHmmssSSS").format(new Date());
             String approvalId = "APV" + timeStamp;
 
-            // 5. ApprovalBean の作成と設定
+            // 登録用ApprovalBeanの構築
             ApprovalBean approval = new ApprovalBean();
             approval.setApprovalId(approvalId);
             approval.setApctId(apctId);
             approval.setEmployeeId(employee.getEmp_id()); 
             approval.setStatusId(nextStatusId);
-            approval.setComment(commentValue); // null を設定
+            approval.setComment(commentValue);
             approval.setCreateDate(now);
 
-            // 6. データベース更新処理
+            // 【5. データベーストランザクション処理（履歴挿入および状態更新）】
             int insertResult = approvalDao.insert(approval);
 
             if (insertResult > 0) {
-                // applicationsテーブルのstatus_idを「5」に更新
+                // applicationsテーブルの対象レコードをステータス5へ上書き更新
                 int updateResult = appDao.updateStatus(apctId, nextStatusId, now);
                 if (updateResult == 0) {
                     forwardToError(request, response, "申請データの状態更新に失敗しました。");
@@ -108,21 +111,26 @@ public class ApplicationStatusEditServlet extends HttpServlet {
                 return;
             }
 
-            // 7. 更新後の最新データを再取得してリクエストスコープに格納
+            // 【6. 更新結果の再取得および完了画面への遷移】
+            // 画面に最新状態を反映するため再度データを読み直してリクエストへ格納
             ApplicationBean updatedApplication = appDao.findById(apctId);
             request.setAttribute("application", updatedApplication);
             request.setAttribute("showSuccessPopup", true);
 
-            // app_status.jsp へフォワードして完了ポップアップを表示させる
+            // 完了通知用ポップアップを実行させるため、再度詳細画面(app_status.jsp)へフォワード
             RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/jsp/app_status.jsp");
             rd.forward(request, response);
 
         } catch (Exception e) {
+            // 例外発生時のログ出力およびエラー復旧処理
             log("ApplicationStatusEditServlet 処理エラー", e);
             forwardToError(request, response, "処理中にシステムエラーが発生しました。");
         }
     }
 
+    // =========================================================================
+    // 【共通エラー処理ブロック】不具合発生時の安全な画面引き戻し制御
+    // =========================================================================
     private void forwardToError(HttpServletRequest request, HttpServletResponse response, String message) 
             throws ServletException, IOException {
         request.setAttribute("errorMessage", message);
