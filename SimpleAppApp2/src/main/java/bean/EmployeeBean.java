@@ -15,10 +15,10 @@ public class EmployeeBean {
 	String email;
 	String dpt_id;
 	String pos_id;
+	String dpt_name;
+	String pos_name;
 	int pos_amount;
 	boolean is_deleted = false;
-	
-	
 	
 	public String getEmp_id() {
 		return emp_id;
@@ -56,6 +56,18 @@ public class EmployeeBean {
 	}
 	public void setPos_amount(int pos_amount) {
 		this.pos_amount = pos_amount;
+	}
+	public String getDpt_name() {
+		return dpt_name;
+	}
+	public void setDpt_name(String dpt_name) {
+		this.dpt_name = dpt_name;
+	}
+	public String getPos_name() {
+		return pos_name;
+	}
+	public void setPos_name(String pos_name) {
+		this.pos_name = pos_name;
 	}
 	public boolean isIs_deleted() {
 		return is_deleted;

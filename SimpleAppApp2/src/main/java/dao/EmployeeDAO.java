@@ -220,9 +220,12 @@ public class EmployeeDAO extends DAO{
 					String empIdR = rs.getString("emp_id");
 					String empNameR = rs.getString("emp_name");
 					String email  = rs.getString("email");
-					String dptName   = rs.getString("dpt_name");
-					String posName   = rs.getString("pos_name");
-					list.add(new EmployeeBean(empIdR, empNameR, email, dptName, posName));
+					String dptIdR = rs.getString("dpt_id");
+					String posIdR = rs.getString("pos_id");
+					EmployeeBean empBean = new EmployeeBean(empIdR, empNameR, email, dptIdR, posIdR);
+					empBean.setDpt_name(rs.getString("dpt_name"));
+					empBean.setPos_name(rs.getString("pos_name"));
+					list.add(empBean);
 				}
 			}
 		}

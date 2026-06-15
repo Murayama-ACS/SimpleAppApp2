@@ -222,8 +222,8 @@
     <td><c:out value="${employee.emp_id}" /></td>
     <td><c:out value="${employee.emp_name}" /></td>
     <td><c:out value="${employee.email}" /></td>
-    <td><c:out value="${employee.dpt_id}" /></td>
-    <td><c:out value="${employee.pos_id}" /></td>
+    <td><c:out value="${employee.dpt_name}" /></td>
+	<td><c:out value="${employee.pos_name}" /></td>
 
     <!-- 削除 -->
     <td>
