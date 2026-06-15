@@ -27,8 +27,9 @@
                 if (employee != null) {
                     // セッションにEmployeeBeanオブジェクトを格納
                     session.setAttribute("loginEmployee", employee);
-                    // 【変更】申請履歴画面を制御するサーブレットへと遷移させます
-                    response.sendRedirect(request.getContextPath() + "/ApplicationWaitList");
+                    
+                    // 申請一覧（app_list.jsp）を制御するサーブレットへと遷移させます
+                    response.sendRedirect(request.getContextPath() + "/ApplicationStatus");
                     return;
                 } else {
                     out.println("<p style='color:red;'>エラー: ID「" + testEmpId + "」の社員データがDBに見つかりません。先にemployeesテーブルへデータを登録するか、SQLが反映されているか確認してください。</p>");
@@ -45,12 +46,17 @@
         <label for="emp_select">ログインユーザー選択: </label>
         <select name="emp_id" id="emp_select" style="padding: 5px; width: 450px;">
             <option value="">-- アカウントを選択してください --</option>
+            
+            <%-- 追加された経理部のアカウント --%>
+            <option value="A20160111">田中 太郎（役職: 部長 / 部署: 経理部）</option>
+            <option value="A20211116">田中 真央（役職: 一般社員 / 部署: 経理部）</option>
+            
+            <%-- 既存のアカウント --%>
             <option value="A00000001">山田 太一（役職: 社長 / 部署: 経営企画部）</option>
             <option value="A20180926">鈴木 健（役職: 本部長 / 部署: 情報システム部）</option>
             <option value="A20221226">渡辺 大輔（役職: 部長 / 部署: 情報システム部C課D課）</option>
             <option value="A20240411">佐藤 健（役職: 部長 / 部署: 情報システム部A課B課）</option>
             <option value="A20160108">山田 真央（役職: 課長 / 部署: 情報システム部A課）</option>
-            
             <option value="A20190103">渡辺 一郎（役職: 部長 / 部署: 管理部）</option>
             <option value="A20250307">佐藤 大輔（役職: 一般社員 / 部署: 管理部）</option>
             <option value="A20260112">高橋 美咲（役職: 課長 / 部署: 開発部A課）</option>
@@ -63,7 +69,7 @@
         </select>
         <br><br>
         
-        <input type="submit" value="模擬ログインして申請履歴画面へ" style="padding: 5px 15px;">
+        <input type="submit" value="模擬ログインして申請ステータス変更一覧画面へ" style="padding: 5px 15px;">
     </form>
 </body>
 </html>

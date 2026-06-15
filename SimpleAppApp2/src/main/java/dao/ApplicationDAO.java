@@ -396,4 +396,63 @@ public class ApplicationDAO extends DAO {
         
         return b;
     }
+    /**
+     * 経理部用に、管理部承認済み(3)または社長承認済み(4)の申請一覧を取得する
+     */
+    public List<ApplicationBean> getAccountingApplications() {
+        Connection con = dbConnect();
+        PreparedStatement st = null;
+        ResultSet rs = null;
+        List<ApplicationBean> list = new ArrayList<>();
+
+        // status_id が 3 または 4 の未処理データを取得するSQL
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT a.apct_id, a.emp_id, a.content, a.type, a.method, a.amount, a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, ");
+        sql.append("       s.status_name, e.emp_name, d.dpt_name ");
+        sql.append("FROM applications a ");
+        sql.append("JOIN employees e ON a.emp_id = e.emp_id ");
+        sql.append("JOIN status s ON a.status_id = s.status_id ");
+        sql.append("JOIN departments d ON e.dpt_id = d.dpt_id ");
+        sql.append("WHERE a.is_deleted = 0 AND a.status_id IN (3, 4) "); // 条件を指定
+        sql.append("ORDER BY a.create_date DESC");
+
+        try {
+            if (con != null) {
+                st = con.prepareStatement(sql.toString());
+                rs = st.executeQuery();
+
+                while (rs.next()) {
+                    ApplicationBean b = new ApplicationBean();
+                    b.setApctId(rs.getString("apct_id"));
+                    b.setEmployeeId(rs.getString("emp_id"));
+                    b.setContent(rs.getString("content"));
+                    b.setType(rs.getString("type"));
+                    b.setPaymentMethod(rs.getString("method"));
+                    b.setAmount(rs.getInt("amount"));
+                    b.setReason(rs.getString("reason"));
+                    b.setNote(rs.getString("remark"));
+                    b.setUrgent(rs.getString("urgent")); 
+                    b.setStatus_id(rs.getInt("status_id"));
+                    b.setDeleted(rs.getInt("is_deleted") == 1); 
+                    b.setStatusName(rs.getString("status_name"));
+                    b.setDepartmentName(rs.getString("dpt_name"));
+                    b.setEmployeeName(rs.getString("emp_name"));
+
+                    java.sql.Timestamp createTs = rs.getTimestamp("create_date");
+                    if (createTs != null) b.setCreateDate(createTs.toLocalDateTime());
+                    java.sql.Timestamp updateTs = rs.getTimestamp("update_date");
+                    if (updateTs != null) b.setUpdateDate(updateTs.toLocalDateTime());
+                    
+                    list.add(b);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("getAccountingApplicationsエラー: " + e.getMessage());
+        } finally {
+            if (rs != null) try { rs.close(); } catch (SQLException ex) {}
+            if (st != null) try { st.close(); } catch (SQLException ex) {}
+            dbClose(con);
+        }
+        return list;
+    }
 }
