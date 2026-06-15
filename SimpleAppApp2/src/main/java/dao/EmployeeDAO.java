@@ -76,14 +76,14 @@ public class EmployeeDAO extends DAO{
 		String sql = "UPDATE employees SET emp_name = ?, email = ?, dpt_id = ?, pos_id = ? WHERE emp_id = ?";
 		int result = 0;
 		try (
-			Connection con = dbConnect();
-			PreparedStatement ps = con.prepareStatement(sql)) {
+				Connection con = dbConnect();
+				PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setString(1, emp.getEmp_name());
 			ps.setString(2, emp.getEmail());
 			ps.setString(3, emp.getDpt_id());
 			ps.setString(4, emp.getPos_id());
 			ps.setString(5, emp.getEmp_id());
-			
+
 			result = ps.executeUpdate();
 		}catch(SQLException e) {
 			System.out.println("SQLエラー");
@@ -99,7 +99,7 @@ public class EmployeeDAO extends DAO{
 		}
 		return result;
 	}
-	
+
 	//引数の社員IDを持つ社員を削除するメソッド
 	public int deleteEmpInfo(String emp_id) {
 		Connection con = dbConnect();
@@ -130,186 +130,110 @@ public class EmployeeDAO extends DAO{
 		}
 		return result;
 	}
-	//全社員の情報をデータベースから取得するメソッド
-	/*public ArrayList<EmployeeBean> empInfo() {
-		Connection con = dbConnect();
-		EmployeeBean employee = null;
-		ArrayList<EmployeeBean> empList = new ArrayList<EmployeeBean>();
-		//identifierがメールか社員IDかでsql文を変更
-		String sql = "SELECT e.emp_id as '社員ID', e.emp_name as '名前', e.email, d.dpt_name AS '部署', p.pos_name AS '役職' "
-				+ "from employees e left outer join departments d on e.dpt_id = d.dpt_id "
-				+ "left outer JOIN positions p on e.pos_id = p.pos_id WHERE e.is_deleted = 0";
-	
-		try {
-			if(con != null) {
-	
-				//					PreparedStatement st = con.prepareStatement(sql);
-				Statement st = con.createStatement();
-				ResultSet rs = st.executeQuery(sql);
-				//					ResultSet rs = st.executeQuery();
-	
-				while(rs.next()) {
-					String emp_id = rs.getString("社員ID");
-					String emp_name = rs.getString("名前");
-					String email = rs.getString("e.email");
-					String dpt_name = rs.getString("部署");
-					String pos_name = rs.getString("役職");
-					employee = new EmployeeBean(emp_id, emp_name, email, dpt_name, pos_name);
-					empList.add(employee);
-				}
-			}
-		}catch(SQLException e) {
-			System.out.println("SQLエラーこれですか？");
-			System.out.println(e.getMessage());
-			return null;
-		}
-		dbClose(con);
-	
-		return empList;
-	}*/
-	
-	/*public ArrayList<EmployeeBean> empInfo(String sortKey, String sortDir, int offset) throws SQLException {
-	    Map<String,String> colMap = Map.of(//
-	        "emp_id", "e.emp_id",
-	        "emp_name", "e.emp_name",
-	        "email", "e.email",
-	        "dpt_id", "e.dpt_id",
-	        "pos_id", "e.pos_id"
-	    );
-	
-	    int limit = 20;
-	
-	    if (sortKey == null || sortKey.isEmpty()) sortKey = "emp_id";
-	    String orderBy = colMap.getOrDefault(sortKey, "e.emp_id");
-	    String dir = "DESC".equalsIgnoreCase(sortDir) ? "DESC" : "ASC";
-	
-	    String sql = "SELECT e.emp_id, e.emp_name, e.email, e.dpt_id, e.pos_id, "
-	            + "d.dpt_name AS dpt_name, p.pos_name AS pos_name "
-	            + "FROM employees e "
-	            + "LEFT JOIN departments d ON e.dpt_id = d.dpt_id "
-	            + "LEFT JOIN positions p ON e.pos_id = p.pos_id "
-	            + "WHERE e.is_deleted = 0 "
-	            + "ORDER BY " + orderBy + " " + dir
-	            + " LIMIT ? OFFSET ?";
-	    
-	    System.out.println(sql);
-	
-	    ArrayList<EmployeeBean> list = new ArrayList<>();
-	    try (Connection con = dbConnect();
-	         PreparedStatement ps = con.prepareStatement(sql)) {
-	        // プレースホルダ順に注意：1番目=limit, 2番目=offset
-	        ps.setInt(1, limit);
-	        ps.setInt(2, offset);
-	        try (ResultSet rs = ps.executeQuery()) {
-	            while (rs.next()) {
-	                String empId = rs.getString("emp_id");
-	                String empName = rs.getString("emp_name");
-	                String email  = rs.getString("email");
-	                String dptName   = rs.getString("dpt_name");
-	                String posName   = rs.getString("pos_name");
-	                list.add(new EmployeeBean(empId, empName, email, dptName, posName));
-	            }
-	        }
-	    }
-	    return list;
-	}*/
-	
+
 	// PageResult クラス（DAO クラスファイルと同じパッケージに置く）
 	public class PageResult<T> {
-	    private final java.util.List<T> items;
-	    private final boolean hasNext;
-	    public PageResult(java.util.List<T> items, boolean hasNext) {
-	        this.items = items;
-	        this.hasNext = hasNext;
-	    }
-	    public java.util.List<T> getItems() { return items; }
-	    public boolean hasNext() { return hasNext; }
+		private final java.util.List<T> items;
+		private final boolean hasNext;
+		public PageResult(java.util.List<T> items, boolean hasNext) {
+			this.items = items;
+			this.hasNext = hasNext;
+		}
+		public java.util.List<T> getItems() { return items; }
+		public boolean hasNext() { return hasNext; }
 	}
-	
+	//検索、ソートの結果をもとに社員情報を取得するメソッド
 	public PageResult<EmployeeBean> searchEmployees(
-	        String empId, String empName, String dptId, String posId,
-	        String sortKey, String sortDir, int limit, int offset) throws SQLException {
+			String empId, String empName, String dptId, String posId,
+			String sortKey, String sortDir, int limit, int offset) throws SQLException {
 
-	    Map<String,String> colMap = Map.of(
-	        "emp_id",   "e.emp_id",
-	        "emp_name", "e.emp_name",
-	        "email",    "e.email",
-	        "dpt_id",   "e.dpt_id",
-	        "pos_id",   "e.pos_id"
-	    );
+		Map<String,String> colMap = Map.of(//左のkeyを指定すると右のcollumをsortの対象にする
+				"emp_id",   "e.emp_id",	
+				"emp_name", "e.emp_name",
+				"email",    "e.email",
+				"dpt_id",   "e.dpt_id",
+				"pos_id",   "e.pos_id"
+				);
 
-	    if (sortKey == null || sortKey.isEmpty()) sortKey = "emp_id";
-	    String orderBy = colMap.getOrDefault(sortKey, "e.emp_id");
-	    String dir = "DESC".equalsIgnoreCase(sortDir) ? "DESC" : "ASC";
+		if (sortKey == null || sortKey.isEmpty()) sortKey = "emp_id";
+		String orderBy = colMap.getOrDefault(sortKey, "e.emp_id");
+		String dir = "DESC".equalsIgnoreCase(sortDir) ? "DESC" : "ASC";
 
-	    StringBuilder sql = new StringBuilder();
-	    sql.append("SELECT e.emp_id, e.emp_name, e.email, e.dpt_id, e.pos_id, ")
-	       .append("d.dpt_name AS dpt_name, p.pos_name AS pos_name ")
-	       .append("FROM employees e ")
-	       .append("LEFT JOIN departments d ON e.dpt_id = d.dpt_id ")
-	       .append("LEFT JOIN positions p ON e.pos_id = p.pos_id ")
-	       .append("WHERE e.is_deleted = 0 ");
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT e.emp_id, e.emp_name, e.email, e.dpt_id, e.pos_id, ")
+		.append("d.dpt_name AS dpt_name, p.pos_name AS pos_name ")
+		.append("FROM employees e ")
+		.append("LEFT JOIN departments d ON e.dpt_id = d.dpt_id ")
+		.append("LEFT JOIN positions p ON e.pos_id = p.pos_id ")
+		.append("WHERE e.is_deleted = 0 ");
 
-	    // パラメータを順番に保持
-	    ArrayList<Object> params = new ArrayList<>();
+		// パラメータを順番に保持
+		ArrayList<Object> params = new ArrayList<>();
 
-	    // 動的な WHERE 句追加
-	    if (empId != null && !empId.isEmpty()) {
-	        // 厳密一致にするなら "="、前方一致なら LIKE 'value%' に変更
-	        sql.append(" AND e.emp_id = ? ");
-	        params.add(empId);
-	    }
-	    if (empName != null && !empName.isEmpty()) {
-	        sql.append(" AND e.emp_name LIKE ? ");
-	        params.add("%" + empName + "%"); // 部分一致
-	    }
-	    if (dptId != null && !dptId.isEmpty()) {
-	        sql.append(" AND e.dpt_id = ? ");
-	        params.add(dptId);
-	    }
-	    if (posId != null && !posId.isEmpty()) {
-	        sql.append(" AND e.pos_id = ? ");
-	        params.add(posId);
-	    }
+		// 動的な WHERE 句追加
+		if (empId != null && !empId.isEmpty()) {
+			// 厳密一致にするなら "="、前方一致なら LIKE 'value%' に変更
+			sql.append(" AND e.emp_id LIKE ? ");
+			params.add(empId + "%");
+		}
+		if (empName != null && !empName.isEmpty()) {
+			sql.append(" AND e.emp_name LIKE ? ");
+			params.add("%" + empName + "%"); // 部分一致
+		}
+		if (dptId != null && !dptId.isEmpty()) {
+		    // 形式が4文字の英数字で、末尾が "00" の場合を親部署と判定
+		    if (dptId.matches("^[A-Za-z0-9]{4}$") && dptId.endsWith("00")) {
+		        String prefix = dptId.substring(0, 2); // "D400" -> "D4"
+		        sql.append(" AND e.dpt_id LIKE ? ");
+		        params.add(prefix + "%");
+		    } else {
+		        sql.append(" AND e.dpt_id = ? ");
+		        params.add(dptId);
+		    }
+		}
+		if (posId != null && !posId.isEmpty()) {
+			sql.append(" AND e.pos_id = ? ");
+			params.add(posId);
+		}
 
-	    // ORDER BY と LIMIT/OFFSET
-	    sql.append(" ORDER BY ").append(orderBy).append(" ").append(dir).append(", e.emp_id ASC ");
-	    sql.append(" LIMIT ? OFFSET ?");
+		// ORDER BY と LIMIT/OFFSET
+		sql.append(" ORDER BY ").append(orderBy).append(" ").append(dir).append(", e.emp_id ASC ");
+		sql.append(" LIMIT ? OFFSET ?");
 
-	    ArrayList<EmployeeBean> list = new ArrayList<>();
-	    try (Connection con = dbConnect();
-	         PreparedStatement ps = con.prepareStatement(sql.toString())) {
+		ArrayList<EmployeeBean> list = new ArrayList<>();
+		try (Connection con = dbConnect();
+				PreparedStatement ps = con.prepareStatement(sql.toString())) {
 
-	        // パラメータをセット
-	        int idx = 1;
-	        for (Object p : params) {
-	            ps.setObject(idx++, p);
-	        }
-	        int effectiveLimit = limit + 1;
+			// パラメータをセット
+			int idx = 1;
+			for (Object p : params) {
+				ps.setObject(idx++, p);
+			}
+			int effectiveLimit = limit + 1;
 
-	        // limit / offset
-	        ps.setInt(idx++, effectiveLimit);
-	        ps.setInt(idx++, offset);
+			// limit / offset
+			ps.setInt(idx++, effectiveLimit);
+			ps.setInt(idx++, offset);
 
-	        try (ResultSet rs = ps.executeQuery()) {
-	        	while (rs.next()) {
-	                String empIdR = rs.getString("emp_id");
-	                String empNameR = rs.getString("emp_name");
-	                String email  = rs.getString("email");
-	                String dptName   = rs.getString("dpt_name");
-	                String posName   = rs.getString("pos_name");
-	                list.add(new EmployeeBean(empIdR, empNameR, email, dptName, posName));
-	            }
-	        }
-	    }
-	    
-	    boolean hasNext = false;
-	    if (list.size() > limit) {
-	        hasNext = true;
-	        // 余分に取った最後の1件を取り除く
-	        list.remove(list.size() - 1);
-	    }
-	    return new PageResult<>(list, hasNext);
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					String empIdR = rs.getString("emp_id");
+					String empNameR = rs.getString("emp_name");
+					String email  = rs.getString("email");
+					String dptName   = rs.getString("dpt_name");
+					String posName   = rs.getString("pos_name");
+					list.add(new EmployeeBean(empIdR, empNameR, email, dptName, posName));
+				}
+			}
+		}
+
+		boolean hasNext = false;
+		if (list.size() > limit) {
+			hasNext = true;
+			// 余分に取った最後の1件を取り除く
+			list.remove(list.size() - 1);
+		}
+		return new PageResult<>(list, hasNext);
 	}
 
 	//社員ID or メールアドレスとパスワードが一致する社員の情報をデータベースから取得するメソッド（ログイン認証）
