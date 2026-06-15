@@ -33,13 +33,29 @@ public class EmployeeUpdate extends HttpServlet {
 	 */
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// 1. ログインチェック
+		String loginUrl = "/login.jsp";
+		HttpSession session = request.getSession();
+		EmployeeBean employee = (EmployeeBean) session.getAttribute("empBean"); 
+
+		if (employee == null) {
+			response.sendRedirect(request.getContextPath() + loginUrl);
+			return;
+		}
+
+		// 2. 権限チェック
+		String ldptId = employee.getDpt_id();
+		if (!ldptId.matches("^D4.*$")) {
+			request.setAttribute("eMsg", "アクセス権限がありません。");
+			request.getRequestDispatcher(loginUrl).forward(request, response);
+			return;
+		}
 		final String JSP_CONFIRM  = "WEB-INF/jsp/user_confirm.jsp";
 		final String JSP_UPDATE   = "WEB-INF/jsp/user_update.jsp";
-		final String JSP_CONFIRM2 = "WEB-INF/jsp/user_confirm2.jsp";
+		final String JSP_COMPLETE = "WEB-INF/jsp/user_complete.jsp";
 		final String JSP_SIGNUP   = "WEB-INF/jsp/user_signup.jsp";
 
 		String action = safe(request.getParameter("action"));
-		HttpSession session = request.getSession();
 		String url = JSP_CONFIRM;
 
 		switch (action) {
@@ -96,11 +112,11 @@ public class EmployeeUpdate extends HttpServlet {
 					request.setAttribute("eMsg", "既に登録されているメールアドレスのため、更新できません。");
 				} else {
 					session.removeAttribute("updateEmpBean");
-					url = JSP_CONFIRM2;
+					url = JSP_COMPLETE;
 				}
 			} else {
 				// 変更なし → 確認ページへ遷移（必要に応じてメッセージを表示）
-				url = JSP_CONFIRM2;
+				url = JSP_COMPLETE;
 			}
 			break;
 
@@ -119,7 +135,7 @@ public class EmployeeUpdate extends HttpServlet {
 					url = JSP_SIGNUP;
 				} else {
 					session.removeAttribute("insertEmpBean");
-					url = JSP_CONFIRM2;
+					url = JSP_COMPLETE;
 				}
 			}
 			break;

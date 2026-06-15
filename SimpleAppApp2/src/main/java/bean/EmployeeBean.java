@@ -15,7 +15,10 @@ public class EmployeeBean {
 	String email;
 	String dpt_id;
 	String pos_id;
+	int pos_amount;
 	boolean is_deleted = false;
+	
+	
 	
 	public String getEmp_id() {
 		return emp_id;
@@ -48,12 +51,19 @@ public class EmployeeBean {
 	public void setPos_id(String pos_id) {
 		this.pos_id = pos_id;
 	}
+	public int getPos_amount() {
+		return pos_amount;
+	}
+	public void setPos_amount(int pos_amount) {
+		this.pos_amount = pos_amount;
+	}
 	public boolean isIs_deleted() {
 		return is_deleted;
 	}
 	public void setIs_deleted(boolean is_deleted) {
 		this.is_deleted = is_deleted;
 	}
+	
 	
 	
 }

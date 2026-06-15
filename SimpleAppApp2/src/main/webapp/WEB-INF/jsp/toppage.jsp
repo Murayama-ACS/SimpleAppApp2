@@ -8,5 +8,6 @@
 </head>
 <body>
 <h2>トップぺーーーージ！！！</h2>
+<a href="EmployeeInfo">ユーザー一覧</a>
 </body>
 </html>
