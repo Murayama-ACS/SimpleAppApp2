@@ -98,21 +98,22 @@
 
   部署:
   <select name="q_dpt_id">
+    <option value=""><c:out value="--指定なし--" /></option>
   	<c:forEach var="d" items="${dptList}">
- 		<option value="${d.id}" <c:if test="${q_dpt_id != null && q_dpt_id eq d.id}">selected</c:if>>
-    	<c:out value="${d.name}" />
+ 		<option value="${d.dpt_id}" <c:if test="${q_dpt_id != null && q_dpt_id eq d.dpt_id}">selected</c:if>>
+    	<c:out value="${d.dpt_name}" />
   		</option>
 	</c:forEach>
   </select>
 
-  役職:
+  役職:  
   <select name="q_pos_id">
     <option value=""><c:out value="--指定なし--" /></option>
-    <option value="E00">一般社員</option>
-	<option value="E01">課長</option>
-	<option value="E02">部長</option>
-	<option value="E03">本部長</option>
-	<option value="E04">社長</option>
+    <c:forEach var="p" items="${posList}">
+ 		<option value="${p.pos_id}" <c:if test="${q_pos_id != null && q_pos_id eq p.pos_id}">selected</c:if>>
+    	<c:out value="${p.pos_name}" />
+  		</option>
+	</c:forEach>
   </select>
 
   <!-- 検索ボタン（押したら page をリセットする処理はサーブレット側で search パラメータを見て行ってください） -->
