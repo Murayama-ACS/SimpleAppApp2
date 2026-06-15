@@ -34,18 +34,17 @@
 <body>
     <h2>申請入力フォーム</h2>
 
-<%
-        // ① サーブレットがリクエストスコープに格納したオブジェクトと部署名を取得
+    <%
+        // サーブレットがリクエストスコープに入れてくれたオブジェクトと文字列を取り出す
         EmployeeBean empBean = (EmployeeBean) request.getAttribute("employeeInfo");
         String dptName = (String) request.getAttribute("departmentName");
         
-        // ② セッションからログイン情報を取得
+        // セッションからログイン情報を取得
         EmployeeBean sessionEmp = (EmployeeBean) session.getAttribute("loginEmployee");
         
         String empId = "未ログイン";
         String empName = "未ログイン";
 
-        // 社員IDと氏名の確定ロジック
         if (empBean != null) {
             empId = empBean.getEmp_id();
             empName = empBean.getEmp_name();
@@ -54,11 +53,12 @@
             empName = sessionEmp.getEmp_name();
         }
         
-        // ★【修正ポイント】
-        // サーブレットからの部署名（dptName）が null、または空文字の場合のみ「未所属」とする
         if (dptName == null || dptName.trim().isEmpty()) {
             dptName = "未所属";
         }
+
+        // ★【追加】リクエストスコープから統一キー eMsg を取得
+        String errorMsg = (String) request.getAttribute("eMsg");
     %>
 
     <div style="background-color: #f0f0f0; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc;">
@@ -67,6 +67,12 @@
         氏名: <%= empName %><br>
         部署: <%= dptName %>
     </div>
+
+    <% if (errorMsg != null && !errorMsg.isEmpty()) { %>
+        <div style="color: #d9534f; background-color: #f2dede; border: 1px solid #ebccd1; padding: 12px; margin-bottom: 20px; border-radius: 4px; font-weight: bold;">
+            ⚠️ <%= errorMsg %>
+        </div>
+    <% } %>
 
     <form action="${pageContext.request.contextPath}/Application" method="post" onsubmit="return confirmSubmission()">
         <table border="1">
@@ -104,17 +110,5 @@
         <br>
         <input type="submit" value="申請を送信する" <%= ("未ログイン".equals(empId)) ? "disabled" : "" %>>
     </form>
-
-    <%
-        // サーブレットからエラーメッセージが送られてきているか確認し、ポップアップを表示する
-        String errorMsg = (String) request.getAttribute("errorMessage");
-        if (errorMsg != null && !errorMsg.isEmpty()) {
-    %>
-        <script type="text/javascript">
-            alert("<%= errorMsg %>");
-        </script>
-    <%
-        }
-    %>
 </body>
 </html>

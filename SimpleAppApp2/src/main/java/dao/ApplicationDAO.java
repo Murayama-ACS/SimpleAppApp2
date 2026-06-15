@@ -135,5 +135,41 @@ public class ApplicationDAO extends DAO {
 		}
 		return dptName;
 	}
+	/**
+	 * 役職IDを基に、その役職の申請上限金額を取得する（EmployeeBeanは変更しない方法）
+	 * @param posId 役職ID
+	 * @return 上限金額（上限がない場合は null を返す）
+	 */
+	public Integer selectPositionAmount(String posId) {
+		Connection con = dbConnect();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		Integer posAmount = null;
+
+		String sql = "SELECT pos_amount FROM positions WHERE pos_id = ?";
+
+		try {
+			if (con != null) {
+				st = con.prepareStatement(sql);
+				st.setString(1, posId);
+				rs = st.executeQuery();
+
+				if (rs.next()) {
+					int amount = rs.getInt("pos_amount");
+					if (!rs.wasNull()) {
+						posAmount = amount; // 上限金額が存在する場合のみ格納
+					}
+				}
+			}
+		} catch (SQLException e) {
+			System.out.println("selectPositionAmountエラー");
+			System.out.println(e.getMessage());
+		} finally {
+			if (rs != null) try { rs.close(); } catch (SQLException e) {}
+			if (st != null) try { st.close(); } catch (SQLException e) {}
+			dbClose(con);
+		}
+		return posAmount;
+	}
 
 }
