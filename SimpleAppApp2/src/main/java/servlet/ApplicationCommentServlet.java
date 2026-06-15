@@ -34,7 +34,7 @@ public class ApplicationCommentServlet extends HttpServlet {
 		
 		request.setCharacterEncoding("UTF-8");
 
-		// 1. ログインチェック
+		// 1. ログインチェックブロック
 		HttpSession session = request.getSession();
 		EmployeeBean employee = (EmployeeBean) session.getAttribute("loginEmployee"); 
 
@@ -43,7 +43,7 @@ public class ApplicationCommentServlet extends HttpServlet {
 			return;
 		}
 
-		// 2. 権限チェック
+		// 2. 画面アクセス権限チェックブロック
 		String posId = employee.getPos_id();
 		if ("E00".equals(posId)) {
 			request.setAttribute("eMsg", "アクセス権限がありません。");
@@ -51,8 +51,9 @@ public class ApplicationCommentServlet extends HttpServlet {
 			return;
 		}
 
+		// 3. リクエストパラメータの取得および入力情報の検証ブロック
 		String apctId = request.getParameter("apct_id"); 
-		String actionType = request.getParameter("action_type"); // 'approve' または 'reject' を取得
+		String actionType = request.getParameter("action_type"); 
 		String comment = request.getParameter("comment");
 
 		if (apctId == null || apctId.trim().isEmpty()) {
@@ -64,10 +65,10 @@ public class ApplicationCommentServlet extends HttpServlet {
 			ApplicationDAO appDao = new ApplicationDAO();
 			ApprovalDAO approvalDao = new ApprovalDAO();
 
-			// 【確定処理】JSPからアクションタイプ（approve/reject）が送られてきた場合
+			// 4. アクション実行（承認・却下の確定処理）ブロック
 			if (actionType != null && !actionType.trim().isEmpty()) {
 				
-				// 1. 現在の申請データをDBから取得して最新のstatus_idを確認
+				// 現在の申請データをDBから取得して最新のstatus_idを確認
 				ApplicationBean application = appDao.findById(apctId);
 				if (application == null) {
 					forwardToWaitListWithError(request, response, "対象の申請データが見つかりません。");
@@ -75,25 +76,20 @@ public class ApplicationCommentServlet extends HttpServlet {
 				}
 				int currentStatusId = application.getStatus_id();
 
-				// 2. 役職と操作内容から次のステータスIDをサーブレット側で安全に決定
 				int nextStatusId = 0;
 
+				// 却下アクション、または承認者属性（管理部・社長・その他上長）に応じた遷移先ステータスIDの算出
 				if ("reject".equals(actionType)) {
-					// 却下の場合は一律「6: 却下」
 					nextStatusId = 6;
 				} else if ("approve".equals(actionType)) {
-					String userDpt = employee.getDpt_id(); // ログインユーザーの部署ID
-					String userPos = employee.getPos_id(); // ログインユーザーの役職コード
+					String userDpt = employee.getDpt_id(); 
+					String userPos = employee.getPos_id(); 
 
 					if ("D100".equals(userDpt)) {
-						// 【追加】管理部の上長（課長・部長）が承認した場合は、
-						// status_idが1（自部署内の申請）であっても2（他部署からの申請）であっても、次は一律「3: 管理部承認」となる
 						nextStatusId = 3;
 					} else if (currentStatusId == 1 && "E04".equals(userPos)) {
-						// 現在が未承認(1)で、承認者が社長(E04)の場合のみ「4: 社長承認」へジャンプ
 						nextStatusId = 4;
 					} else {
-						// それ以外の本部長、部長、課長などの通常承認はステップを1つ進める
 						nextStatusId = currentStatusId + 1;
 					}
 				} else {
@@ -101,24 +97,22 @@ public class ApplicationCommentServlet extends HttpServlet {
 					return;
 				}
 
-				// 3. 履歴ID (approval_id) の生成
+				// 登録用エンティティ（Bean）の生成およびデータセット
 				String timeStamp = new SimpleDateFormat("yyMMddHHmmssSSS").format(new Date());
 				String approvalId = "APV" + timeStamp;
 
-				// 4. ApprovalBean の作成とデータ設定
 				ApprovalBean approval = new ApprovalBean();
 				approval.setApprovalId(approvalId);
 				approval.setApctId(apctId);
-				approval.setEmployeeId(employee.getEmp_id()); // 処理を行ったログインユーザーのID
+				approval.setEmployeeId(employee.getEmp_id()); 
 				approval.setStatusId(nextStatusId);
 				approval.setComment(comment);
 				approval.setCreateDate(LocalDateTime.now());
 
-				// 5. 承認履歴(approvals)テーブルへのデータ登録
+				// データベースへのトランザクション（登録・更新）実行
 				int insertResult = approvalDao.insert(approval);
 
 				if (insertResult > 0) {
-					// 6. applicationsテーブルのstatus_idを更新
 					int updateResult = appDao.updateStatus(apctId, nextStatusId, LocalDateTime.now());
 					if (updateResult == 0) {
 						forwardToWaitListWithError(request, response, "申請データの状態更新に失敗しました。");
@@ -129,12 +123,12 @@ public class ApplicationCommentServlet extends HttpServlet {
 					return;
 				}
 
-				// 処理成功時：完了画面を挟まず、一覧画面へ成功フラグを付与してリダイレクト
+				// 処理成功時の画面リダイレクト制御
 				response.sendRedirect(request.getContextPath() + "/ApplicationWaitList?success=true");
 				return; 
 			}
 
-			// --- action_type が無い場合（一覧画面から詳細画面へ通常遷移してきた時） ---
+			// 5. 初期表示（詳細表示処理）ブロック
 			ApplicationBean application = appDao.findById(apctId);
 			if (application == null) {
 				forwardToWaitListWithError(request, response, "指定された申請が見つかりません。");
@@ -143,11 +137,12 @@ public class ApplicationCommentServlet extends HttpServlet {
 
 			request.setAttribute("application", application);
 
-			// 詳細画面（app_comment.jsp）へフォワード
+			// 詳細画面へフォワード
 			RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/jsp/app_comment.jsp");
 			rd.forward(request, response);
 
 		} catch (Exception e) {
+			// 例外発生時のログ出力および共通エラーハンドリングへの委譲
 			log("ApplicationCommentServlet error", e);
 			forwardToWaitListWithError(request, response, "申請詳細の処理中にエラーが発生しました。");
 		}
