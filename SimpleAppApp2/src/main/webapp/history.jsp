@@ -4,23 +4,19 @@
 <%@ page import="bean.ApplicationBean" %>
 <%@ page import="bean.EmployeeBean" %>
 <%
-    // セッションからログインユーザー情報を取得
     EmployeeBean employee = (EmployeeBean) session.getAttribute("loginEmployee");
     String empId = (employee != null) ? employee.getEmp_id() : "";
     String dptId = (employee != null) ? employee.getDpt_id() : "";
     String posId = (employee != null) ? employee.getPos_id() : "";
 
-    // サーブレットから渡された各種属性を取得
     List<ApplicationBean> historyList = (List<ApplicationBean>) request.getAttribute("appList");
     String dptName = (String) request.getAttribute("dpt_name");
     String currentScope = (String) request.getAttribute("currentScope");
     String currentStatusFilter = (String) request.getAttribute("currentStatusFilter");
 
-    // デフォルト値の安全な補填
     if (currentScope == null) currentScope = "self";
     if (currentStatusFilter == null) currentStatusFilter = "incomplete";
 
-    // 操作列（詳細・修正・削除）は、レイアウト崩れを防ぐため常に表示
     boolean showActionColumn = true;
 %>
 <!DOCTYPE html>
@@ -49,6 +45,21 @@
     function confirmDelete() { 
         return confirm("この申請を削除してもよろしいですか？"); 
     }
+
+    // 【新規追加】現在のタブ状態やソート状態を維持して、検索項目だけをクリアして再ロードする関数
+    function clearSearch() {
+        var currentScope = "<%= currentScope %>";
+        var currentFilter = "<%= "incomplete".equals(currentStatusFilter) ? "unapproved" : "all" %>";
+        var currentSort = "<c:out value='${sort}'/>";
+        var currentDir = "<c:out value='${dir}'/>";
+        
+        location.href = "${pageContext.request.contextPath}/ApplicationHistoryServlet"
+            + "?scope=" + currentScope
+            + "&filter=" + currentFilter
+            + "&sort=" + currentSort
+            + "&dir=" + currentDir
+            + "&page=1";
+    }
 </script>
 </head>
 <body>
@@ -67,6 +78,7 @@
          %>)
     </div>
 
+    <!-- 【4-3. 検索フォームセクション：金額範囲対応版】 -->
     <div class="search-box">
         <form action="${pageContext.request.contextPath}/ApplicationHistoryServlet" method="get">
             <input type="hidden" name="scope" value="<c:out value='${currentScope}'/>" />
@@ -107,11 +119,16 @@
                 <option value="旅費精算" <c:if test="${q_type eq '旅費精算'}">selected</c:if>>旅費精算</option>
             </select>
 
-            &nbsp;&nbsp;金額（円以上）:
-            <input type="text" name="q_amount" value="<c:out value='${q_amount}'/>" style="width:80px;" />
+            <!-- 【修正】金額を「円以上〜円以下」の範囲指定入力に拡張 -->
+            &nbsp;&nbsp;金額範囲:
+            <input type="number" name="q_amount_min" value="<c:out value='${q_amount_min}'/>" style="width:90px;" /> 円以上 〜 
+            <input type="number" name="q_amount_max" value="<c:out value='${q_amount_max}'/>" style="width:90px;" /> 円以下
 
             &nbsp;&nbsp;
             <button type="submit" name="search" value="1">検索</button>
+            
+            <!-- 【新規追加】検索条件クリアボタン -->
+            <button type="button" onclick="clearSearch()">クリア</button>
 
             <input type="hidden" name="sort" value="<c:out value='${sort}'/>" />
             <input type="hidden" name="dir"  value="<c:out value='${dir}'/>" />
@@ -119,6 +136,7 @@
         </form>
     </div>
 
+    <!-- 対象範囲フィルタータブ -->
     <% if (!"E00".equals(posId) || "D100".equals(dptId)) { %>
     <div class="tab-group">
         <a href="ApplicationHistoryServlet?scope=self&filter=<%= "incomplete".equals(currentStatusFilter) ? "unapproved" : "all" %>" class="tab <%= "self".equals(currentScope) ? "active" : "" %>">自身</a>
@@ -127,11 +145,13 @@
     </div>
     <% } %>
 
+    <!-- 状態フィルタータブ -->
     <div class="tab-group">
         <a href="ApplicationHistoryServlet?scope=<%= currentScope %>&filter=unapproved" class="tab <%= "incomplete".equals(currentStatusFilter) ? "active" : "" %>">未完了</a>
         <a href="ApplicationHistoryServlet?scope=<%= currentScope %>&filter=all" class="tab <%= "all".equals(currentStatusFilter) ? "active" : "" %>">全て表示</a>
     </div>
 
+    <!-- ソートリンク付きデータテーブル（ページング連動用URLパラメータ修正） -->
     <table>
         <thead>
             <tr>
@@ -140,14 +160,14 @@
                 <c:url var="sortName" value="/ApplicationHistoryServlet">
                     <c:param name="scope" value="${currentScope}"/><c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>
                     <c:param name="sort" value="name"/><c:param name="dir" value="${sort == 'name' && dir == 'asc' ? 'desc' : 'asc'}"/><c:param name="page" value="1"/>
-                    <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount" value="${q_amount}"/>
+                    <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount_min" value="${q_amount_min}"/><c:param name="q_amount_max" value="${q_amount_max}"/>
                 </c:url>
                 <th><a href="${sortName}">申請者名<c:if test="${sort == 'name'}"><c:out value="${dir == 'asc' ? ' ▲' : ' ▼'}" /></c:if></a></th>
                 
                 <c:url var="sortDpt" value="/ApplicationHistoryServlet">
                     <c:param name="scope" value="${currentScope}"/><c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>
                     <c:param name="sort" value="dpt"/><c:param name="dir" value="${sort == 'dpt' && dir == 'asc' ? 'desc' : 'asc'}"/><c:param name="page" value="1"/>
-                    <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount" value="${q_amount}"/>
+                    <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount_min" value="${q_amount_min}"/><c:param name="q_amount_max" value="${q_amount_max}"/>
                 </c:url>
                 <th><a href="${sortDpt}">部門<c:if test="${sort == 'dpt'}"><c:out value="${dir == 'asc' ? ' ▲' : ' ▼'}" /></c:if></a></th>
                 
@@ -157,7 +177,7 @@
                 <c:url var="sortAmount" value="/ApplicationHistoryServlet">
                     <c:param name="scope" value="${currentScope}"/><c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>
                     <c:param name="sort" value="amount"/><c:param name="dir" value="${sort == 'amount' && dir == 'asc' ? 'desc' : 'asc'}"/><c:param name="page" value="1"/>
-                    <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount" value="${q_amount}"/>
+                    <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount_min" value="${q_amount_min}"/><c:param name="q_amount_max" value="${q_amount_max}"/>
                 </c:url>
                 <th><a href="${sortAmount}">金額<c:if test="${sort == 'amount'}"><c:out value="${dir == 'asc' ? ' ▲' : ' ▼'}" /></c:if></a></th>
                 
@@ -166,14 +186,14 @@
                 <c:url var="sortStatus" value="/ApplicationHistoryServlet">
                     <c:param name="scope" value="${currentScope}"/><c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>
                     <c:param name="sort" value="status"/><c:param name="dir" value="${sort == 'status' && dir == 'asc' ? 'desc' : 'asc'}"/><c:param name="page" value="1"/>
-                    <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount" value="${q_amount}"/>
+                    <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount_min" value="${q_amount_min}"/><c:param name="q_amount_max" value="${q_amount_max}"/>
                 </c:url>
                 <th><a href="${sortStatus}">申請状況<c:if test="${sort == 'status'}"><c:out value="${dir == 'asc' ? ' ▲' : ' ▼'}" /></c:if></a></th>
 
                 <c:url var="sortDate" value="/ApplicationHistoryServlet">
                     <c:param name="scope" value="${currentScope}"/><c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>
                     <c:param name="sort" value="date"/><c:param name="dir" value="${sort == 'date' && dir == 'asc' ? 'desc' : 'asc'}"/><c:param name="page" value="1"/>
-                    <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount" value="${q_amount}"/>
+                    <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount_min" value="${q_amount_min}"/><c:param name="q_amount_max" value="${q_amount_max}"/>
                 </c:url>
                 <th><a href="${sortDate}">申請日<c:if test="${sort == 'date'}"><c:out value="${dir == 'asc' ? ' ▲' : ' ▼'}" /></c:if></a></th>
                 
@@ -241,11 +261,12 @@
         </tbody>
     </table>
 
+    <!-- ページングコンポーネント（範囲指定金額のパラメータ引き継ぎ対応） -->
     <div class="paging-group">
         <c:url var="urlPrev" value="ApplicationHistoryServlet">
             <c:param name="scope" value="${currentScope}"/><c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>
             <c:param name="sort" value="${sort}"/><c:param name="dir" value="${dir}"/><c:param name="page" value="${page - 1}"/>
-            <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount" value="${q_amount}"/>
+            <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount_min" value="${q_amount_min}"/><c:param name="q_amount_max" value="${q_amount_max}"/>
         </c:url>
         <c:choose>
             <c:when test="${page > 1}"><a href="${urlPrev}">前へ</a></c:when>
@@ -259,7 +280,7 @@
                 <c:url var="urlNext" value="ApplicationHistoryServlet">
                     <c:param name="scope" value="${currentScope}"/><c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>
                     <c:param name="sort" value="${sort}"/><c:param name="dir" value="${dir}"/><c:param name="page" value="${page + 1}"/>
-                    <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount" value="${q_amount}"/>
+                    <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount_min" value="${q_amount_min}"/><c:param name="q_amount_max" value="${q_amount_max}"/>
                 </c:url>
                 <a href="${urlNext}">次へ</a>
             </c:when>

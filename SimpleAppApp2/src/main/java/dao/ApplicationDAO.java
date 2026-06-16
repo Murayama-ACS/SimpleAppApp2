@@ -340,15 +340,17 @@ public class ApplicationDAO extends DAO {
 	}
 
 	public List<ApplicationBean> getHistoryApplications(EmployeeBean employee, String scope, String statusFilter) {
-		// ※新設された下部の searchApplications メソッドにロジックを集約・一元化するため、
-		// 既存の履歴一覧表示を呼び出す箇所との互換用、あるいは全件取得用のラッパーとして残しています。
-		try {
-			PageResult<ApplicationBean> pr = searchApplications(employee, scope, statusFilter, null, null, null, null, null, "date", "desc", 9999, 0);
-			return pr.getItems();
-		} catch (SQLException e) {
-			return new ArrayList<>();
+			try {
+				// 【修正】金額の下限・上限に合わせて、null を2つ（null, null）引き渡すように修正
+				PageResult<ApplicationBean> pr = searchApplications(
+						employee, scope, statusFilter, 
+						null, null, null, null, null, null, 
+						"date", "desc", 9999, 0);
+				return pr.getItems();
+			} catch (SQLException e) {
+				return new ArrayList<>();
+			}
 		}
-	}
 
 	public List<ApplicationBean> getAccountingApplications() {
 		Connection con = dbConnect();
@@ -387,152 +389,144 @@ public class ApplicationDAO extends DAO {
 	}
 
 	// =================================================================
-	// 5. 新規統合：検索・ソート・ページング対応動的SQLメソッド（修正版）
-	// =================================================================
-	public PageResult<ApplicationBean> searchApplications(
-			EmployeeBean loginUser, String scope, String statusFilter,
-			String qStatus, String qName, String qDepartment, String qType, String qAmount,
-			String sortKey, String sortDir, int limit, int offset) throws SQLException {
+		// 5. 新規統合：検索・ソート・ページング対応動的SQLメソッド（型不一致修正版）
+		// =================================================================
+		public PageResult<ApplicationBean> searchApplications(
+				EmployeeBean loginUser, String scope, String statusFilter,
+				String qStatus, String qName, String qDepartment, String qType, 
+				Integer qAmountMin, Integer qAmountMax, // 【修正】StringからInteger型へ変更
+				String sortKey, String sortDir, int limit, int offset) throws SQLException {
 
-		// 【4-2. ソートキーのマッピング拡張】
-		// 要件：申請状況、名前（ふりがな連動）、日付順、部門（部署名）、金額に対応
-		Map<String, String> colMap = Map.of(
+			// 【4-2. ソートキーのマッピング】
+			Map<String, String> colMap = Map.of(
 				"status", "a.status_id",
-				"name",   "COALESCE(e.furigana, e.emp_name)", // 名前選択時はe.furiganaを最優先してソート
+				"name",   "COALESCE(e.furigana, e.emp_name)",
 				"date",   "a.create_date",
-				"dpt",    "d.dpt_name",                       // 部門（部署名順）ソートを追加
-				"amount", "a.amount"                          // 金額順ソートを追加
-				);
+				"dpt",    "d.dpt_name",
+				"amount", "a.amount"
+			);
 
-		if (sortKey == null || sortKey.isEmpty()) sortKey = "date";
-		String orderBy = colMap.getOrDefault(sortKey, "a.create_date");
+			if (sortKey == null || sortKey.isEmpty()) sortKey = "date";
+			String orderBy = colMap.getOrDefault(sortKey, "a.create_date");
+			String dir = "ASC".equalsIgnoreCase(sortDir) ? "ASC" : "DESC";
 
-		// 昇順(ASC)・降順(DESC)の安全な判定
-		String dir = "ASC".equalsIgnoreCase(sortDir) ? "ASC" : "DESC";
+			StringBuilder sql = new StringBuilder();
+			sql.append("SELECT DISTINCT a.apct_id, a.emp_id, a.content, a.type, a.method, a.amount, ")
+			   .append("a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, ")
+			   .append("s.status_name, e.emp_name AS emp_name, d.dpt_name AS dpt_name ")
+			   .append("FROM applications a ")
+			   .append("JOIN employees e ON a.emp_id = e.emp_id ")
+			   .append("JOIN status s ON a.status_id = s.status_id ")
+			   .append("JOIN departments d ON e.dpt_id = d.dpt_id ")
+			   .append("WHERE a.is_deleted = 0 ");
 
-		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT DISTINCT a.apct_id, a.emp_id, a.content, a.type, a.method, a.amount, ")
-		.append("a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, ")
-		.append("s.status_name, e.emp_name AS emp_name, d.dpt_name AS dpt_name ")
-		.append("FROM applications a ")
-		.append("JOIN employees e ON a.emp_id = e.emp_id ")
-		.append("JOIN status s ON a.status_id = s.status_id ")
-		.append("JOIN departments d ON e.dpt_id = d.dpt_id ")
-		.append("WHERE a.is_deleted = 0 ");
+			ArrayList<Object> params = new ArrayList<>();
+			String posId = loginUser.getPos_id();
+			String userDpt = loginUser.getDpt_id();
 
-		ArrayList<Object> params = new ArrayList<>();
-		String posId = loginUser.getPos_id();
-		String userDpt = loginUser.getDpt_id();
-
-		// -----------------------------------------------------------------
-		// 防壁：組織階層に応じた範囲制限の結合
-		// -----------------------------------------------------------------
-		if ("self".equals(scope) || scope == null || scope.isEmpty()) {
-			sql.append("AND a.emp_id = ? ");
-			params.add(loginUser.getEmp_id());
-
-		} else if ("subordinate".equals(scope)) {
-			if ("D712".equals(userDpt)) {
-				sql.append("AND e.dpt_id IN ('D710', 'D720', 'D712') ");
-			} else if ("D734".equals(userDpt)) {
-				sql.append("AND e.dpt_id IN ('D730', 'D740', 'D734') ");
-			} else if (userDpt != null && userDpt.length() >= 3) {
-				if ("E03".equals(posId) || "E02".equals(posId)) {
-					sql.append("AND e.dpt_id LIKE ? ");
-					params.add(userDpt.substring(0, 2) + "%");
-				} else if ("E01".equals(posId)) {
-					sql.append("AND e.dpt_id = ? ");
-					params.add(userDpt);
-				}
-			}
-			sql.append("AND e.pos_id < ? AND a.emp_id != ? ");
-			params.add(posId);
-			params.add(loginUser.getEmp_id());
-
-		} else if ("management".equals(scope)) {
-			if (!"D100".equals(userDpt)) {
+			// 組織階層に応じた範囲制限の結合
+			if ("self".equals(scope) || scope == null || scope.isEmpty()) {
 				sql.append("AND a.emp_id = ? ");
 				params.add(loginUser.getEmp_id());
-			}
-		}
-
-		// 簡易タブフィルター条件
-		if ("incomplete".equals(statusFilter)) {
-			sql.append("AND a.status_id IN (1, 2, 3, 4) ");
-		}
-
-		// -----------------------------------------------------------------
-		// 【4-3. 検索機能の動的条件追加】
-		// -----------------------------------------------------------------
-		// ① 申請状況
-		if (qStatus != null && !qStatus.isEmpty()) {
-			sql.append("AND a.status_id = ? ");
-			params.add(Integer.parseInt(qStatus));
-		}
-
-		// ② 名前（課長クラス以上のみ有効）
-		if (qName != null && !qName.isEmpty()) {
-			if (!"E00".equals(posId)) { 
-				sql.append("AND e.emp_name LIKE ? ");
-				params.add("%" + qName + "%");
-			}
-		}
-
-		// ③ 部門（本部長クラス以上のみ有効）
-		if (qDepartment != null && !qDepartment.isEmpty()) {
-			if ("E03".equals(posId) || "E04".equals(posId)) {
-				sql.append("AND e.dpt_id = ? ");
-				params.add(qDepartment);
-			}
-		}
-
-		// ④ 種別
-		if (qType != null && !qType.isEmpty()) {
-			sql.append("AND a.type = ? ");
-			params.add(qType);
-		}
-
-		// ⑤ 金額（指定値以上の下限検索）
-		if (qAmount != null && !qAmount.isEmpty()) {
-			sql.append("AND a.amount >= ? ");
-			params.add(Integer.parseInt(qAmount));
-		}
-
-		// ソート指定の構築と結合（第2ソートとして主キーを固定してページングのブレを防ぐ）
-		sql.append(" ORDER BY ").append(orderBy).append(" ").append(dir).append(", a.apct_id DESC ");
-		sql.append(" LIMIT ? OFFSET ?");
-
-		ArrayList<ApplicationBean> list = new ArrayList<>();
-		try (Connection con = dbConnect();
-				PreparedStatement ps = con.prepareStatement(sql.toString())) {
-
-			int idx = 1;
-			for (Object p : params) {
-				ps.setObject(idx++, p);
-			}
-			int effectiveLimit = limit + 1;
-			ps.setInt(idx++, effectiveLimit);
-			ps.setInt(idx++, offset);
-
-			try (ResultSet rs = ps.executeQuery()) {
-				while (rs.next()) {
-					ApplicationBean b = mapRowToBean(rs);
-					b.setStatusName(rs.getString("status_name"));
-					b.setEmployeeName(rs.getString("emp_name"));
-					b.setDepartmentName(rs.getString("dpt_name"));
-					list.add(b);
+				
+			} else if ("subordinate".equals(scope)) {
+				if ("D712".equals(userDpt)) {
+					sql.append("AND e.dpt_id IN ('D710', 'D720', 'D712') ");
+				} else if ("D734".equals(userDpt)) {
+					sql.append("AND e.dpt_id IN ('D730', 'D740', 'D734') ");
+				} else if (userDpt != null && userDpt.length() >= 3) {
+					if ("E03".equals(posId) || "E02".equals(posId)) {
+						sql.append("AND e.dpt_id LIKE ? ");
+						params.add(userDpt.substring(0, 2) + "%");
+					} else if ("E01".equals(posId)) {
+						sql.append("AND e.dpt_id = ? ");
+						params.add(userDpt);
+					}
+				}
+				sql.append("AND e.pos_id < ? AND a.emp_id != ? ");
+				params.add(posId);
+				params.add(loginUser.getEmp_id());
+				
+			} else if ("management".equals(scope)) {
+				if (!"D100".equals(userDpt)) {
+					sql.append("AND a.emp_id = ? ");
+					params.add(loginUser.getEmp_id());
 				}
 			}
-		}
 
-		// 次ページの有無判定
-		boolean hasNext = false;
-		if (list.size() > limit) {
-			hasNext = true;
-			list.remove(list.size() - 1);
+			if ("incomplete".equals(statusFilter)) {
+				sql.append("AND a.status_id IN (1, 2, 3, 4) ");
+			}
+
+			// 動的検索条件の追加
+			if (qStatus != null && !qStatus.isEmpty()) {
+				sql.append("AND a.status_id = ? ");
+				params.add(Integer.parseInt(qStatus));
+			}
+			
+			if (qName != null && !qName.isEmpty()) {
+				if (!"E00".equals(posId)) { 
+					sql.append("AND e.emp_name LIKE ? ");
+					params.add("%" + qName + "%");
+				}
+			}
+			
+			if (qDepartment != null && !qDepartment.isEmpty()) {
+				if ("E03".equals(posId) || "E04".equals(posId)) {
+					sql.append("AND e.dpt_id = ? ");
+					params.add(qDepartment);
+				}
+			}
+			
+			if (qType != null && !qType.isEmpty()) {
+				sql.append("AND a.type = ? ");
+				params.add(qType);
+			}
+			
+			// 【修正】Integerオブジェクトとして直接ヌル判定を行い、数値をバインド
+			if (qAmountMin != null) {
+				sql.append("AND a.amount >= ? ");
+				params.add(qAmountMin);
+			}
+
+			if (qAmountMax != null) {
+				sql.append("AND a.amount <= ? ");
+				params.add(qAmountMax);
+			}
+
+			sql.append(" ORDER BY ").append(orderBy).append(" ").append(dir).append(", a.apct_id DESC ");
+			sql.append(" LIMIT ? OFFSET ?");
+
+			ArrayList<ApplicationBean> list = new ArrayList<>();
+			try (Connection con = dbConnect();
+					PreparedStatement ps = con.prepareStatement(sql.toString())) {
+
+				int idx = 1;
+				for (Object p : params) {
+					ps.setObject(idx++, p);
+				}
+				int effectiveLimit = limit + 1;
+				ps.setInt(idx++, effectiveLimit);
+				ps.setInt(idx++, offset);
+
+				try (ResultSet rs = ps.executeQuery()) {
+					while (rs.next()) {
+						ApplicationBean b = mapRowToBean(rs);
+						b.setStatusName(rs.getString("status_name"));
+						b.setEmployeeName(rs.getString("emp_name"));
+						b.setDepartmentName(rs.getString("dpt_name"));
+						list.add(b);
+					}
+				}
+			}
+
+			boolean hasNext = false;
+			if (list.size() > limit) {
+				hasNext = true;
+				list.remove(list.size() - 1);
+			}
+			return new PageResult<>(list, hasNext);
 		}
-		return new PageResult<>(list, hasNext);
-	}
 
 	// =================================================================
 	// 6. 共通補助マッピング関数（維持）

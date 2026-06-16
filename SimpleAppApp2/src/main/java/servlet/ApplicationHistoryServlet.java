@@ -27,7 +27,7 @@ public class ApplicationHistoryServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) 
 			throws ServletException, IOException {
 		
-		// 1. ログインチェック
+		// 1. ログインチェック（セッション検証）ブロック
 		HttpSession session = request.getSession();
 		EmployeeBean employee = (EmployeeBean) session.getAttribute("loginEmployee");
 		
@@ -39,7 +39,7 @@ public class ApplicationHistoryServlet extends HttpServlet {
 		String posId = employee.getPos_id();
 		String dptId = employee.getDpt_id();
 
-		// 2. 表示対象範囲（scope）の初期化とガード処理
+		// 2. 表示対象範囲（scope）の初期化とガード処理ブロック
 		String scope = request.getParameter("scope");
 		if (scope == null || scope.isEmpty()) {
 			scope = "self";
@@ -51,7 +51,7 @@ public class ApplicationHistoryServlet extends HttpServlet {
 			scope = "self";
 		}
 
-		// 3. ステータスフィルターの変換
+		// 3. ステータスフィルターの変換ブロック
 		String filter = request.getParameter("filter");
 		if (filter == null || filter.isEmpty()) {
 			filter = "unapproved"; 
@@ -61,14 +61,35 @@ public class ApplicationHistoryServlet extends HttpServlet {
 			statusFilter = "incomplete";
 		}
 
-		// 4. 新規追加：検索パラメータの取得とトリミング
+		// 4. 検索パラメータの取得ブロック
 		String qStatus = trimToNull(request.getParameter("q_status"));
 		String qName = trimToNull(request.getParameter("q_name"));
 		String qDepartment = trimToNull(request.getParameter("q_department"));
 		String qType = trimToNull(request.getParameter("q_type"));
-		String qAmount = trimToNull(request.getParameter("q_amount"));
+		
+		// 金額の下限（円以上）・上限（円以下）パラメータを文字列として取得
+		String qAmountMinStr = trimToNull(request.getParameter("q_amount_min"));
+		String qAmountMaxStr = trimToNull(request.getParameter("q_amount_max"));
 
-		// 5. 新規追加：ソート・ページングパラメータの取得
+		// 【型不一致の解消】DAOの引数（int型の金額フィールド連動）に対応するため、StringからIntegerオブジェクトへ安全に変換
+		Integer qAmountMin = null;
+		Integer qAmountMax = null;
+		try {
+			if (qAmountMinStr != null) {
+				qAmountMin = Integer.valueOf(qAmountMinStr);
+			}
+		} catch (NumberFormatException e) {
+			// 画面から数値以外の値、または不当な文字が入った場合は未指定（null）として処理を継続
+		}
+		try {
+			if (qAmountMaxStr != null) {
+				qAmountMax = Integer.valueOf(qAmountMaxStr);
+			}
+		} catch (NumberFormatException e) {
+			// 画面から数値以外の値、または不当な文字が入った場合は未指定（null）として処理を継続
+		}
+
+		// 5. ソート・ページングパラメータの取得ブロック
 		String sortKey = request.getParameter("sort");
 		String sortDir = request.getParameter("dir");
 		
@@ -77,43 +98,46 @@ public class ApplicationHistoryServlet extends HttpServlet {
 		if (pageParam != null) {
 			try { page = Integer.parseInt(pageParam); } catch (NumberFormatException ex) { page = 1; }
 		}
-		if (request.getParameter("search") != null) {
-			page = 1; // 検索ボタン押下時は1ページ目へリセット
+		if (request.getParameter("search") != null) { 
+			page = 1; // 新規検索ボタン押下時は先頭ページへ強制初期化
 		}
 		if (page < 1) page = 1;
 		int offset = (page - 1) * LIMIT;
 
-		// 6. メイン処理（マスタデータおよび履歴一覧の取得）
+		// 6. データ取得および画面遷移（メイン処理）ブロック
 		try {
 			ApplicationDAO dao = new ApplicationDAO();
 			DepartmentDAO deptDao = new DepartmentDAO();
 			
 			String dptName = dao.selectDepartmentName(dptId);
-			List<DepartmentBean> dptList = deptDao.findAll(); // 部門検索用のマスタ取得
+			List<DepartmentBean> dptList = deptDao.findAll(); // 部門検索プルダウン用のマスタデータ
 
-			// 検索、ソート条件を含めてDAO実行
+			// 型変換を終えた「qAmountMin」「qAmountMax」をDAOの統合メソッドへバインド
 			PageResult<ApplicationBean> pageRes = dao.searchApplications(
 					employee, scope, statusFilter, 
-					qStatus, qName, qDepartment, qType, qAmount, 
+					qStatus, qName, qDepartment, qType, qAmountMin, qAmountMax, 
 					sortKey, sortDir, LIMIT, offset);
 			
 			List<ApplicationBean> list = pageRes.getItems();
 			boolean hasNext = pageRes.hasNext();
 
-			// 画面へ返却する属性の設定
+			// JSPへ引き渡すリクエストスコープのセット
 			request.setAttribute("empBean", employee);
 			request.setAttribute("dpt_name", dptName);
-			request.setAttribute("dptList", dptList); // 選択肢用
+			request.setAttribute("dptList", dptList); 
 			request.setAttribute("appList", list);
 			request.setAttribute("currentScope", scope);
 			request.setAttribute("currentStatusFilter", statusFilter);
 			
-			// 検索状態、ソート、ページングの維持
+			// 検索窓の状態維持（画面表示用に元の文字列データを返却）
 			request.setAttribute("q_status", qStatus);
 			request.setAttribute("q_name", qName);
 			request.setAttribute("q_department", qDepartment);
 			request.setAttribute("q_type", qType);
-			request.setAttribute("q_amount", qAmount);
+			request.setAttribute("q_amount_min", qAmountMinStr);
+			request.setAttribute("q_amount_max", qAmountMaxStr);
+			
+			// ソート・ページング情報の引き継ぎ
 			request.setAttribute("sort", sortKey);
 			request.setAttribute("dir", sortDir);
 			request.setAttribute("page", page);
@@ -122,12 +146,16 @@ public class ApplicationHistoryServlet extends HttpServlet {
 			RequestDispatcher rd = request.getRequestDispatcher("/history.jsp");
 			rd.forward(request, response);
 
+		// 7. 例外発生時の自画面エラーハンドリングブロック
 		} catch (Exception e) {
 			e.printStackTrace(); 
-			request.setAttribute("errorMessage", "履歴情報の取得中にシステムエラーが発生しました。詳細: " + e.getMessage());
+			request.setAttribute("errorMessage", "履歴情報の取得中にシステムエラーが発生しました。");
+			
+			// history.jsp側のヌルポインタによる二次クラッシュを防ぐ最低限の補填
 			request.setAttribute("empBean", employee);
 			request.setAttribute("currentScope", scope);
 			request.setAttribute("currentStatusFilter", statusFilter);
+			
 			request.getRequestDispatcher("/history.jsp").forward(request, response);
 		}
 	}
