@@ -587,8 +587,9 @@ public class ApplicationDAO extends DAO {
 		}
 
 		if (qName != null && !qName.isEmpty()) {
-			sql.append("AND e.emp_name LIKE ? ");
-			params.add("%" + qName + "%");
+			sql.append("AND (e.emp_name LIKE ? OR e.furigana LIKE ?) ");
+			params.add("%" + qName + "%"); // 1つ目の「?」（漢字氏名用）にバインド
+			params.add("%" + qName + "%"); // 2つ目の「?」（ふりがな用）にバインド
 		}
 
 		if (qType != null && !qType.isEmpty()) {
