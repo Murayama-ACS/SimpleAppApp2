@@ -149,7 +149,7 @@ public class EmployeeDAO extends DAO{
 
 		Map<String,String> colMap = Map.of(//左のkeyを指定すると右のcollumをsortの対象にする
 				"emp_id",   "e.emp_id",	
-				"emp_name", "COALESCE(f.furigana, e.emp_name)",
+				"emp_name", "COALESCE(e.furigana, e.emp_name)",
 				"email",    "e.email",
 				"dpt_id",   "e.dpt_id",
 				"pos_id",   "e.pos_id"
@@ -161,11 +161,10 @@ public class EmployeeDAO extends DAO{
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT e.emp_id, e.emp_name, e.email, e.dpt_id, e.pos_id, ")
-		.append("d.dpt_name AS dpt_name, p.pos_name AS pos_name, f.furigana AS furigana ")
+		.append("d.dpt_name AS dpt_name, p.pos_name AS pos_name, e.furigana AS furigana ")
 		.append("FROM employees e ")
 		.append("LEFT JOIN departments d ON e.dpt_id = d.dpt_id ")
 		.append("LEFT JOIN positions p ON e.pos_id = p.pos_id ")
-	    .append("LEFT JOIN employees_furigana f ON e.emp_id = f.emp_id ")
 		.append("WHERE e.is_deleted = 0 ");
 		
 		
