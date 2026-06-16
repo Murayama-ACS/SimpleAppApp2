@@ -249,6 +249,7 @@
       <form action="${pageContext.request.contextPath}/EmployeeUpdate?action=updateform" method="post">
         <input type="hidden" name="updateEmp_id" value="<c:out value='${employee.emp_id}'/>" />
         <input type="hidden" name="updateEmp_name" value="<c:out value='${employee.emp_name}'/>" />
+        <input type="hidden" name="updateEmp_furigana" value="<c:out value='${employee.emp_furigana}'/>" />
         <input type="hidden" name="updateEmail" value="<c:out value='${employee.email}'/>" />
         <input type="hidden" name="updateDpt_id" value="<c:out value='${employee.dpt_id}'/>" />
         <input type="hidden" name="updatePos_id" value="<c:out value='${employee.pos_id}'/>" />

@@ -10,8 +10,17 @@ public class EmployeeBean {
 		this.dpt_id = dpt_id;
 		this.pos_id = pos_id;
 	}
+	public EmployeeBean(String emp_id, String emp_name, String emp_furigana, String email, String dpt_id, String pos_id){
+		this.emp_id = emp_id;
+		this.emp_name = emp_name;
+		this.emp_furigana = emp_furigana;
+		this.email = email;
+		this.dpt_id = dpt_id;
+		this.pos_id = pos_id;
+	}
 	String emp_id;
 	String emp_name;
+	String emp_furigana;
 	String email;
 	String dpt_id;
 	String pos_id;
@@ -19,6 +28,7 @@ public class EmployeeBean {
 	String pos_name;
 	int pos_amount;
 	boolean is_deleted = false;
+	
 	
 	public String getEmp_id() {
 		return emp_id;
@@ -31,6 +41,12 @@ public class EmployeeBean {
 	}
 	public void setEmp_name(String emp_name) {
 		this.emp_name = emp_name;
+	}
+	public String getEmp_furigana() {
+		return emp_furigana;
+	}
+	public void setEmp_furigana(String emp_furigana) {
+		this.emp_furigana = emp_furigana;
 	}
 	public String getEmail() {
 		return email;

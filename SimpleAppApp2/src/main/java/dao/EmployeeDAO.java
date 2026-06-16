@@ -15,7 +15,7 @@ public class EmployeeDAO extends DAO{
 	public int insertEmployee(EmployeeBean empBean) {//userBeanの内容をデータベースに登録する関数
 		Connection con = dbConnect();
 		int result = 0;
-		String sql = "insert into employees (emp_id, emp_name, email, dpt_id, pos_id) values (?,?,?,?,?)";
+		String sql = "insert into employees (emp_id, emp_name, furigana, email, dpt_id, pos_id) values (?,?,?,?,?,?)";
 
 		try {
 			if(con != null) {
@@ -23,9 +23,10 @@ public class EmployeeDAO extends DAO{
 				PreparedStatement st = con.prepareStatement(sql);
 				st.setString(1, empBean.getEmp_id());
 				st.setString(2, empBean.getEmp_name());
-				st.setString(3, empBean.getEmail());
-				st.setString(4, empBean.getDpt_id());
-				st.setString(5, empBean.getPos_id());
+				st.setString(3, empBean.getEmp_furigana());
+				st.setString(4, empBean.getEmail());
+				st.setString(5, empBean.getDpt_id());
+				st.setString(6, empBean.getPos_id());
 
 				int rs = st.executeUpdate();//これなんだっけ
 				result = rs;
@@ -73,16 +74,17 @@ public class EmployeeDAO extends DAO{
 		return result;
 	}
 	public int updateEmpInfo(EmployeeBean emp){
-		String sql = "UPDATE employees SET emp_name = ?, email = ?, dpt_id = ?, pos_id = ? WHERE emp_id = ?";
+		String sql = "UPDATE employees SET emp_name = ?, furigana = ?, email = ?, dpt_id = ?, pos_id = ? WHERE emp_id = ?";
 		int result = 0;
 		try (
 				Connection con = dbConnect();
 				PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setString(1, emp.getEmp_name());
-			ps.setString(2, emp.getEmail());
-			ps.setString(3, emp.getDpt_id());
-			ps.setString(4, emp.getPos_id());
-			ps.setString(5, emp.getEmp_id());
+			ps.setString(2, emp.getEmp_furigana());
+			ps.setString(3, emp.getEmail());
+			ps.setString(4, emp.getDpt_id());
+			ps.setString(5, emp.getPos_id());
+			ps.setString(6, emp.getEmp_id());
 
 			result = ps.executeUpdate();
 		}catch(SQLException e) {

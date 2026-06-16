@@ -105,27 +105,28 @@ public class EmployeeAdd extends HttpServlet {
 
 						// カンマ分割
 						String[] data = line.split(",", -1);
-						if (data.length < 5) {
-							errorList.add(lineNumber + "行目: 列数が足りません。必須5項目を入力してください。");
+						if (data.length < 6) {
+							errorList.add(lineNumber + "行目: 列数が足りません。必須6項目を入力してください。");
 							failureCount++;
 							continue;
 						}
 
 						String empId = data[0].trim();
 						String empName = data[1].trim();
-						String email = data[2].trim();
-						String dptId = data[3].trim();
-						String posId = data[4].trim();
+						String emp_furigana = data[2].trim();
+						String email = data[3].trim();
+						String dptId = data[4].trim();
+						String posId = data[5].trim();
 
 						// バリデーション
-						if (empId.isEmpty() || empName.isEmpty() || email.isEmpty() || dptId.isEmpty() || posId.isEmpty()) {
+						if (empId.isEmpty() || empName.isEmpty() || emp_furigana.isEmpty() || email.isEmpty() || dptId.isEmpty() || posId.isEmpty()) {
 							errorList.add(lineNumber + "行目: 未入力の項目があります。");
 							failureCount++;
 							continue;
 						}
 
 						// インサート実行
-						EmployeeBean insertEmpBean = new EmployeeBean(empId, empName, email, dptId, posId);
+						EmployeeBean insertEmpBean = new EmployeeBean(empId, empName, emp_furigana, email, dptId, posId);
 						int result = empDAO.insertEmployee(insertEmpBean);
 
 						if (result == 1) {
@@ -161,20 +162,22 @@ public class EmployeeAdd extends HttpServlet {
 			 * ========================================================================== */
 			String emp_id = request.getParameter("emp_id");
 			String emp_name = request.getParameter("emp_name");
+			String emp_furigana = request.getParameter("emp_furigana");
 			String email = request.getParameter("email");
 			String dpt_id = request.getParameter("dpt_id");
 			String pos_id = request.getParameter("pos_id");
 
 			System.out.println("emp_id:" + emp_id);
 			System.out.println("emp_name:" + emp_name);
+			System.out.println("emp_furigana:" + emp_furigana);
 			System.out.println("email:" + email);
 			System.out.println("dpt_id:" + dpt_id);
 			System.out.println("pos_id:" + pos_id);
 
-			if(emp_id.isEmpty() || emp_name.isEmpty() || email.isEmpty() || dpt_id == null || pos_id == null) {
-				request.setAttribute("eMsg", "社員ID、名前、Email、部署、役職のいずれかが入力されていません。");
+			if(emp_id.isEmpty() || emp_name.isEmpty() || emp_furigana.isEmpty() || email.isEmpty() || dpt_id == null || pos_id == null) {
+				request.setAttribute("eMsg", "社員ID、名前、ふりがな、Email、部署、役職のいずれかが入力されていません。");
 			}else {
-				EmployeeBean insertEmpBean = new EmployeeBean(emp_id, emp_name, email, dpt_id, pos_id);
+				EmployeeBean insertEmpBean = new EmployeeBean(emp_id, emp_name, emp_furigana, email, dpt_id, pos_id);
 				session.setAttribute("insertEmpBean", insertEmpBean);
 				url = "WEB-INF/jsp/user_confirm.jsp";
 			}

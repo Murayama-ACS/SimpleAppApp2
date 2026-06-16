@@ -10,6 +10,7 @@
 <body>
 社員ID<c:out value="${insertEmpBean.emp_id }" /><br>
 社員名<c:out value="${insertEmpBean.emp_name }" /><br>
+ふりがな<c:out value="${insertEmpBean.emp_furigana }" /><br>
 Email<c:out value="${insertEmpBean.email }" /><br>
 部署<c:out value="${insertEmpBean.dpt_id }" /><br>
 役職<c:out value="${insertEmpBean.pos_id }" /><br>

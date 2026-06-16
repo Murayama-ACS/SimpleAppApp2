@@ -1,6 +1,7 @@
 package servlet;
 
 import java.io.IOException;
+import java.util.List;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -10,8 +11,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+import bean.DepartmentBean;
 import bean.EmployeeBean;
+import bean.PositionBean;
+import dao.DepartmentDAO;
 import dao.EmployeeDAO;
+import dao.PositionDAO;
 
 /**
  * Servlet implementation class EmployeeUpdate
@@ -57,12 +62,23 @@ public class EmployeeUpdate extends HttpServlet {
 
 		String action = safe(request.getParameter("action"));
 		String url = JSP_CONFIRM;
-
+		
+		
+		DepartmentDAO deptDao = new DepartmentDAO();
+	    List<DepartmentBean> dptList = deptDao.findAll(); // DB から全部署を取得するメソッド
+	    request.setAttribute("dptList", dptList);
+	    
+	    PositionDAO posDao = new PositionDAO();
+	    List<PositionBean> posList = posDao.findAll();
+	    request.setAttribute("posList", posList);
+	    
 		switch (action) {
 		case "updateform":
 			url = JSP_UPDATE;
 			// update 用パラメータから EmployeeBean を作成してセッションに保存
+			
 			session.setAttribute("updateEmpBean", buildBeanFromRequest(request, "update"));
+			System.out.println("after setAttribute, bean.furigana=[" + buildBeanFromRequest(request, "update").getEmp_furigana() + "]");
 			break;
 
 		case "update":
@@ -76,18 +92,26 @@ public class EmployeeUpdate extends HttpServlet {
 			// パラメータ取得
 			String empId = updateBean.getEmp_id(); // ID はセッションのものを採用
 			String empName = safe(request.getParameter("emp_name"));
+			String empFurigana = safe(request.getParameter("emp_furigana"));
 			String email = safe(request.getParameter("email"));
 			String dptId = request.getParameter("dpt_id");
 			String posId = request.getParameter("pos_id");
-
-			if (isNullOrEmpty(empId) || isNullOrEmpty(empName) || isNullOrEmpty(email) || dptId == null || posId == null) {
-				request.setAttribute("eMsg", "社員ID、名前、Email、部署、役職のいずれかが入力されていません。");
+			
+			System.out.println("empFurigana:" + empName);
+			System.out.println("empFurigana:" + empFurigana);
+			
+			if (isNullOrEmpty(empId) || isNullOrEmpty(empName) || isNullOrEmpty(empFurigana) || isNullOrEmpty(email) || dptId == null || posId == null) {
+				request.setAttribute("eMsg", "社員ID、名前、ふりがな、Email、部署、役職のいずれかが入力されていません。");
 				break;
 			}
 
 			boolean changed = false;
 			if (!empName.equals(updateBean.getEmp_name())) {
 				updateBean.setEmp_name(empName); // 元コードの誤りを修正（emp_id を上書きしていた）
+				changed = true;
+			}
+			if (!empFurigana.equals(updateBean.getEmp_furigana())) {
+				updateBean.setEmp_furigana(empFurigana); // 元コードの誤りを修正（emp_id を上書きしていた）
 				changed = true;
 			}
 			if (!email.equals(updateBean.getEmail())) {
@@ -105,6 +129,7 @@ public class EmployeeUpdate extends HttpServlet {
 
 			if (changed) {
 				EmployeeDAO empDAO = new EmployeeDAO();
+				System.out.println("updateBean furigana:" + updateBean.getEmp_furigana());
 				int updateResult = empDAO.updateEmpInfo(updateBean);
 				if (updateResult == 0) {
 					request.setAttribute("eMsg", "更新に失敗しました。");
@@ -227,10 +252,11 @@ public class EmployeeUpdate extends HttpServlet {
 		// prefix 例: "update" → パラメータ名 "updateEmp_id", "updateEmp_name", ...
 		String empId = safe(req.getParameter(prefix + "Emp_id"));
 		String empName = safe(req.getParameter(prefix + "Emp_name"));
+		String empFurigana = safe(req.getParameter(prefix + "Emp_furigana"));
 		String email = safe(req.getParameter(prefix + "Email"));
 		String dptId = safe(req.getParameter(prefix + "Dpt_id"));
 		String posId = safe(req.getParameter(prefix + "Pos_id"));
-		return new EmployeeBean(empId, empName, email, dptId, posId);
+		return new EmployeeBean(empId, empName, empFurigana, email, dptId, posId);
 	}
 }
 
