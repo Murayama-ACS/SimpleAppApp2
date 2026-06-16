@@ -78,7 +78,6 @@ public class EmployeeUpdate extends HttpServlet {
 			// update 用パラメータから EmployeeBean を作成してセッションに保存
 			
 			session.setAttribute("updateEmpBean", buildBeanFromRequest(request, "update"));
-			System.out.println("after setAttribute, bean.furigana=[" + buildBeanFromRequest(request, "update").getEmp_furigana() + "]");
 			break;
 
 		case "update":
@@ -97,8 +96,6 @@ public class EmployeeUpdate extends HttpServlet {
 			String dptId = request.getParameter("dpt_id");
 			String posId = request.getParameter("pos_id");
 			
-			System.out.println("empFurigana:" + empName);
-			System.out.println("empFurigana:" + empFurigana);
 			
 			if (isNullOrEmpty(empId) || isNullOrEmpty(empName) || isNullOrEmpty(empFurigana) || isNullOrEmpty(email) || dptId == null || posId == null) {
 				request.setAttribute("eMsg", "社員ID、名前、ふりがな、Email、部署、役職のいずれかが入力されていません。");
@@ -129,7 +126,6 @@ public class EmployeeUpdate extends HttpServlet {
 
 			if (changed) {
 				EmployeeDAO empDAO = new EmployeeDAO();
-				System.out.println("updateBean furigana:" + updateBean.getEmp_furigana());
 				int updateResult = empDAO.updateEmpInfo(updateBean);
 				if (updateResult == 0) {
 					request.setAttribute("eMsg", "更新に失敗しました。");
@@ -169,77 +165,7 @@ public class EmployeeUpdate extends HttpServlet {
 		RequestDispatcher rd = request.getRequestDispatcher(url);
 		rd.forward(request, response);
 	}
-	//		String action = request.getParameter("action");
-	//		String url = "WEB-INF/jsp/user_confirm.jsp";
-	//		HttpSession session = request.getSession();
-	//
-	//		if(action.equals("updateform")) {//user_info→user_updateへの遷移
-	//			url = "WEB-INF/jsp/user_update.jsp";
-	//			String emp_id = request.getParameter("updateEmp_id");
-	//			String emp_name = request.getParameter("updateEmp_name");
-	//			String email = request.getParameter("updateEmail");
-	//			String dpt_id = request.getParameter("updateDpt_id");
-	//			String pos_id = request.getParameter("updatePos_id");
-	//			EmployeeBean empBean = new EmployeeBean(emp_id, emp_name, email, dpt_id, pos_id);
-	//			session.setAttribute("updateEmpBean", empBean);
-	//		}else if(action.equals("update")){//user_update→user_confirmへの遷移
-	//			url = "WEB-INF/jsp/user_update.jsp";
-	//			EmployeeBean empBean = (EmployeeBean)session.getAttribute("updateEmpBean");
-	//			String emp_id = empBean.getEmp_id();
-	//			String emp_name = request.getParameter("emp_name");
-	//			String email = request.getParameter("email");
-	//			String dpt_id = request.getParameter("dpt_id");
-	//			String pos_id = request.getParameter("pos_id");
-	//
-	//			if(emp_id.isEmpty() || emp_name.isEmpty() || email.isEmpty() || dpt_id == null || pos_id == null) {
-	//				request.setAttribute("eMsg", "社員ID、名前、Email、部署、役職のいずれかが入力されていません。");
-	//			}else{
-	//				if(!emp_name.equals(empBean.getEmp_name())) {
-	//					empBean.setEmp_id(emp_id);
-	//				}
-	//				if(!email.equals(empBean.getEmail())) {
-	//					empBean.setEmail(email);
-	//				}
-	//				if(!dpt_id.equals(empBean.getDpt_id())) {
-	//					empBean.setDpt_id(dpt_id);
-	//				}
-	//				if(!pos_id.equals(empBean.getPos_id())) {
-	//					empBean.setPos_id(pos_id);
-	//				}
-	//				EmployeeDAO empDAO = new EmployeeDAO();
-	//				int updateResult = empDAO.updateEmpInfo(empBean);
-	//				if(updateResult == 0) {
-	//					request.setAttribute("eMsg", "更新に失敗しました。");
-	//				}else if(updateResult == -1){
-	//					request.setAttribute("eMsg", "既に登録されているメールアドレスのため、更新できません。");
-	//				}else {
-	//					session.removeAttribute("updateEmpBean");
-	//					url = "WEB-INF/jsp/user_confirm2.jsp";
-	//				}
-	//			}
-	//		}else {//user_signup→user_confirm2への遷移
-	//			EmployeeBean insertEmpBean = (EmployeeBean)session.getAttribute("insertEmpBean");
-	//			if(insertEmpBean == null) {
-	//				request.setAttribute("eMsg", "データが登録できていません");
-	//			}else {
-	//				EmployeeDAO empDAO = new EmployeeDAO();
-	//				int result = empDAO.insertEmployee(insertEmpBean);
-	//				if(result == 0) {
-	//					request.setAttribute("eMsg", "社員の新規登録に失敗しました。");
-	//					url = "WEB-INF/jsp/user_signup.jsp";
-	//				}else if(result == -1) {
-	//					request.setAttribute("eMsg", "社員IDもしくはメールアドレスが重複している社員が存在するため、登録に失敗しました。");
-	//					url = "WEB-INF/jsp/user_signup.jsp";
-	//				}else {
-	//					session.removeAttribute("insertEmpBean");
-	//					url = "WEB-INF/jsp/user_confirm2.jsp";
-	//				}
-	//			}
-	//		}
-	//		RequestDispatcher rd = request.getRequestDispatcher(url);
-	//		rd.forward(request, response);
-	//	}
-
+	
 	private static boolean isNullOrEmpty(String s) {
 		return s == null || s.isEmpty();
 	}

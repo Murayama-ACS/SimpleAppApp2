@@ -149,13 +149,13 @@ public class EmployeeDAO extends DAO{
 			String empId, String empName, String dptId, String posId,
 			String sortKey, String sortDir, int limit, int offset) throws SQLException {
 
-		Map<String,String> colMap = Map.of(//左のkeyを指定すると右のcollumをsortの対象にする
-				"emp_id",   "e.emp_id",	
-				"emp_name", "COALESCE(e.furigana, e.emp_name)",
-				"email",    "e.email",
-				"dpt_id",   "e.dpt_id",
-				"pos_id",   "e.pos_id"
-				);
+		Map<String,String> colMap = Map.of(
+		        "emp_id",   "e.emp_id",
+		        "emp_name", "COALESCE(e.furigana, e.emp_name)",
+		        "email",    "e.email",
+		        "dpt_id",   "e.dpt_id",
+		        "pos_id",   "e.pos_id"
+		);
 
 		if (sortKey == null || sortKey.isEmpty()) sortKey = "emp_id";
 		String orderBy = colMap.getOrDefault(sortKey, "e.emp_id");
@@ -163,30 +163,41 @@ public class EmployeeDAO extends DAO{
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT e.emp_id, e.emp_name, e.email, e.dpt_id, e.pos_id, ")
-		.append("d.dpt_name AS dpt_name, p.pos_name AS pos_name, e.furigana AS furigana ")
-		.append("FROM employees e ")
-		.append("LEFT JOIN departments d ON e.dpt_id = d.dpt_id ")
-		.append("LEFT JOIN positions p ON e.pos_id = p.pos_id ")
-		.append("WHERE e.is_deleted = 0 ");
-		
-		
+		   .append("d.dpt_name AS dpt_name, p.pos_name AS pos_name, e.furigana AS furigana ")
+		   .append("FROM employees e ")
+		   .append("LEFT JOIN departments d ON e.dpt_id = d.dpt_id ")
+		   .append("LEFT JOIN positions p ON e.pos_id = p.pos_id ")
+		   .append("WHERE e.is_deleted = 0 ");
+
 		// パラメータを順番に保持
 		ArrayList<Object> params = new ArrayList<>();
 
 		// 動的な WHERE 句追加
 		if (empId != null && !empId.isEmpty()) {
-			// 厳密一致にするなら "="、前方一致なら LIKE 'value%' に変更
-			sql.append(" AND e.emp_id LIKE ? ");
-			params.add(empId + "%");
+		    sql.append(" AND e.emp_id LIKE ? ");
+		    params.add(empId + "%");
 		}
 		if (empName != null && !empName.isEmpty()) {
-			sql.append(" AND e.emp_name LIKE ? ");
-			params.add("%" + empName + "%"); // 部分一致
+		    String input = empName.trim();
+		    // ひらがな判定（U+3040〜U+309F を使用）。 prolonged sound mark (ー) を許可
+		    boolean isHiragana = input.matches("^[\\u3040-\\u309F\\u30FC\\s]+$");
+		    if (isHiragana) {
+		        // 空白で分割してトークンごとに furigana LIKE 条件を追加（複数トークンは AND）
+		        String[] tokens = input.split("\\s+");
+		        for (String t : tokens) {
+		            if (t.isEmpty()) continue;
+		            sql.append(" AND e.furigana LIKE ? ");
+		            params.add("%" + t + "%");
+		        }
+		    } else {
+		        // デフォルトは漢字等で emp_name を検索（部分一致）
+		        sql.append(" AND e.emp_name LIKE ? ");
+		        params.add("%" + input + "%");
+		    }
 		}
 		if (dptId != null && !dptId.isEmpty()) {
-		    // 形式が4文字の英数字で、末尾が "00" の場合を親部署と判定
 		    if (dptId.matches("^[A-Za-z0-9]{4}$") && dptId.endsWith("00")) {
-		        String prefix = dptId.substring(0, 2); // "D400" -> "D4"
+		        String prefix = dptId.substring(0, 2);
 		        sql.append(" AND e.dpt_id LIKE ? ");
 		        params.add(prefix + "%");
 		    } else {
@@ -195,52 +206,52 @@ public class EmployeeDAO extends DAO{
 		    }
 		}
 		if (posId != null && !posId.isEmpty()) {
-			sql.append(" AND e.pos_id = ? ");
-			params.add(posId);
+		    sql.append(" AND e.pos_id = ? ");
+		    params.add(posId);
 		}
 
 		// ORDER BY と LIMIT/OFFSET
 		sql.append(" ORDER BY ").append(orderBy).append(" ").append(dir).append(", e.emp_id ASC ");
-		sql.append(" LIMIT ? OFFSET ?");
-		
-		System.out.println(sql);
+		sql.append(" LIMIT ? OFFSET ? ");
 
-		
 		ArrayList<EmployeeBean> list = new ArrayList<>();
 		try (Connection con = dbConnect();
-				PreparedStatement ps = con.prepareStatement(sql.toString())) {
+		     PreparedStatement ps = con.prepareStatement(sql.toString())) {
 
-			// パラメータをセット
-			int idx = 1;
-			for (Object p : params) {
-				ps.setObject(idx++, p);
-			}
-			int effectiveLimit = limit + 1;
+		    // パラメータをセット
+		    int idx = 1;
+		    for (Object p : params) {
+		        ps.setObject(idx++, p);
+		    }
+		    int effectiveLimit = limit + 1;
+		    ps.setInt(idx++, effectiveLimit);
+		    ps.setInt(idx++, offset);
 
-			// limit / offset
-			ps.setInt(idx++, effectiveLimit);
-			ps.setInt(idx++, offset);
-
-			try (ResultSet rs = ps.executeQuery()) {
-				while (rs.next()) {
-					String empIdR = rs.getString("emp_id");
-					String empNameR = rs.getString("emp_name");
-					String email  = rs.getString("email");
-					String dptIdR = rs.getString("dpt_id");
-					String posIdR = rs.getString("pos_id");
-					EmployeeBean empBean = new EmployeeBean(empIdR, empNameR, email, dptIdR, posIdR);
-					empBean.setDpt_name(rs.getString("dpt_name"));
-					empBean.setPos_name(rs.getString("pos_name"));
-					list.add(empBean);
-				}
-			}
+		    try (ResultSet rs = ps.executeQuery()) {
+		        while (rs.next()) {
+		            String empIdR = rs.getString("emp_id");
+		            String empNameR = rs.getString("emp_name");
+		            String email  = rs.getString("email");
+		            String dptIdR = rs.getString("dpt_id");
+		            String posIdR = rs.getString("pos_id");
+		            EmployeeBean empBean = new EmployeeBean(empIdR, empNameR, email, dptIdR, posIdR);
+		            empBean.setDpt_name(rs.getString("dpt_name"));
+		            empBean.setPos_name(rs.getString("pos_name"));
+		            // EmployeeBean に対応するセッタがあれば furigana もセット
+		            try {
+		                empBean.setEmp_furigana(rs.getString("furigana"));
+		            } catch (NoSuchMethodError | AbstractMethodError | Exception e) {
+		                // セッタがない場合は無視（必要なら EmployeeBean にフィールド追加してください）
+		            }
+		            list.add(empBean);
+		        }
+		    }
 		}
 
 		boolean hasNext = false;
 		if (list.size() > limit) {
-			hasNext = true;
-			// 余分に取った最後の1件を取り除く
-			list.remove(list.size() - 1);
+		    hasNext = true;
+		    list.remove(list.size() - 1);
 		}
 		return new PageResult<>(list, hasNext);
 	}
