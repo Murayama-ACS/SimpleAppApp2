@@ -327,7 +327,7 @@ public class ApplicationDAO extends DAO {
 	}
 
 	/**
-	 * 検索条件（範囲指定・通常/緊急プルダウン対応）とソート順を動的に反映する未承認申請一覧取得ロジック
+	 * 検索条件（範囲指定順序修正）とソート順を動的に反映する未承認申請一覧取得ロジック
 	 */
 	public List<ApplicationBean> getPendingApplications(
 			EmployeeBean employee, 
@@ -335,7 +335,7 @@ public class ApplicationDAO extends DAO {
 			String searchName, 
 			String searchAmountMin, 
 			String searchAmountMax, 
-			String searchUrgent, // 【変更】String[]からStringへ変更
+			String searchUrgent, 
 			String sortColumn, 
 			String sortOrder) {
 		
@@ -431,7 +431,6 @@ public class ApplicationDAO extends DAO {
 			}
 		}
 		
-		// 【変更】緊急度条件の追加（「通常」または「緊急」が指定されたときのみ等号で絞り込む）
 		if (searchUrgent != null && !searchUrgent.trim().isEmpty()) {
 			sql.append("AND a.urgent = ? ");
 			params.add(searchUrgent.trim());

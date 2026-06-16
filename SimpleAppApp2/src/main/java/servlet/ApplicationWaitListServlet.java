@@ -25,7 +25,7 @@ public class ApplicationWaitListServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 未承認申請一覧の表示処理（検索項目順序・プルダウン対応）
+	 * 未承認申請一覧の表示処理（検索項目順序修正）
 	 */
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) 
@@ -56,9 +56,9 @@ public class ApplicationWaitListServlet extends HttpServlet {
 
 		String searchDept = request.getParameter("searchDept");
 		String searchName = request.getParameter("searchName");
-		String searchAmountMax = request.getParameter("searchAmountMax"); // 金額上限（以下）
 		String searchAmountMin = request.getParameter("searchAmountMin"); // 金額下限（以上）
-		String searchUrgent = request.getParameter("searchUrgent"); // プルダウンのため単一文字列として取得
+		String searchAmountMax = request.getParameter("searchAmountMax"); // 金額上限（以下）
+		String searchUrgent = request.getParameter("searchUrgent"); 
 
 		String sortColumn = request.getParameter("sortColumn");
 		String sortOrder = request.getParameter("sortOrder");
@@ -74,7 +74,6 @@ public class ApplicationWaitListServlet extends HttpServlet {
 		try {
 			ApplicationDAO appDao = new ApplicationDAO();
 			
-			// 順序を揃えてDAOのデータ抽出を呼び出し
 			List<ApplicationBean> applications = appDao.getPendingApplications(
 					employee, searchDept, searchName, searchAmountMin, searchAmountMax, searchUrgent, sortColumn, sortOrder);
 

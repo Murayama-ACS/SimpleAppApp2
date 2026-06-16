@@ -16,9 +16,9 @@
     // 検索条件の取得
     String searchDept = (String) request.getAttribute("searchDept");
     String searchName = (String) request.getAttribute("searchName");
-    String searchAmountMax = (String) request.getAttribute("searchAmountMax"); // 変更：Max（以下）を先に取得
-    String searchAmountMin = (String) request.getAttribute("searchAmountMin"); // 変更：Min（以上）を後に取得
-    String searchUrgent = (String) request.getAttribute("searchUrgent"); // 変更：単一の文字列として取得
+    String searchAmountMin = (String) request.getAttribute("searchAmountMin"); // Min（以上）
+    String searchAmountMax = (String) request.getAttribute("searchAmountMax"); // Max（以下）
+    String searchUrgent = (String) request.getAttribute("searchUrgent"); 
     if (searchUrgent == null) searchUrgent = "";
 
     // ソート条件の取得
@@ -86,8 +86,8 @@
             <input type="text" name="searchName" value="<%= searchName != null ? searchName : "" %>" style="width: 100px;">&nbsp;
             
             <label>金額範囲: </label>
-            <input type="number" name="searchAmountMax" value="<%= searchAmountMax != null ? searchAmountMax : "" %>" style="width: 90px;"> 円以下 〜 
-            <input type="number" name="searchAmountMin" value="<%= searchAmountMin != null ? searchAmountMin : "" %>" style="width: 90px;"> 円以上&nbsp;
+            <input type="number" name="searchAmountMin" value="<%= searchAmountMin != null ? searchAmountMin : "" %>" style="width: 90px;"> 円以上 〜 
+            <input type="number" name="searchAmountMax" value="<%= searchAmountMax != null ? searchAmountMax : "" %>" style="width: 90px;"> 円以下&nbsp;
             
             <label>緊急度: </label>
             <select name="searchUrgent">
