@@ -466,7 +466,9 @@ public class ApplicationDAO extends DAO {
 			
 			if (qName != null && !qName.isEmpty()) {
 				if (!"E00".equals(posId)) { 
-					sql.append("AND e.emp_name LIKE ? ");
+					// 漢字氏名、またはふりがなのいずれかに部分一致すればヒットさせる
+					sql.append("AND (e.emp_name LIKE ? OR e.furigana LIKE ?) ");
+					params.add("%" + qName + "%");
 					params.add("%" + qName + "%");
 				}
 			}
