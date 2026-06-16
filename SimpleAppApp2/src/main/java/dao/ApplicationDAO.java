@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import bean.ApplicationBean;
 import bean.EmployeeBean;
@@ -327,7 +328,7 @@ public class ApplicationDAO extends DAO {
 	}
 
 	/**
-	 * 検索条件（範囲指定順序修正）とソート順を動的に反映する未承認申請一覧取得ロジック
+	 * 検索条件（範囲指定・通常/緊急プルダウン・氏名のみふりがな対応）とソート順を動的に反映する未承認申請一覧取得ロジック
 	 */
 	public List<ApplicationBean> getPendingApplications(
 			EmployeeBean employee, 
@@ -351,6 +352,18 @@ public class ApplicationDAO extends DAO {
 		String userDpt = employee.getDpt_id();
 		String userPos = employee.getPos_id();
 
+		// 【ソートキーのマッピング】氏名は e.furigana、部署は d.dpt_name（漢字）を使用
+		Map<String, String> colMap = Map.of(
+			"date",   "a.create_date",
+			"dept",   "d.dpt_name",                    // 部署は漢字カラムのままソート
+			"name",   "COALESCE(e.furigana, e.emp_name)", // 履歴機能の実績カラムを利用して五十音順ソート
+			"amount", "a.amount",
+			"urgent", "a.urgent"
+		);
+
+		String orderBy = colMap.getOrDefault(sortColumn, "a.create_date");
+		String dir = "ASC".equalsIgnoreCase(sortOrder) ? "ASC" : "DESC";
+
 		// ベースとなるSQL文の組み立て
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT a.apct_id, a.emp_id, a.content, a.type, a.method, a.amount, a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, ");
@@ -363,7 +376,7 @@ public class ApplicationDAO extends DAO {
 
 		List<Object> params = new ArrayList<>();
 
-		// 権限ベースによる絞り込みブロック
+		// 組織階層（権限ベース）による絞り込みブロック
 		if ("E04".equals(userPos)) {
 			sql.append("AND a.status_id = 1 AND ( (e.dpt_id NOT LIKE 'D7%' AND e.pos_id = 'E02') OR (e.dpt_id LIKE 'D7%' AND e.pos_id = 'E03') ) ");
 		} else if ("E03".equals(userPos)) {
@@ -404,13 +417,17 @@ public class ApplicationDAO extends DAO {
 
 		// 動的検索条件の追加ブロック
 		if (searchDept != null && !searchDept.trim().isEmpty()) {
+			// 部署名は通常の漢字カラム(dpt_name)のみで部分一致検索
 			sql.append("AND d.dpt_name LIKE ? ");
 			params.add("%" + searchDept.trim() + "%");
 		}
 		
 		if (searchName != null && !searchName.trim().isEmpty()) {
-			sql.append("AND e.emp_name LIKE ? ");
-			params.add("%" + searchName.trim() + "%");
+			// 氏名（漢字）または氏名フリガナ(e.furigana)のいずれかに部分一致すればヒット
+			sql.append("AND (e.emp_name LIKE ? OR e.furigana LIKE ?) ");
+			String nameParam = "%" + searchName.trim() + "%";
+			params.add(nameParam);
+			params.add(nameParam);
 		}
 		
 		if (searchAmountMin != null && !searchAmountMin.trim().isEmpty()) {
@@ -436,19 +453,8 @@ public class ApplicationDAO extends DAO {
 			params.add(searchUrgent.trim());
 		}
 
-		// ソート条件の追加ブロック
-		String orderByColumn = "a.create_date"; 
-		if ("dept".equals(sortColumn)) orderByColumn = "d.dpt_name";
-		else if ("name".equals(sortColumn)) orderByColumn = "e.emp_name";
-		else if ("amount".equals(sortColumn)) orderByColumn = "a.amount";
-		else if ("urgent".equals(sortColumn)) orderByColumn = "a.urgent";
-
-		String orderByOrder = "DESC"; 
-		if ("ASC".equalsIgnoreCase(sortOrder)) {
-			orderByOrder = "ASC";
-		}
-
-		sql.append("ORDER BY ").append(orderByColumn).append(" ").append(orderByOrder);
+		// 動的ソート条件の結合
+		sql.append("ORDER BY ").append(orderBy).append(" ").append(dir).append(", a.apct_id DESC");
 
 		try {
 			if (con != null) {
@@ -459,35 +465,15 @@ public class ApplicationDAO extends DAO {
 				rs = st.executeQuery();
 
 				while (rs.next()) {
-					ApplicationBean b = new ApplicationBean();
-					b.setApctId(rs.getString("apct_id"));
-					b.setEmployeeId(rs.getString("emp_id"));
-					b.setContent(rs.getString("content"));
-					b.setType(rs.getString("type"));
-					b.setPaymentMethod(rs.getString("method"));
-					b.setAmount(rs.getInt("amount"));
-					b.setReason(rs.getString("reason"));
-					b.setNote(rs.getString("remark"));
-					b.setUrgent(rs.getString("urgent")); 
-					b.setStatus_id(rs.getInt("status_id"));
-					b.setDeleted(rs.getInt("is_deleted") == 1); 
+					ApplicationBean b = mapRowToBean(rs);
 					b.setStatusName(rs.getString("status_name"));
 					b.setDepartmentName(rs.getString("dpt_name"));
 					b.setEmployeeName(rs.getString("emp_name"));
-
-					Timestamp createTs = rs.getTimestamp("create_date");
-					if (createTs != null) {
-						b.setCreateDate(createTs.toLocalDateTime());
-					}
-					Timestamp updateTs = rs.getTimestamp("update_date");
-					if (updateTs != null) {
-						b.setUpdateDate(updateTs.toLocalDateTime());
-					}
 					list.add(b);
 				}
 			}
 		} catch (SQLException e) {
-			System.out.println("getPendingApplications 確定版エラー: " + e.getMessage());
+			System.out.println("getPendingApplications 部署フリガナ除外版エラー: " + e.getMessage());
 		} finally {
 			if (rs != null) try { rs.close(); } catch (SQLException ex) {}
 			if (st != null) try { st.close(); } catch (SQLException ex) {}
@@ -495,6 +481,7 @@ public class ApplicationDAO extends DAO {
 		}
 		return list;
 	}
+	
 	/**
 	 * 申請履歴一覧を条件（対象範囲、ステータス、ログインユーザーの役職・部署）に応じて取得する
 	 */
