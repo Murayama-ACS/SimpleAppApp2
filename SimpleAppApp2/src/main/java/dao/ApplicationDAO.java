@@ -14,7 +14,7 @@ import bean.ApplicationBean;
 import bean.EmployeeBean;
 
 public class ApplicationDAO extends DAO {
-	
+
 	// =================================================================
 	// 1. 新規追加：ページング用インナークラス（EmployeeDAOと同構造）
 	// =================================================================
@@ -32,7 +32,7 @@ public class ApplicationDAO extends DAO {
 	// =================================================================
 	// 2. 既存データ操作メソッド群（維持）
 	// =================================================================
-	
+
 	/**
 	 * 申請データをデータベースに登録する（新規登録専用）
 	 */
@@ -74,7 +74,7 @@ public class ApplicationDAO extends DAO {
 		Connection con = dbConnect();
 		int result = 0;
 		String sql = "UPDATE applications SET type = ?, method = ?, amount = ?, content = ?, reason = ?, remark = ?, urgent = ?, update_date = ? "
-				   + "WHERE apct_id = ? AND is_deleted = 0";
+				+ "WHERE apct_id = ? AND is_deleted = 0";
 		try {
 			if (con != null) {
 				PreparedStatement st = con.prepareStatement(sql);
@@ -228,12 +228,12 @@ public class ApplicationDAO extends DAO {
 		ApplicationBean b = null;
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT a.apct_id, a.emp_id, a.content, a.type, a.method, a.amount, a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, ")
-		   .append("s.status_name, e.emp_name, d.dpt_name ")
-		   .append("FROM applications a ")
-		   .append("JOIN status s ON a.status_id = s.status_id ")
-		   .append("JOIN employees e ON a.emp_id = e.emp_id ")
-		   .append("JOIN departments d ON e.dpt_id = d.dpt_id ")
-		   .append("WHERE a.apct_id = ? AND a.is_deleted = 0");
+		.append("s.status_name, e.emp_name, d.dpt_name ")
+		.append("FROM applications a ")
+		.append("JOIN status s ON a.status_id = s.status_id ")
+		.append("JOIN employees e ON a.emp_id = e.emp_id ")
+		.append("JOIN departments d ON e.dpt_id = d.dpt_id ")
+		.append("WHERE a.apct_id = ? AND a.is_deleted = 0");
 		try {
 			if (con != null) {
 				st = con.prepareStatement(sql.toString());
@@ -271,12 +271,12 @@ public class ApplicationDAO extends DAO {
 		String userPos = employee.getPos_id();
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT a.apct_id, a.emp_id, a.content, a.type, a.method, a.amount, a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, ")
-		   .append("s.status_name, e.emp_name, d.dpt_name ")
-		   .append("FROM applications a ")
-		   .append("JOIN employees e ON a.emp_id = e.emp_id ")
-		   .append("JOIN status s ON a.status_id = s.status_id ")
-		   .append("JOIN departments d ON e.dpt_id = d.dpt_id ")
-		   .append("WHERE a.is_deleted = 0 ");
+		.append("s.status_name, e.emp_name, d.dpt_name ")
+		.append("FROM applications a ")
+		.append("JOIN employees e ON a.emp_id = e.emp_id ")
+		.append("JOIN status s ON a.status_id = s.status_id ")
+		.append("JOIN departments d ON e.dpt_id = d.dpt_id ")
+		.append("WHERE a.is_deleted = 0 ");
 
 		List<Object> params = new ArrayList<>();
 		if ("E04".equals(userPos)) {
@@ -357,13 +357,13 @@ public class ApplicationDAO extends DAO {
 		List<ApplicationBean> list = new ArrayList<>();
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT a.apct_id, a.emp_id, a.content, a.type, a.method, a.amount, a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, ")
-		   .append("s.status_name, e.emp_name, d.dpt_name ")
-		   .append("FROM applications a ")
-		   .append("JOIN employees e ON a.emp_id = e.emp_id ")
-		   .append("JOIN status s ON a.status_id = s.status_id ")
-		   .append("JOIN departments d ON e.dpt_id = d.dpt_id ")
-		   .append("WHERE a.is_deleted = 0 AND a.status_id IN (3, 4) ")
-		   .append("ORDER BY a.create_date DESC");
+		.append("s.status_name, e.emp_name, d.dpt_name ")
+		.append("FROM applications a ")
+		.append("JOIN employees e ON a.emp_id = e.emp_id ")
+		.append("JOIN status s ON a.status_id = s.status_id ")
+		.append("JOIN departments d ON e.dpt_id = d.dpt_id ")
+		.append("WHERE a.is_deleted = 0 AND a.status_id IN (3, 4) ")
+		.append("ORDER BY a.create_date DESC");
 		try {
 			if (con != null) {
 				st = con.prepareStatement(sql.toString());
@@ -387,45 +387,50 @@ public class ApplicationDAO extends DAO {
 	}
 
 	// =================================================================
-	// 5. 新規統合：検索・ソート・ページング対応動的SQLメソッド（本要件の核心）
+	// 5. 新規統合：検索・ソート・ページング対応動的SQLメソッド（修正版）
 	// =================================================================
 	public PageResult<ApplicationBean> searchApplications(
 			EmployeeBean loginUser, String scope, String statusFilter,
 			String qStatus, String qName, String qDepartment, String qType, String qAmount,
 			String sortKey, String sortDir, int limit, int offset) throws SQLException {
 
-		// 【4-2. ソートキーの安全マッピング】
+		// 【4-2. ソートキーのマッピング拡張】
+		// 要件：申請状況、名前（ふりがな連動）、日付順、部門（部署名）、金額に対応
 		Map<String, String> colMap = Map.of(
-			"status", "a.status_id",
-			"name",   "e.emp_name",
-			"date",   "a.create_date"
-		);
+				"status", "a.status_id",
+				"name",   "COALESCE(e.furigana, e.emp_name)", // 名前選択時はe.furiganaを最優先してソート
+				"date",   "a.create_date",
+				"dpt",    "d.dpt_name",                       // 部門（部署名順）ソートを追加
+				"amount", "a.amount"                          // 金額順ソートを追加
+				);
 
 		if (sortKey == null || sortKey.isEmpty()) sortKey = "date";
 		String orderBy = colMap.getOrDefault(sortKey, "a.create_date");
+
+		// 昇順(ASC)・降順(DESC)の安全な判定
 		String dir = "ASC".equalsIgnoreCase(sortDir) ? "ASC" : "DESC";
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT DISTINCT a.apct_id, a.emp_id, a.content, a.type, a.method, a.amount, ")
-		   .append("a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, ")
-		   .append("s.status_name, e.emp_name AS emp_name, d.dpt_name AS dpt_name ")
-		   .append("FROM applications a ")
-		   .append("JOIN employees e ON a.emp_id = e.emp_id ")
-		   .append("JOIN status s ON a.status_id = s.status_id ")
-		   .append("JOIN departments d ON e.dpt_id = d.dpt_id ")
-		   .append("WHERE a.is_deleted = 0 ");
+		.append("a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, ")
+		.append("s.status_name, e.emp_name AS emp_name, d.dpt_name AS dpt_name ")
+		.append("FROM applications a ")
+		.append("JOIN employees e ON a.emp_id = e.emp_id ")
+		.append("JOIN status s ON a.status_id = s.status_id ")
+		.append("JOIN departments d ON e.dpt_id = d.dpt_id ")
+		.append("WHERE a.is_deleted = 0 ");
 
 		ArrayList<Object> params = new ArrayList<>();
 		String posId = loginUser.getPos_id();
 		String userDpt = loginUser.getDpt_id();
 
 		// -----------------------------------------------------------------
-		// 防壁：これまでに構築した「組織階層に応じた範囲制限」の完全結合
+		// 防壁：組織階層に応じた範囲制限の結合
 		// -----------------------------------------------------------------
 		if ("self".equals(scope) || scope == null || scope.isEmpty()) {
 			sql.append("AND a.emp_id = ? ");
 			params.add(loginUser.getEmp_id());
-			
+
 		} else if ("subordinate".equals(scope)) {
 			if ("D712".equals(userDpt)) {
 				sql.append("AND e.dpt_id IN ('D710', 'D720', 'D712') ");
@@ -443,7 +448,7 @@ public class ApplicationDAO extends DAO {
 			sql.append("AND e.pos_id < ? AND a.emp_id != ? ");
 			params.add(posId);
 			params.add(loginUser.getEmp_id());
-			
+
 		} else if ("management".equals(scope)) {
 			if (!"D100".equals(userDpt)) {
 				sql.append("AND a.emp_id = ? ");
@@ -451,49 +456,49 @@ public class ApplicationDAO extends DAO {
 			}
 		}
 
-		// 簡易タブフィルター（未完了：1〜4）の連動条件
+		// 簡易タブフィルター条件
 		if ("incomplete".equals(statusFilter)) {
 			sql.append("AND a.status_id IN (1, 2, 3, 4) ");
 		}
 
 		// -----------------------------------------------------------------
-		// 【4-3. 検索機能の動的条件追加（権限による厳格制御）】
+		// 【4-3. 検索機能の動的条件追加】
 		// -----------------------------------------------------------------
-		// ① 申請状況（全員）
+		// ① 申請状況
 		if (qStatus != null && !qStatus.isEmpty()) {
 			sql.append("AND a.status_id = ? ");
 			params.add(Integer.parseInt(qStatus));
 		}
-		
-		// ② 名前（課長クラス「E01」以上のみ有効）
+
+		// ② 名前（課長クラス以上のみ有効）
 		if (qName != null && !qName.isEmpty()) {
 			if (!"E00".equals(posId)) { 
 				sql.append("AND e.emp_name LIKE ? ");
 				params.add("%" + qName + "%");
 			}
 		}
-		
-		// ③ 部門（本部長クラス「E03」以上のみ有効）
+
+		// ③ 部門（本部長クラス以上のみ有効）
 		if (qDepartment != null && !qDepartment.isEmpty()) {
 			if ("E03".equals(posId) || "E04".equals(posId)) {
 				sql.append("AND e.dpt_id = ? ");
 				params.add(qDepartment);
 			}
 		}
-		
-		// ④ 種別（全員）
+
+		// ④ 種別
 		if (qType != null && !qType.isEmpty()) {
 			sql.append("AND a.type = ? ");
 			params.add(qType);
 		}
-		
-		// ⑤ 金額（全員：指定値以上の下限検索）
+
+		// ⑤ 金額（指定値以上の下限検索）
 		if (qAmount != null && !qAmount.isEmpty()) {
 			sql.append("AND a.amount >= ? ");
 			params.add(Integer.parseInt(qAmount));
 		}
 
-		// ソート指定の構築と結合（次ページ判定用に limit + 1 件取得）
+		// ソート指定の構築と結合（第2ソートとして主キーを固定してページングのブレを防ぐ）
 		sql.append(" ORDER BY ").append(orderBy).append(" ").append(dir).append(", a.apct_id DESC ");
 		sql.append(" LIMIT ? OFFSET ?");
 
@@ -520,7 +525,7 @@ public class ApplicationDAO extends DAO {
 			}
 		}
 
-		// 次ページの有無判定と最終件数トリミング処理
+		// 次ページの有無判定
 		boolean hasNext = false;
 		if (list.size() > limit) {
 			hasNext = true;
@@ -550,7 +555,7 @@ public class ApplicationDAO extends DAO {
 		if (createTs != null) b.setCreateDate(createTs.toLocalDateTime());
 		Timestamp updateTs = rs.getTimestamp("update_date");
 		if (updateTs != null) b.setUpdateDate(updateTs.toLocalDateTime());
-		
+
 		return b;
 	}
 }

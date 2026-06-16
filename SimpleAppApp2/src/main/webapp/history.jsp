@@ -121,26 +121,15 @@
 
     <% if (!"E00".equals(posId) || "D100".equals(dptId)) { %>
     <div class="tab-group">
-        <a href="ApplicationHistoryServlet?scope=self&filter=<%= "incomplete".equals(currentStatusFilter) ? "unapproved" : "all" %>" 
-           class="tab <%= "self".equals(currentScope) ? "active" : "" %>">自身</a>
-        
-        <% if (!"E00".equals(posId)) { %>
-            <a href="ApplicationHistoryServlet?scope=subordinate&filter=<%= "incomplete".equals(currentStatusFilter) ? "unapproved" : "all" %>" 
-               class="tab <%= "subordinate".equals(currentScope) ? "active" : "" %>">配下</a>
-        <% } %>
-        
-        <% if ("D100".equals(dptId)) { %>
-            <a href="ApplicationHistoryServlet?scope=management&filter=<%= "incomplete".equals(currentStatusFilter) ? "unapproved" : "all" %>" 
-               class="tab <%= "management".equals(currentScope) ? "active" : "" %>">管理</a>
-        <% } %>
+        <a href="ApplicationHistoryServlet?scope=self&filter=<%= "incomplete".equals(currentStatusFilter) ? "unapproved" : "all" %>" class="tab <%= "self".equals(currentScope) ? "active" : "" %>">自身</a>
+        <% if (!"E00".equals(posId)) { %><a href="ApplicationHistoryServlet?scope=subordinate&filter=<%= "incomplete".equals(currentStatusFilter) ? "unapproved" : "all" %>" class="tab <%= "subordinate".equals(currentScope) ? "active" : "" %>">配下</a><% } %>
+        <% if ("D100".equals(dptId)) { %><a href="ApplicationHistoryServlet?scope=management&filter=<%= "incomplete".equals(currentStatusFilter) ? "unapproved" : "all" %>" class="tab <%= "management".equals(currentScope) ? "active" : "" %>">管理</a><% } %>
     </div>
     <% } %>
 
     <div class="tab-group">
-        <a href="ApplicationHistoryServlet?scope=<%= currentScope %>&filter=unapproved" 
-           class="tab <%= "incomplete".equals(currentStatusFilter) ? "active" : "" %>">未完了</a>
-        <a href="ApplicationHistoryServlet?scope=<%= currentScope %>&filter=all" 
-           class="tab <%= "all".equals(currentStatusFilter) ? "active" : "" %>">全て表示</a>
+        <a href="ApplicationHistoryServlet?scope=<%= currentScope %>&filter=unapproved" class="tab <%= "incomplete".equals(currentStatusFilter) ? "active" : "" %>">未完了</a>
+        <a href="ApplicationHistoryServlet?scope=<%= currentScope %>&filter=all" class="tab <%= "all".equals(currentStatusFilter) ? "active" : "" %>">全て表示</a>
     </div>
 
     <table>
@@ -149,37 +138,41 @@
                 <th>申請ID</th>
                 
                 <c:url var="sortName" value="/ApplicationHistoryServlet">
-                    <c:param name="scope" value="${currentScope}"/>
-                    <c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>
-                    <c:param name="sort" value="name"/>
-                    <c:param name="dir" value="${sort == 'name' && dir == 'asc' ? 'desc' : 'asc'}"/>
-                    <c:param name="page" value="1"/>
+                    <c:param name="scope" value="${currentScope}"/><c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>
+                    <c:param name="sort" value="name"/><c:param name="dir" value="${sort == 'name' && dir == 'asc' ? 'desc' : 'asc'}"/><c:param name="page" value="1"/>
                     <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount" value="${q_amount}"/>
                 </c:url>
                 <th><a href="${sortName}">申請者名<c:if test="${sort == 'name'}"><c:out value="${dir == 'asc' ? ' ▲' : ' ▼'}" /></c:if></a></th>
                 
-                <th>部門</th>
+                <c:url var="sortDpt" value="/ApplicationHistoryServlet">
+                    <c:param name="scope" value="${currentScope}"/><c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>
+                    <c:param name="sort" value="dpt"/><c:param name="dir" value="${sort == 'dpt' && dir == 'asc' ? 'desc' : 'asc'}"/><c:param name="page" value="1"/>
+                    <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount" value="${q_amount}"/>
+                </c:url>
+                <th><a href="${sortDpt}">部門<c:if test="${sort == 'dpt'}"><c:out value="${dir == 'asc' ? ' ▲' : ' ▼'}" /></c:if></a></th>
+                
                 <th>申請種別</th>
                 <th>支払方法</th>
-                <th>金額</th>
+                
+                <c:url var="sortAmount" value="/ApplicationHistoryServlet">
+                    <c:param name="scope" value="${currentScope}"/><c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>
+                    <c:param name="sort" value="amount"/><c:param name="dir" value="${sort == 'amount' && dir == 'asc' ? 'desc' : 'asc'}"/><c:param name="page" value="1"/>
+                    <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount" value="${q_amount}"/>
+                </c:url>
+                <th><a href="${sortAmount}">金額<c:if test="${sort == 'amount'}"><c:out value="${dir == 'asc' ? ' ▲' : ' ▼'}" /></c:if></a></th>
+                
                 <th>申請内容</th>
                 
                 <c:url var="sortStatus" value="/ApplicationHistoryServlet">
-                    <c:param name="scope" value="${currentScope}"/>
-                    <c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>
-                    <c:param name="sort" value="status"/>
-                    <c:param name="dir" value="${sort == 'status' && dir == 'asc' ? 'desc' : 'asc'}"/>
-                    <c:param name="page" value="1"/>
+                    <c:param name="scope" value="${currentScope}"/><c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>
+                    <c:param name="sort" value="status"/><c:param name="dir" value="${sort == 'status' && dir == 'asc' ? 'desc' : 'asc'}"/><c:param name="page" value="1"/>
                     <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount" value="${q_amount}"/>
                 </c:url>
                 <th><a href="${sortStatus}">申請状況<c:if test="${sort == 'status'}"><c:out value="${dir == 'asc' ? ' ▲' : ' ▼'}" /></c:if></a></th>
 
                 <c:url var="sortDate" value="/ApplicationHistoryServlet">
-                    <c:param name="scope" value="${currentScope}"/>
-                    <c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>
-                    <c:param name="sort" value="date"/>
-                    <c:param name="dir" value="${sort == 'date' && dir == 'asc' ? 'desc' : 'asc'}"/>
-                    <c:param name="page" value="1"/>
+                    <c:param name="scope" value="${currentScope}"/><c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>
+                    <c:param name="sort" value="date"/><c:param name="dir" value="${sort == 'date' && dir == 'asc' ? 'desc' : 'asc'}"/><c:param name="page" value="1"/>
                     <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount" value="${q_amount}"/>
                 </c:url>
                 <th><a href="${sortDate}">申請日<c:if test="${sort == 'date'}"><c:out value="${dir == 'asc' ? ' ▲' : ' ▼'}" /></c:if></a></th>
@@ -193,11 +186,7 @@
                     for (ApplicationBean app : historyList) {
                         int sid = app.getStatus_id();
                         boolean isOwnApplication = empId.equals(app.getEmployeeId());
-                        
-                        // 修正・削除ボタン：未承認(1) かつ 自身の申請であること
                         boolean canEditOrDelete = (sid == 1 && isOwnApplication);
-                        
-                        // 管理部削除特権：管理スコープでの全社表示時、ステータスが完了(5)であれば削除可能
                         boolean isManagementDelete = ("management".equals(currentScope) && "D100".equals(dptId) && sid == 5);
             %>
                 <tr>
