@@ -25,7 +25,7 @@ public class ApplicationWaitListServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 未承認申請一覧の表示処理
+	 * 未承認申請一覧の表示処理（検索項目順序・プルダウン対応）
 	 */
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) 
@@ -48,37 +48,60 @@ public class ApplicationWaitListServlet extends HttpServlet {
 			return;
 		}
 
-		// 3. リクエストパラメータ（表示ステータス）の取得・検証ブロック
+		// 3. リクエストパラメータ（検索・ソート・表示ステータス）の取得・検証ブロック
 		String pendingStatus = request.getParameter("pendingStatus");
 		if (pendingStatus == null || pendingStatus.trim().isEmpty()) {
 			pendingStatus = "1";
+		}
+
+		String searchDept = request.getParameter("searchDept");
+		String searchName = request.getParameter("searchName");
+		String searchAmountMax = request.getParameter("searchAmountMax"); // 金額上限（以下）
+		String searchAmountMin = request.getParameter("searchAmountMin"); // 金額下限（以上）
+		String searchUrgent = request.getParameter("searchUrgent"); // プルダウンのため単一文字列として取得
+
+		String sortColumn = request.getParameter("sortColumn");
+		String sortOrder = request.getParameter("sortOrder");
+
+		if (sortColumn == null || sortColumn.trim().isEmpty()) {
+			sortColumn = "date";
+		}
+		if (sortOrder == null || sortOrder.trim().isEmpty()) {
+			sortOrder = "DESC";
 		}
 
 		// 4. データ取得および画面遷移制御ブロック
 		try {
 			ApplicationDAO appDao = new ApplicationDAO();
 			
-			// ログインユーザーの権限（部署・役職）に応じた申請一覧データを取得
-			List<ApplicationBean> applications = appDao.getPendingApplications(employee);
+			// 順序を揃えてDAOのデータ抽出を呼び出し
+			List<ApplicationBean> applications = appDao.getPendingApplications(
+					employee, searchDept, searchName, searchAmountMin, searchAmountMax, searchUrgent, sortColumn, sortOrder);
 
-			// 画面表示用のアトリビュート設定
+			// 画面の状態維持用アトリビュート設定
 			request.setAttribute("applications", applications);
 			request.setAttribute("currentStatus", pendingStatus);
+			
+			request.setAttribute("searchDept", searchDept);
+			request.setAttribute("searchName", searchName);
+			request.setAttribute("searchAmountMin", searchAmountMin);
+			request.setAttribute("searchAmountMax", searchAmountMax);
+			request.setAttribute("searchUrgent", searchUrgent);
+			
+			request.setAttribute("sortColumn", sortColumn);
+			request.setAttribute("sortOrder", sortOrder);
 
-			// 遷移元からのエラーメッセージが存在すれば引き継ぐ
 			String errorMsg = request.getParameter("errorMessage");
 			if (errorMsg != null) {
 				request.setAttribute("errorMessage", errorMsg);
 			}
 
-			// 申請IDパラメータの有無で、詳細画面か一覧画面かを切り替えてフォワード
 			RequestDispatcher rd = request.getParameter("apct_id") != null 
 					? request.getRequestDispatcher("WEB-INF/jsp/app_comment.jsp")
 					: request.getRequestDispatcher("WEB-INF/jsp/app_wait.jsp");
 			rd.forward(request, response);
 
 		} catch (Exception e) {
-			// 例外発生時のログ出力およびエラー画面（一覧の型）へのフォワード処理
 			log("ApplicationWaitListServlet GET error", e);
 			request.setAttribute("errorMessage", "データ取得中に例外が発生しました。");
 			RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/jsp/app_wait.jsp");
@@ -125,7 +148,6 @@ public class ApplicationWaitListServlet extends HttpServlet {
 			ApplicationDAO appDao = new ApplicationDAO();
 			ApprovalDAO approvalDao = new ApprovalDAO();
 
-			// 対象申請データの存在確認と現在の状態を取得
 			ApplicationBean application = appDao.findById(apctId);
 			if (application == null) {
 				response.sendRedirect(request.getContextPath() + "/ApplicationWaitList?pendingStatus=" + pendingStatus + "&errorMessage=" + java.net.URLEncoder.encode("対象データが見つかりません。", "UTF-8"));
@@ -135,7 +157,6 @@ public class ApplicationWaitListServlet extends HttpServlet {
 
 			int nextStatusId = 0;
 
-			// 却下アクション、または承認者属性（管理部・社長・その他上長）に応じた遷移先ステータスIDの算出
 			if ("6".equals(nextStatusStr)) {
 				nextStatusId = 6; 
 			} else {
@@ -143,11 +164,11 @@ public class ApplicationWaitListServlet extends HttpServlet {
 				String userPos = employee.getPos_id();
 
 				if ("D100".equals(userDpt)) {
-					nextStatusId = 3; // 管理部上長の承認時は一律「3: 管理部承認」
+					nextStatusId = 3; 
 				} else if (currentStatusId == 1 && "E04".equals(userPos)) {
-					nextStatusId = 4; // 社長直行ルート
+					nextStatusId = 4; 
 				} else {
-					nextStatusId = currentStatusId + 1; // 通常の段階的承認ルート
+					nextStatusId = currentStatusId + 1; 
 				}
 			}
 
@@ -167,7 +188,6 @@ public class ApplicationWaitListServlet extends HttpServlet {
 			int insertResult = approvalDao.insert(approval);
 
 			if (insertResult > 0) {
-				// 承認履歴の保存に成功した場合のみ、本申請情報のステータスを更新
 				int updateResult = appDao.updateStatus(apctId, nextStatusId, LocalDateTime.now());
 				if (updateResult == 0) {
 					response.sendRedirect(request.getContextPath() + "/ApplicationWaitList?pendingStatus=" + pendingStatus + "&errorMessage=" + java.net.URLEncoder.encode("ステータス更新に失敗しました。", "UTF-8"));
@@ -182,7 +202,6 @@ public class ApplicationWaitListServlet extends HttpServlet {
 			response.sendRedirect(request.getContextPath() + "/ApplicationWaitList?pendingStatus=" + pendingStatus + "&success=true");
 
 		} catch (Exception e) {
-			// システム例外発生時の共通エラーハンドリングとリダイレクト遷移
 			log("ApplicationWaitListServlet POST error", e);
 			response.sendRedirect(request.getContextPath() + "/ApplicationWaitList?pendingStatus=" + pendingStatus + "&errorMessage=" + java.net.URLEncoder.encode("処理中にシステムエラーが発生しました。", "UTF-8"));
 		}

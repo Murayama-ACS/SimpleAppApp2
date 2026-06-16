@@ -327,9 +327,18 @@ public class ApplicationDAO extends DAO {
 	}
 
 	/**
-	 * 管理部の上長のみに権限を絞り、status_id=2 も合算して取得する未承認申請一覧取得ロジック
+	 * 検索条件（範囲指定・通常/緊急プルダウン対応）とソート順を動的に反映する未承認申請一覧取得ロジック
 	 */
-	public List<ApplicationBean> getPendingApplications(EmployeeBean employee) {
+	public List<ApplicationBean> getPendingApplications(
+			EmployeeBean employee, 
+			String searchDept, 
+			String searchName, 
+			String searchAmountMin, 
+			String searchAmountMax, 
+			String searchUrgent, // 【変更】String[]からStringへ変更
+			String sortColumn, 
+			String sortOrder) {
+		
 		Connection con = dbConnect();
 		PreparedStatement st = null;
 		ResultSet rs = null;
@@ -342,27 +351,22 @@ public class ApplicationDAO extends DAO {
 		String userDpt = employee.getDpt_id();
 		String userPos = employee.getPos_id();
 
+		// ベースとなるSQL文の組み立て
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT a.apct_id, a.emp_id, a.content, a.type, a.method, a.amount, a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, ");
 		sql.append("       s.status_name, e.emp_name, d.dpt_name ");
 		sql.append("FROM applications a ");
 		sql.append("JOIN employees e ON a.emp_id = e.emp_id ");
 		sql.append("JOIN status s ON a.status_id = s.status_id ");
-		sql.append("JOIN departments d ON e.dpt_id = d.dpt_id ");
+		sql.append("JOIN departments d ON e.dpt_id = d.dpt_id "); 
 		sql.append("WHERE a.is_deleted = 0 ");
 
 		List<Object> params = new ArrayList<>();
 
+		// 権限ベースによる絞り込みブロック
 		if ("E04".equals(userPos)) {
-			// 【社長ルール】（変更なし）
-			sql.append("AND a.status_id = 1 ");
-			sql.append("AND ( ");
-			sql.append("  (e.dpt_id NOT LIKE 'D7%' AND e.pos_id = 'E02') ");
-			sql.append("  OR (e.dpt_id LIKE 'D7%' AND e.pos_id = 'E03') ");
-			sql.append(") ");
-
+			sql.append("AND a.status_id = 1 AND ( (e.dpt_id NOT LIKE 'D7%' AND e.pos_id = 'E02') OR (e.dpt_id LIKE 'D7%' AND e.pos_id = 'E03') ) ");
 		} else if ("E03".equals(userPos)) {
-			// 【本部長ルール】（変更なし）
 			if (userDpt.startsWith("D7")) {
 				sql.append("AND a.status_id = 1 AND e.dpt_id LIKE 'D7%' AND e.pos_id = 'E02' ");
 			} else {
@@ -371,17 +375,9 @@ public class ApplicationDAO extends DAO {
 				params.add(deptPrefix);
 				params.add(employee.getEmp_id());
 			}
-
 		} else if ("E02".equals(userPos)) {
-			// 【部長ルール】
 			if ("D100".equals(userDpt)) {
-				// 管理部部長の場合：
-				// ①管理部内の部下の未承認申請(status_id=1)
-				// ②他部署から上がってきた管理部承認待ち申請(status_id=2) の両方を表示
-				sql.append("AND ( ");
-				sql.append("  (a.status_id = 1 AND e.dpt_id = 'D100' AND e.emp_id != ?) ");
-				sql.append("  OR (a.status_id = 2) ");
-				sql.append(") ");
+				sql.append("AND ( (a.status_id = 1 AND e.dpt_id = 'D100' AND e.emp_id != ?) OR (a.status_id = 2) ) ");
 				params.add(employee.getEmp_id());
 			} else if ("D712".equals(userDpt)) {
 				sql.append("AND a.status_id = 1 AND e.dpt_id IN ('D710', 'D720') AND e.pos_id = 'E01' ");
@@ -393,30 +389,67 @@ public class ApplicationDAO extends DAO {
 				params.add(deptPrefix);
 				params.add(employee.getEmp_id());
 			}
-
 		} else if ("E01".equals(userPos)) {
-			// 【課長ルール】
 			if ("D100".equals(userDpt)) {
-				// 管理部課長の場合：
-				// ①管理部内の一般社員の未承認申請(status_id=1)
-				// ②他部署から上がってきた管理部承認待ち申請(status_id=2) の両方を表示
-				sql.append("AND ( ");
-				sql.append("  (a.status_id = 1 AND e.dpt_id = 'D100' AND e.pos_id = 'E00' AND e.emp_id != ?) ");
-				sql.append("  OR (a.status_id = 2) ");
-				sql.append(") ");
+				sql.append("AND ( (a.status_id = 1 AND e.dpt_id = 'D100' AND e.pos_id = 'E00' AND e.emp_id != ?) OR (a.status_id = 2) ) ");
 				params.add(employee.getEmp_id());
 			} else {
 				sql.append("AND a.status_id = 1 AND e.dpt_id = ? AND e.pos_id = 'E00' AND e.emp_id != ? ");
 				params.add(userDpt);
 				params.add(employee.getEmp_id());
 			}
-
 		} else {
-			// 管理部の一般社員(E00)もここに含まれ、他人の申請は見えなくなります
 			sql.append("AND 1 = 0 ");
 		}
 
-		sql.append("ORDER BY a.create_date DESC");
+		// 動的検索条件の追加ブロック
+		if (searchDept != null && !searchDept.trim().isEmpty()) {
+			sql.append("AND d.dpt_name LIKE ? ");
+			params.add("%" + searchDept.trim() + "%");
+		}
+		
+		if (searchName != null && !searchName.trim().isEmpty()) {
+			sql.append("AND e.emp_name LIKE ? ");
+			params.add("%" + searchName.trim() + "%");
+		}
+		
+		if (searchAmountMin != null && !searchAmountMin.trim().isEmpty()) {
+			try {
+				sql.append("AND a.amount >= ? ");
+				params.add(Integer.parseInt(searchAmountMin.trim()));
+			} catch (NumberFormatException e) {
+				// スキップ
+			}
+		}
+		
+		if (searchAmountMax != null && !searchAmountMax.trim().isEmpty()) {
+			try {
+				sql.append("AND a.amount <= ? ");
+				params.add(Integer.parseInt(searchAmountMax.trim()));
+			} catch (NumberFormatException e) {
+				// スキップ
+			}
+		}
+		
+		// 【変更】緊急度条件の追加（「通常」または「緊急」が指定されたときのみ等号で絞り込む）
+		if (searchUrgent != null && !searchUrgent.trim().isEmpty()) {
+			sql.append("AND a.urgent = ? ");
+			params.add(searchUrgent.trim());
+		}
+
+		// ソート条件の追加ブロック
+		String orderByColumn = "a.create_date"; 
+		if ("dept".equals(sortColumn)) orderByColumn = "d.dpt_name";
+		else if ("name".equals(sortColumn)) orderByColumn = "e.emp_name";
+		else if ("amount".equals(sortColumn)) orderByColumn = "a.amount";
+		else if ("urgent".equals(sortColumn)) orderByColumn = "a.urgent";
+
+		String orderByOrder = "DESC"; 
+		if ("ASC".equalsIgnoreCase(sortOrder)) {
+			orderByOrder = "ASC";
+		}
+
+		sql.append("ORDER BY ").append(orderByColumn).append(" ").append(orderByOrder);
 
 		try {
 			if (con != null) {
@@ -455,7 +488,7 @@ public class ApplicationDAO extends DAO {
 				}
 			}
 		} catch (SQLException e) {
-			System.out.println("getPendingApplications管理部上長限定版エラー: " + e.getMessage());
+			System.out.println("getPendingApplications 確定版エラー: " + e.getMessage());
 		} finally {
 			if (rs != null) try { rs.close(); } catch (SQLException ex) {}
 			if (st != null) try { st.close(); } catch (SQLException ex) {}
@@ -463,7 +496,6 @@ public class ApplicationDAO extends DAO {
 		}
 		return list;
 	}
-
 	/**
 	 * 申請履歴一覧を条件（対象範囲、ステータス、ログインユーザーの役職・部署）に応じて取得する
 	 */

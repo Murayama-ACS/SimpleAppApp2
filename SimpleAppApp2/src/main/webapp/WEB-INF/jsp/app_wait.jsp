@@ -1,6 +1,3 @@
-<%--
-モックのため必ず削除すること 
---%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
 <%@ page import="bean.ApplicationBean" %>
@@ -9,17 +6,32 @@
 <%
     EmployeeBean employee = (EmployeeBean) session.getAttribute("loginEmployee");
     String empName = (employee != null) ? employee.getEmp_name() : "ゲスト";
-    String empPos = (employee != null) ? employee.getPos_id() : ""; // 役職コード（E00〜E04）を取得
+    String empPos = (employee != null) ? employee.getPos_id() : ""; 
+    String empDpt = (employee != null) ? employee.getDpt_id() : "";
 
     List<ApplicationBean> list = (List<ApplicationBean>) request.getAttribute("applications");
     String currentStatus = (String) request.getAttribute("currentStatus");
     String errorMessage = (String) request.getAttribute("errorMessage");
+
+    // 検索条件の取得
+    String searchDept = (String) request.getAttribute("searchDept");
+    String searchName = (String) request.getAttribute("searchName");
+    String searchAmountMax = (String) request.getAttribute("searchAmountMax"); // 変更：Max（以下）を先に取得
+    String searchAmountMin = (String) request.getAttribute("searchAmountMin"); // 変更：Min（以上）を後に取得
+    String searchUrgent = (String) request.getAttribute("searchUrgent"); // 変更：単一の文字列として取得
+    if (searchUrgent == null) searchUrgent = "";
+
+    // ソート条件の取得
+    String sortColumn = (String) request.getAttribute("sortColumn");
+    String sortOrder = (String) request.getAttribute("sortOrder");
+    if (sortColumn == null) sortColumn = "date";
+    if (sortOrder == null) sortOrder = "DESC";
 %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>申請一覧（未承認） モック</title>
+    <title>申請一覧（未承認）</title>
     <style>
         .modal {
             display: none;
@@ -33,6 +45,23 @@
             margin: 15% auto; padding: 20px;
             border: 1px solid #888; width: 400px;
         }
+        fieldset {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        legend {
+            font-weight: bold;
+            padding: 0 5px;
+        }
+        .sort-link {
+            text-decoration: none;
+            color: #333;
+        }
+        .sort-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -43,24 +72,66 @@
         <p style="color: red;"><%= errorMessage %></p>
     <% } %>
 
-    <form action="<%= request.getContextPath() %>/ApplicationWaitList" method="get">
-        <label>表示ステータスID: </label>
-        <input type="text" name="pendingStatus" value="<%= currentStatus != null ? currentStatus : "1" %>" size="5">
-        <button type="submit">切り替え</button>
-    </form>
-    <br>
+    <fieldset>
+        <legend>検索条件</legend>
+        <form action="<%= request.getContextPath() %>/ApplicationWaitList" method="get" id="searchForm">
+            <input type="hidden" name="pendingStatus" value="<%= currentStatus != null ? currentStatus : "1" %>">
+            <input type="hidden" name="sortColumn" value="<%= sortColumn %>">
+            <input type="hidden" name="sortOrder" value="<%= sortOrder %>">
+
+            <label>部署名: </label>
+            <input type="text" name="searchDept" value="<%= searchDept != null ? searchDept : "" %>" style="width: 120px;">&nbsp;
+            
+            <label>氏名: </label>
+            <input type="text" name="searchName" value="<%= searchName != null ? searchName : "" %>" style="width: 100px;">&nbsp;
+            
+            <label>金額範囲: </label>
+            <input type="number" name="searchAmountMax" value="<%= searchAmountMax != null ? searchAmountMax : "" %>" style="width: 90px;"> 円以下 〜 
+            <input type="number" name="searchAmountMin" value="<%= searchAmountMin != null ? searchAmountMin : "" %>" style="width: 90px;"> 円以上&nbsp;
+            
+            <label>緊急度: </label>
+            <select name="searchUrgent">
+                <option value="" <%= "".equals(searchUrgent) ? "selected" : "" %>>すべて</option>
+                <option value="通常" <%= "通常".equals(searchUrgent) ? "selected" : "" %>>通常</option>
+                <option value="緊急" <%= "緊急".equals(searchUrgent) ? "selected" : "" %>>緊急</option>
+            </select>
+            &nbsp;&nbsp;
+            <button type="submit">検索</button>
+            <button type="button" onclick="location.href='<%= request.getContextPath() %>/ApplicationWaitList'">クリア</button>
+        </form>
+    </fieldset>
 
     <table border="1" cellpadding="5" cellspacing="0">
         <thead>
             <tr style="background-color: #f2f2f2;">
-                <th>申請日</th>
+                <th>
+                    <a href="javascript:void(0);" onclick="doSort('date')" class="sort-link">
+                        申請日 <%= "date".equals(sortColumn) ? ("ASC".equals(sortOrder) ? "▲" : "▼") : "" %>
+                    </a>
+                </th>
                 <th>申請ID</th>
-                <th>申請者の部署</th>
-                <th>申請者の氏名</th>
+                <th>
+                    <a href="javascript:void(0);" onclick="doSort('dept')" class="sort-link">
+                        申請者の部署 <%= "dept".equals(sortColumn) ? ("ASC".equals(sortOrder) ? "▲" : "▼") : "" %>
+                    </a>
+                </th>
+                <th>
+                    <a href="javascript:void(0);" onclick="doSort('name')" class="sort-link">
+                        申請者の氏名 <%= "name".equals(sortColumn) ? ("ASC".equals(sortOrder) ? "▲" : "▼") : "" %>
+                    </a>
+                </th>
                 <th>申請種別</th>
-                <th>申請金額</th>
+                <th>
+                    <a href="javascript:void(0);" onclick="doSort('amount')" class="sort-link">
+                        申請金額 <%= "amount".equals(sortColumn) ? ("ASC".equals(sortOrder) ? "▲" : "▼") : "" %>
+                    </a>
+                </th>
                 <th>申請内容</th>
-                <th>緊急度</th>
+                <th>
+                    <a href="javascript:void(0);" onclick="doSort('urgent')" class="sort-link">
+                        緊急度 <%= "urgent".equals(sortColumn) ? ("ASC".equals(sortOrder) ? "▲" : "▼") : "" %>
+                    </a>
+                </th>
                 <th>操作</th>
             </tr>
         </thead>
@@ -91,9 +162,7 @@
                                     <input type="hidden" name="apct_id" value="<%= app.getApctId() %>">
                                     <button type="submit">詳細</button>
                                 </form>
-                                
                                 <button type="button" onclick="openApprovalModal('<%= app.getApctId() %>', <%= app.getStatus_id() %>)">承認</button>
-                                
                                 <button type="button" onclick="openRejectModal('<%= app.getApctId() %>')">却下</button>
                             </div>
                         </td>
@@ -110,7 +179,6 @@
     <div id="actionModal" class="modal">
         <div class="modal-content">
             <h3 id="modalTitle">申請処理</h3>
-            <%-- 【変更】onsubmitに二重送信防止関数を指定 --%>
             <form action="<%= request.getContextPath() %>/ApplicationWaitList" method="post" onsubmit="return handleFormSubmit(this)">
                 <input type="hidden" id="modalApctId" name="apct_id">
                 <input type="hidden" id="modalNextStatus" name="next_status_id">
@@ -132,73 +200,82 @@
     <a href="<%= request.getContextPath() %>/login_mock.jsp">ログイン画面へ戻る</a>
 
     <script>
-    var modal = document.getElementById("actionModal");
-    var modalApctId = document.getElementById("modalApctId");
-    var modalNextStatus = document.getElementById("modalNextStatus");
-    var modalTitle = document.getElementById("modalTitle");
-    var modalSubmitBtn = document.getElementById("modalSubmitBtn");
-    var currentUserPos = "<%= empPos %>"; 
-    var currentUserDpt = "<%= employee != null ? employee.getDpt_id() : "" %>"; // ★追加：部署IDのJavaScript変数を定義
-
-    function openApprovalModal(apctId, currentStatusId) {
-        modalApctId.value = apctId;
+        var modal = document.getElementById("actionModal");
+        var modalApctId = document.getElementById("modalApctId");
+        var modalNextStatus = document.getElementById("modalNextStatus");
+        var modalTitle = document.getElementById("modalTitle");
+        var modalSubmitBtn = document.getElementById("modalSubmitBtn");
         
-        if (currentUserDpt === "D100") {
-            // ★追加：管理部の上長が承認する場合は、次の一覧表示状態は一律「3」にする
-            modalNextStatus.value = 3;
-        } else if (currentStatusId === 1 && currentUserPos === "E04") {
-            modalNextStatus.value = 4; 
-        } else {
-            modalNextStatus.value = currentStatusId + 1; 
-        }
-        
-        modalTitle.innerText = "申請承認確認";
-        modalSubmitBtn.innerText = "承認する";
-        modal.style.display = "block";
-    }
+        var currentUserPos = "<%= empPos %>"; 
+        var currentUserDpt = "<%= empDpt %>"; 
+        var isSubmitting = false;
 
-    function openRejectModal(apctId) {
-        isSubmitting = false;
-        if (modalSubmitBtn) {
-            modalSubmitBtn.innerText = "却下する";
-        }
-
-        modalApctId.value = apctId;
-        modalNextStatus.value = 6; 
-        modalTitle.innerText = "申請却下確認";
-        modalSubmitBtn.innerText = "却下する";
-        modal.style.display = "block";
-    }
-
-    function closeModal() {
-        modal.style.display = "none";
-    }
-
-    // ★修正：ボタンを非活性にするのではなく、JavaScript側で送信をブロックする
-    function handleFormSubmit(form) {
-        if (isSubmitting) {
-            return false; // すでに送信中なら、それ以降のリクエストをすべて完全に遮断する
-        }
-        isSubmitting = true; // 送信開始マークを立てる
-
-        var submitBtn = form.querySelector('button[type="submit"]');
-        if (submitBtn) {
-            submitBtn.innerText = "処理中..."; // テキストの変更だけに留める
-        }
-        return true;
-    }
-
-    window.addEventListener('load', function() {
-        var urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('success') === 'true') {
-            alert('処理が完了しました。');
-            var cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-            if (urlParams.get('pendingStatus')) {
-                cleanUrl += "?pendingStatus=" + urlParams.get('pendingStatus');
+        function doSort(column) {
+            var form = document.getElementById("searchForm");
+            var currentColumn = form.sortColumn.value;
+            var currentOrder = form.sortOrder.value;
+            
+            if (currentColumn === column) {
+                form.sortOrder.value = (currentOrder === "ASC") ? "DESC" : "ASC";
+            } else {
+                form.sortColumn.value = column;
+                form.sortOrder.value = "DESC"; 
             }
-            window.history.replaceState({}, document.title, cleanUrl);
+            form.submit();
         }
-    });
+
+        function openApprovalModal(apctId, currentStatusId) {
+            isSubmitting = false;
+            if (modalSubmitBtn) modalSubmitBtn.innerText = "承認する";
+
+            modalApctId.value = apctId;
+            
+            if (currentUserDpt === "D100") {
+                modalNextStatus.value = 3;
+            } else if (currentStatusId === 1 && currentUserPos === "E04") {
+                modalNextStatus.value = 4; 
+            } else {
+                modalNextStatus.value = currentStatusId + 1; 
+            }
+            
+            modalTitle.innerText = "申請承認確認";
+            modal.style.display = "block";
+        }
+
+        function openRejectModal(apctId) {
+            isSubmitting = false;
+            if (modalSubmitBtn) modalSubmitBtn.innerText = "却下する";
+
+            modalApctId.value = apctId;
+            modalNextStatus.value = 6; 
+            modalTitle.innerText = "申請却下確認";
+            modal.style.display = "block";
+        }
+
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        function handleFormSubmit(form) {
+            if (isSubmitting) return false; 
+            isSubmitting = true; 
+
+            var submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.innerText = "処理中..."; 
+            return true;
+        }
+
+        window.addEventListener('load', function() {
+            var urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('success') === 'true') {
+                alert('処理が完了しました。');
+                var cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                if (urlParams.get('pendingStatus')) {
+                    cleanUrl += "?pendingStatus=" + urlParams.get('pendingStatus');
+                }
+                window.history.replaceState({}, document.title, cleanUrl);
+            }
+        });
     </script>
 </body>
 </html>
