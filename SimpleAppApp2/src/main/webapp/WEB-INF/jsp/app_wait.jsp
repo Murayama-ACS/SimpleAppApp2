@@ -109,7 +109,11 @@
                         申請日 <%= "date".equals(sortColumn) ? ("ASC".equals(sortOrder) ? "▲" : "▼") : "" %>
                     </a>
                 </th>
-                <th>申請ID</th>
+                <th>
+                    <a href="javascript:void(0);" onclick="doSort('id')" class="sort-link">
+                        申請ID <%= "id".equals(sortColumn) ? ("ASC".equals(sortOrder) ? "▲" : "▼") : "" %>
+                    </a>
+                </th>
                 <th>
                     <a href="javascript:void(0);" onclick="doSort('dept')" class="sort-link">
                         申請者の部署 <%= "dept".equals(sortColumn) ? ("ASC".equals(sortOrder) ? "▲" : "▼") : "" %>
@@ -120,7 +124,11 @@
                         申請者の氏名 <%= "name".equals(sortColumn) ? ("ASC".equals(sortOrder) ? "▲" : "▼") : "" %>
                     </a>
                 </th>
-                <th>申請種別</th>
+                <th>
+                    <a href="javascript:void(0);" onclick="doSort('type')" class="sort-link">
+                        申請種別 <%= "type".equals(sortColumn) ? ("ASC".equals(sortOrder) ? "▲" : "▼") : "" %>
+                    </a>
+                </th>
                 <th>
                     <a href="javascript:void(0);" onclick="doSort('amount')" class="sort-link">
                         申請金額 <%= "amount".equals(sortColumn) ? ("ASC".equals(sortOrder) ? "▲" : "▼") : "" %>

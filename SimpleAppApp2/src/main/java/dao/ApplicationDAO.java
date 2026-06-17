@@ -388,30 +388,32 @@ public class ApplicationDAO extends DAO {
 		String userDpt = employee.getDpt_id();
 		String userPos = employee.getPos_id();
 
-		// 【4-2. ソートキーのマッピングを全ての表示項目に拡張】
+		// 【修正】「申請内容」以外の全項目をソートできるようにマッピングを拡張
 		Map<String, String> colMap = Map.of(
-			"date",   "a.create_date",
-			"dept",   "d.dpt_name",
-			"name",   "COALESCE(e.furigana, e.emp_name)", // 名前選択時はふりがなカラムを最優先してソート
-			"amount", "a.amount",
-			"urgent", "a.urgent"
+			"date",   "a.create_date",                   // 申請日
+			"id",     "a.apct_id",                       // 申請ID
+			"dept",   "d.dpt_name",                      // 申請者の部署（漢字）
+			"name",   "COALESCE(e.furigana, e.emp_name)",// 申請者の氏名（ふりがな/五十音）
+			"type",   "a.type",                          // 申請種別
+			"amount", "a.amount",                        // 申請金額
+			"urgent", "a.urgent"                         // 緊急度
 		);
 
 		String orderBy = colMap.getOrDefault(sortColumn, "a.create_date");
 		String dir = "ASC".equalsIgnoreCase(sortOrder) ? "ASC" : "DESC";
 
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT a.apct_id, a.emp_id, a.content, a.type, a.method, a.amount, a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, ")
-		   .append("       s.status_name, e.emp_name, d.dpt_name ")
-		   .append("FROM applications a ")
-		   .append("JOIN employees e ON a.emp_id = e.emp_id ")
-		   .append("JOIN status s ON a.status_id = s.status_id ")
-		   .append("JOIN departments d ON e.dpt_id = d.dpt_id ") 
-		   .append("WHERE a.is_deleted = 0 ");
+		sql.append("SELECT a.apct_id, a.emp_id, a.content, a.type, a.method, a.amount, a.reason, a.remark, a.urgent, a.status_id, a.create_date, a.update_date, a.is_deleted, ");
+		sql.append("       s.status_name, e.emp_name, d.dpt_name ");
+		sql.append("FROM applications a ");
+		sql.append("JOIN employees e ON a.emp_id = e.emp_id ");
+		sql.append("JOIN status s ON a.status_id = s.status_id ");
+		sql.append("JOIN departments d ON e.dpt_id = d.dpt_id "); 
+		sql.append("WHERE a.is_deleted = 0 ");
 
 		List<Object> params = new ArrayList<>();
 
-		// 権限ベースによる絞り込みブロック
+		// 組織階層（権限ベース）による絞り込みブロック
 		if ("E04".equals(userPos)) {
 			sql.append("AND a.status_id = 1 AND ( (e.dpt_id NOT LIKE 'D7%' AND e.pos_id = 'E02') OR (e.dpt_id LIKE 'D7%' AND e.pos_id = 'E03') ) ");
 		} else if ("E03".equals(userPos)) {
@@ -482,8 +484,8 @@ public class ApplicationDAO extends DAO {
 			params.add(searchUrgent.trim());
 		}
 
-		// ソート句の動的結合（同一値の並び順のブレを防ぐために、第二ソートに申請ID降順を固定）
-		sql.append(" ORDER BY ").append(orderBy).append(" ").append(dir).append(", a.apct_id DESC");
+		// 動的ソート条件の結合
+		sql.append("ORDER BY ").append(orderBy).append(" ").append(dir).append(", a.apct_id DESC");
 
 		try {
 			if (con != null) {
@@ -510,7 +512,7 @@ public class ApplicationDAO extends DAO {
 		}
 		return list;
 	}
-
+	
 	/**
 	 * 申請履歴一覧を取得する（内部でsearchApplicationsを利用）
 	 */
