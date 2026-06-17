@@ -46,7 +46,7 @@ public class ApplicationServlet extends HttpServlet {
         request.setAttribute("departmentName", dptName);
 
         // 【4. 画面遷移】申請入力画面 (application.jsp) を表示
-        request.getRequestDispatcher("/application.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/jsp/application.jsp").forward(request, response);
     }
 
     /**
@@ -142,7 +142,7 @@ public class ApplicationServlet extends HttpServlet {
             dao.insert(bean);
 
             // 【11. 正常終了時の画面遷移】申請完了画面 (app_submit.jsp) へフォワード
-            request.getRequestDispatcher("/app_submit.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/jsp/toppage.jsp").forward(request, response);
 
         } catch (Exception e) {
             // 【12. 例外発生時の例外ハンドリング処理】
@@ -163,7 +163,7 @@ public class ApplicationServlet extends HttpServlet {
                 
                 // エラーメッセージを設定し、入力画面へと差し戻す
                 request.setAttribute("eMsg", "申請の登録中にエラーが発生しました。");
-                request.getRequestDispatcher("/application.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/jsp/application.jsp").forward(request, response);
                 
             } catch (Exception ex) {
                 // キャッチブロック内自体でさらにエラーが起きた場合の最終安全網ログ
