@@ -48,7 +48,7 @@ public class EmployeeDAO extends DAO{
 	public int updatePassword(EmployeeBean empBean, String newPass) {
 		Connection con = dbConnect();
 		int result = 0;
-		String sql = "update employees set password=? where emp_id=?";
+		String sql = "update employees set password=? where emp_id=? and is_deleted = 0";
 		String pattern =  "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$";
 		System.out.println(!newPass.matches(pattern));
 		if(newPass.equals("Abcd1234")){
@@ -74,7 +74,7 @@ public class EmployeeDAO extends DAO{
 		return result;
 	}
 	public int updateEmpInfo(EmployeeBean emp){
-		String sql = "UPDATE employees SET emp_name = ?, furigana = ?, email = ?, dpt_id = ?, pos_id = ? WHERE emp_id = ?";
+		String sql = "UPDATE employees SET emp_name = ?, furigana = ?, email = ?, dpt_id = ?, pos_id = ? WHERE emp_id = ? and is_deleted = 0";
 		int result = 0;
 		try (
 				Connection con = dbConnect();
@@ -256,7 +256,7 @@ public class EmployeeDAO extends DAO{
 		return new PageResult<>(list, hasNext);
 	}
 
-	//社員ID or メールアドレスとパスワードが一致する社員の情報をデータベースから取得するメソッド（ログイン認証）
+	/*//社員ID or メールアドレスとパスワードが一致する社員の情報をデータベースから取得するメソッド（ログイン認証）
 	public EmployeeBean empInfo(String identifier, String pass, boolean isEmail) {
 		Connection con = dbConnect();
 		EmployeeBean employee = null;
@@ -267,12 +267,12 @@ public class EmployeeDAO extends DAO{
 		}
 		try {
 			if(con != null) {
-
+	
 				PreparedStatement st = con.prepareStatement(sql);
 				st.setString(1, identifier);
 				st.setString(2, hash.getSHA512(pass));
 				ResultSet rs = st.executeQuery();
-
+	
 				while(rs.next()) {
 					String emp_id = rs.getString("emp_id");
 					String emp_name = rs.getString("emp_name");
@@ -288,16 +288,16 @@ public class EmployeeDAO extends DAO{
 			return null;
 		}
 		dbClose(con);
-
+	
 		return employee;
-	}
+	}*/
 
 	//社員IDとメールアドレスが一致する社員の情報をデータベースから取得するメソッド
 	public EmployeeBean empInfo(String emp_id, String email) {
 		Connection con = dbConnect();
 		EmployeeBean employee = null;
 		//identifierがメールか社員IDかでsql文を変更
-		String sql = "SELECT * FROM employees WHERE emp_id = ? and email = ?";
+		String sql = "SELECT * FROM employees WHERE emp_id = ? and email = ? and is_deleted = 0";
 
 		try {
 			if(con != null) {
@@ -329,8 +329,8 @@ public class EmployeeDAO extends DAO{
 	// identifier が emp_id または email。戻り値は認証成功時の EmployeeBean、失敗やロック時は null。
 	public EmployeeBean authenticateAndGetEmployee(String identifier, String plainPass, boolean isEmail, String remoteAddr, String userAgent) throws SQLException {
 		String sel = isEmail
-				? "SELECT emp_id, emp_name, email, password, dpt_id, pos_id FROM employees WHERE email = ?"
-						: "SELECT emp_id, emp_name, email, password, dpt_id, pos_id FROM employees WHERE emp_id = ?";
+				? "SELECT emp_id, emp_name, email, password, dpt_id, pos_id FROM employees WHERE email = ? and is_deleted = 0"
+						: "SELECT emp_id, emp_name, email, password, dpt_id, pos_id FROM employees WHERE emp_id = ? and is_deleted = 0";
 
 		try (Connection con = dbConnect();
 				PreparedStatement ps = con.prepareStatement(sel)) {

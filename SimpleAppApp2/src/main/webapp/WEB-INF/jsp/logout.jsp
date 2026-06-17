@@ -4,11 +4,10 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>SimpleAppApp2</title>
+<title>Insert title here</title>
 </head>
 <body>
-<h2>トップぺーーーージ！！！</h2>
-<a href="EmployeeInfo">ユーザー一覧</a><br>
-<a href="Logout">ログアウト</a>
+ログアウトが完了しました
+<a href="login.jsp">ログイン画面へ</a>
 </body>
 </html>

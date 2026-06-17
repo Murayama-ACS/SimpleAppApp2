@@ -24,5 +24,6 @@
 		</c:if>
 	</div>
 <a href="PassReset1">パスワードリセット</a>
+
 </body>
 </html>
