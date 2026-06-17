@@ -154,8 +154,13 @@
     <!-- ソートリンク付きデータテーブル（ページング連動用URLパラメータ修正） -->
     <table>
         <thead>
-            <tr>
-                <th>申請ID</th>
+<tr>
+                <c:url var="sortId" value="/ApplicationHistoryServlet">
+                    <c:param name="scope" value="${currentScope}"/><c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>
+                    <c:param name="sort" value="id"/><c:param name="dir" value="${sort == 'id' && dir == 'asc' ? 'desc' : 'asc'}"/><c:param name="page" value="1"/>
+                    <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount_min" value="${q_amount_min}"/><c:param name="q_amount_max" value="${q_amount_max}"/>
+                </c:url>
+                <th><a href="${sortId}">申請ID<c:if test="${sort == 'id'}"><c:out value="${dir == 'asc' ? ' ▲' : ' ▼'}" /></c:if></a></th>
                 
                 <c:url var="sortName" value="/ApplicationHistoryServlet">
                     <c:param name="scope" value="${currentScope}"/><c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>
@@ -171,8 +176,19 @@
                 </c:url>
                 <th><a href="${sortDpt}">部門<c:if test="${sort == 'dpt'}"><c:out value="${dir == 'asc' ? ' ▲' : ' ▼'}" /></c:if></a></th>
                 
-                <th>申請種別</th>
-                <th>支払方法</th>
+                <c:url var="sortType" value="/ApplicationHistoryServlet">
+                    <c:param name="scope" value="${currentScope}"/><c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>
+                    <c:param name="sort" value="type"/><c:param name="dir" value="${sort == 'type' && dir == 'asc' ? 'desc' : 'asc'}"/><c:param name="page" value="1"/>
+                    <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount_min" value="${q_amount_min}"/><c:param name="q_amount_max" value="${q_amount_max}"/>
+                </c:url>
+                <th><a href="${sortType}">申請種別<c:if test="${sort == 'type'}"><c:out value="${dir == 'asc' ? ' ▲' : ' ▼'}" /></c:if></a></th>
+                
+                <c:url var="sortMethod" value="/ApplicationHistoryServlet">
+                    <c:param name="scope" value="${currentScope}"/><c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>
+                    <c:param name="sort" value="method"/><c:param name="dir" value="${sort == 'method' && dir == 'asc' ? 'desc' : 'asc'}"/><c:param name="page" value="1"/>
+                    <c:param name="q_status" value="${q_status}"/><c:param name="q_name" value="${q_name}"/><c:param name="q_department" value="${q_department}"/><c:param name="q_type" value="${q_type}"/><c:param name="q_amount_min" value="${q_amount_min}"/><c:param name="q_amount_max" value="${q_amount_max}"/>
+                </c:url>
+                <th><a href="${sortMethod}">支払方法<c:if test="${sort == 'method'}"><c:out value="${dir == 'asc' ? ' ▲' : ' ▼'}" /></c:if></a></th>
                 
                 <c:url var="sortAmount" value="/ApplicationHistoryServlet">
                     <c:param name="scope" value="${currentScope}"/><c:param name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}"/>

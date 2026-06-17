@@ -164,13 +164,13 @@ public class ApplicationDAO extends DAO {
 				rs = st.executeQuery();
 				if (rs.next()) {
 					employee = new EmployeeBean(
-						rs.getString("emp_id"), 
-						rs.getString("emp_name"), 
-						rs.getString("furigana"), 
-						rs.getString("email"), 
-						rs.getString("dpt_id"), 
-						rs.getString("pos_id")
-					);
+							rs.getString("emp_id"), 
+							rs.getString("emp_name"), 
+							rs.getString("furigana"), 
+							rs.getString("email"), 
+							rs.getString("dpt_id"), 
+							rs.getString("pos_id")
+							);
 					employee.setIs_deleted(rs.getBoolean("is_deleted"));
 				}
 			}
@@ -375,7 +375,7 @@ public class ApplicationDAO extends DAO {
 			String searchUrgent, 
 			String sortColumn, 
 			String sortOrder) {
-		
+
 		Connection con = dbConnect();
 		PreparedStatement st = null;
 		ResultSet rs = null;
@@ -389,12 +389,12 @@ public class ApplicationDAO extends DAO {
 		String userPos = employee.getPos_id();
 
 		Map<String, String> colMap = Map.of(
-			"date",   "a.create_date",
-			"dept",   "d.dpt_name",
-			"name",   "COALESCE(e.furigana, e.emp_name)",
-			"amount", "a.amount",
-			"urgent", "a.urgent"
-		);
+				"date",   "a.create_date",
+				"dept",   "d.dpt_name",
+				"name",   "COALESCE(e.furigana, e.emp_name)",
+				"amount", "a.amount",
+				"urgent", "a.urgent"
+				);
 
 		String orderBy = colMap.getOrDefault(sortColumn, "a.create_date");
 		String dir = "ASC".equalsIgnoreCase(sortOrder) ? "ASC" : "DESC";
@@ -452,28 +452,28 @@ public class ApplicationDAO extends DAO {
 			sql.append("AND d.dpt_name LIKE ? ");
 			params.add("%" + searchDept.trim() + "%");
 		}
-		
+
 		if (searchName != null && !searchName.trim().isEmpty()) {
 			sql.append("AND (e.emp_name LIKE ? OR e.furigana LIKE ?) ");
 			String nameParam = "%" + searchName.trim() + "%";
 			params.add(nameParam);
 			params.add(nameParam);
 		}
-		
+
 		if (searchAmountMin != null && !searchAmountMin.trim().isEmpty()) {
 			try {
 				sql.append("AND a.amount >= ? ");
 				params.add(Integer.parseInt(searchAmountMin.trim()));
 			} catch (NumberFormatException e) {}
 		}
-		
+
 		if (searchAmountMax != null && !searchAmountMax.trim().isEmpty()) {
 			try {
 				sql.append("AND a.amount <= ? ");
 				params.add(Integer.parseInt(searchAmountMax.trim()));
 			} catch (NumberFormatException e) {}
 		}
-		
+
 		if (searchUrgent != null && !searchUrgent.trim().isEmpty()) {
 			sql.append("AND a.urgent = ? ");
 			params.add(searchUrgent.trim());
@@ -567,7 +567,7 @@ public class ApplicationDAO extends DAO {
 	// =================================================================
 
 	/**
-	 * 履歴一覧のページングおよび詳細検索を行う
+	 * 履歴一覧のページングおよび詳細検索を行う（申請内容ソート除外版）
 	 */
 	public PageResult<ApplicationBean> searchApplications(
 			EmployeeBean loginUser, String scope, String statusFilter,
@@ -575,12 +575,16 @@ public class ApplicationDAO extends DAO {
 			Integer qAmountMin, Integer qAmountMax, 
 			String sortKey, String sortDir, int limit, int offset) throws SQLException {
 
+		// 【修正】colMap から "content" を除外
 		Map<String, String> colMap = Map.of(
-				"status", "a.status_id",
-				"name",   "COALESCE(e.furigana, e.emp_name)",
-				"date",   "a.create_date",
-				"dpt",    "d.dpt_name",
-				"amount", "a.amount"
+				"id",     "a.apct_id",                        // 申請ID
+				"name",   "COALESCE(e.furigana, e.emp_name)", // 申請者名
+				"dpt",    "d.dpt_name",                       // 部門
+				"type",   "a.type",                           // 申請種別
+				"method", "a.method",                         // 支払方法
+				"amount", "a.amount",                         // 金額
+				"status", "a.status_id",                      // 申請状況
+				"date",   "a.create_date"                     // 申請日
 				);
 
 		if (sortKey == null || sortKey.isEmpty()) sortKey = "date";
@@ -669,6 +673,7 @@ public class ApplicationDAO extends DAO {
 			params.add(qAmountMax);
 		}
 
+		// 同一値が含まれる場合の並び順を保証するため、第二ソートに主キー（apct_id）の降順を固定結合
 		sql.append(" ORDER BY ").append(orderBy).append(" ").append(dir).append(", a.apct_id DESC ");
 		sql.append(" LIMIT ? OFFSET ?");
 
