@@ -167,10 +167,21 @@ th a:hover {
 		</form>
 	</div>
 
-	<table>
+<table>
 		<thead>
 			<tr>
-				<th>申請ID</th>
+				<c:url var="sortId" value="/ApplicationStatus">
+					<c:param name="sort" value="id" />
+					<c:param name="dir" value="${sort == 'id' && dir == 'asc' ? 'desc' : 'asc'}" />
+					<c:param name="page" value="1" />
+					<c:param name="q_status" value="${q_status}" />
+					<c:param name="q_name" value="${q_name}" />
+					<c:param name="q_type" value="${q_type}" />
+					<c:param name="q_amount_min" value="${q_amount_min}" />
+					<c:param name="q_amount_max" value="${q_amount_max}" />
+					<c:param name="q_urgent" value="${q_urgent}" />
+				</c:url>
+				<th><a href="${sortId}">申請ID<c:if test="${sort == 'id'}"><c:out value="${dir == 'asc' ? ' ▲' : ' ▼'}" /></c:if></a></th>
 				
 				<c:url var="sortName" value="/ApplicationStatus">
 					<c:param name="sort" value="name" />
@@ -198,8 +209,20 @@ th a:hover {
 				</c:url>
 				<th><a href="${sortDpt}">部署名<c:if test="${sort == 'dpt'}"><c:out value="${dir == 'asc' ? ' ▲' : ' ▼'}" /></c:if></a></th>
 
-				<th>申請種別</th>
-				
+				<c:url var="sortType" value="/ApplicationStatus">
+					<c:param name="sort" value="type" />
+					<c:param name="dir" value="${sort == 'type' && dir == 'asc' ? 'desc' : 'asc'}" />
+					<c:param name="page" value="1" />
+					<c:param name="q_status" value="${q_status}" />
+					<c:param name="q_name" value="${q_name}" />
+					<c:param name="q_type" value="${q_type}" />
+					<c:param name="q_amount_min" value="${q_amount_min}" />
+					<c:param name="q_amount_max" value="${q_amount_max}" />
+					<c:param name="q_urgent" value="${q_urgent}" />
+				</c:url>
+				<th><a href="${sortType}">申請種別<c:if test="${sort == 'type'}"><c:out value="${dir == 'asc' ? ' ▲' : ' ▼'}" /></c:if></a></th>
+
+				<%-- 【修正】金額ヘッダーにURL生成処理とソートリンクを設定 --%>
 				<c:url var="sortAmount" value="/ApplicationStatus">
 					<c:param name="sort" value="amount" />
 					<c:param name="dir" value="${sort == 'amount' && dir == 'asc' ? 'desc' : 'asc'}" />
