@@ -114,7 +114,7 @@ public class EmployeeDAO extends DAO{
 				PreparedStatement st = con.prepareStatement(sql);
 				st.setString(1, emp_id);
 
-				int rs = st.executeUpdate();//これなんだっけ
+				int rs = st.executeUpdate();
 				result = rs;
 			}
 		}catch(SQLException e) {
@@ -341,7 +341,7 @@ public class EmployeeDAO extends DAO{
 					return null;
 				}
 				String empId = rs.getString("emp_id");
-				String storedPassword = rs.getString("password"); // 将来的にハッシュ値
+				String storedPassword = rs.getString("password");
 				// まずロックチェック
 				if (failedLoginDao.isLocked(empId)) {
 					return null; // ロック中
