@@ -1,0 +1,184 @@
+@charset "UTF-8";
+
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f4f5f7;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+/* --- ナビゲーションバー (申請履歴と同じインディゴブルー) --- */
+.navbar {
+    background-color: #3f51b5; 
+}
+
+/* --- メインコンテナ・カード --- */
+.container {
+    width: 90%;
+    max-width: 800px;
+    margin: 40px auto;
+}
+
+/* カード全体の設定 */
+.application-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+}
+
+/* --- カードヘッダー (イエローテーマ) --- */
+.card-header-edit {
+    background-color: rgb(255, 219, 111);
+    padding: 25px 20px;
+    text-align: center;
+    color: #333;
+    border-bottom: 1px solid #e0a800;
+}
+
+.card-header-edit h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* --- カードボディ (実際の入力エリア) --- */
+.card-body {
+    padding: 40px;
+}
+
+.error-display {
+    background: #f8d7da; 
+	color: #721c24; 
+	padding: 15px; 
+	border-radius: 4px; 
+	margin-bottom: 20px; 
+	font-weight: bold;
+}
+
+.info-display-edit {
+    background-color: #fffbeb;
+    padding: 15px 20px;
+    border-radius: 4px;
+    border-left: 4px solid #ffc107;
+    margin-bottom: 30px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #555;
+}
+.info-display-edit strong { color: #333; }
+
+/* --- フォームグループ --- */
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 15px;
+}
+
+.required-mark {
+    color: #dc3545;
+    font-size: 12px;
+    margin-left: 8px;
+    font-weight: normal;
+}
+
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 15px;
+    font-family: inherit;
+    color: #495057;
+    background-color: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* フォーカス時のイエローグロー効果 */
+.form-group input[type="number"]:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #ffc107;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+/* --- チェックボックス (緊急度) --- */
+.checkbox-group {
+    margin-bottom: 35px;
+    background-color: #f8f9fa; 
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px dashed #ffc107;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.checkbox-group label {
+    font-weight: bold;
+    color: #856404;
+    cursor: pointer;
+    margin: 0;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* --- 送信ボタン (イエローテーマ) --- */
+.btn-edit-submit {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    background-color: rgb(255, 219, 111);
+    color: #333;
+    border: 1px solid #e0a800;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px rgba(255, 193, 7, 0.2);
+}
+
+.btn-edit-submit:hover { 
+    background-color: #ffc107; 
+    transform: translateY(-1px);
+    box-shadow: 0 6px 10px rgba(255, 193, 7, 0.3);
+}
+
+.btn-edit-submit:active {
+    transform: scale(0.98);
+}
+
+/* --- 戻るリンク (インディゴブルー) --- */
+.back-link {
+    display: block;
+    text-align: center;
+    margin-top: 25px;
+    color: #3f51b5;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+.back-link:hover { color: #283593; text-decoration: underline; }

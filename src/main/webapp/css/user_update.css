@@ -1,0 +1,143 @@
+@charset "UTF-8";
+
+/* --- 全体・ベース設定 --- */
+body {
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+    background-color: #f0f4f4; /* 統一背景 */
+    margin: 0;
+    padding: 0;
+    color: #333333;
+}
+
+/* --- ナビゲーションバー (一覧画面と統一) --- */
+.navbar {
+    background-color: #00695c; 
+   
+}
+
+
+
+/* --- メインコンテナとフォームカードのデザイン --- */
+.container {
+    width: 90%;
+    max-width: 700px; /* フォームの幅を制限*/
+    margin: 40px auto;
+}
+
+.form-container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border-top: 5px solid #00796b; /* 上部の深青緑のアクセントライン */
+}
+
+.form-container h2 {
+    margin-top: 0;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #00796b;
+    padding-bottom: 12px;
+    color: #004d40;
+    font-size: 22px;
+}
+
+/* --- フォーム各入力項目のレイアウト --- */
+.form-group {
+    margin-bottom: 22px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 9px;
+    color: #004d40; 
+    font-size: 14px;
+}
+
+/* 入力ボックス、プルダウンメニューのスタイルを統一 */
+.form-group input[type="text"], 
+.form-group input[type="email"], 
+.form-group select { 
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 15px;
+    background-color: #ffffff;
+    color: #495057;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* フォーカス時の青緑色ハイライト（グロー効果） */
+.form-group input[type="text"]:focus, 
+.form-group input[type="email"]:focus, 
+.form-group select:focus {
+    border-color: #00796b;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 121, 107, 0.15);
+}
+
+/* 社員IDなど、読み取り専用項目の誤操作防止用スタイル（グレーのロック状態） */
+.form-group input[readonly] {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+    color: #6c757d;
+    border-color: #dee2e6;
+}
+
+/* 必須項目の赤いアスタリスク（※必須） */
+.required-mark {
+    color: #e53935;
+    font-size: 12px;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+/* --- 送信・キャンセルボタン --- */
+.btn-update {
+    width: 100%;
+    background-color: #00796b; 
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 121, 107, 0.2);
+    transition: background-color 0.2s, transform 0.1s;
+    margin-top: 15px;
+}
+
+.btn-update:hover {
+    background-color: #004d40;
+}
+
+.btn-update:active {
+    transform: scale(0.99); /* クリック時の押し込みフィードバック */
+}
+
+/* 戻る・キャンセル用リンク */
+.back-link-container {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.back-link {
+    color: #546e7a; 
+    text-decoration: none;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: 1px solid #cfd8dc;
+    border-radius: 4px;
+    display: inline-block;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.back-link:hover {
+    background-color: #eceff1;
+    color: #37474f;
+    border-color: #b0bec5;
+}

@@ -1,0 +1,68 @@
+@charset "UTF-8";
+@charset "UTF-8";
+
+/* ==========================================================================
+   共通ナビゲーションバーの構造 (色は各ページのCSSで指定します)
+   ========================================================================== */
+
+/* 構造とレイアウトのみ定義 */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.navbar-brand { 
+	color:#ffffff;
+    font-size: 20px; 
+    font-weight: bold; 
+    letter-spacing: 1px; 
+    white-space: nowrap; 
+}
+
+/* メニューエリア */
+.navbar-menu {
+    display: flex;
+    gap: 8px;
+    flex-grow: 1;
+    margin-left: 40px; 
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 8px 15px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+/* 現在のページやホバー時のハイライト */
+.nav-link:hover, .nav-link.active {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ユーザーエリア */
+.navbar-user { 
+    font-size: 14px; 
+	color:#ffffff;
+    display: flex; 
+    align-items: center; 
+    gap: 15px; 
+    white-space: nowrap;
+}
+
+.logout-btn {
+    color: #ffffff;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 5px 15px;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+.logout-btn:hover { background-color: rgba(255, 255, 255, 0.15); }

@@ -1,0 +1,106 @@
+@charset "UTF-8";
+
+
+body {
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+    background-color: #f4f5f7; /* 全体的に明るく清潔感のある背景 */
+    margin: 0;
+    padding: 0;
+    color: #333333;
+}
+
+/* --- ナビゲーションバー (トップページはニュートラルなダークブルーグレー) --- */
+.navbar {
+    background-color: #2c3e50; 
+   
+}
+
+
+/* --- メインコンテナ --- */
+.container {
+    width: 90%;
+    max-width: 1000px;
+    margin: 40px auto;
+}
+
+.page-title {
+    color: #2c3e50;
+    font-size: 24px;
+    border-bottom: 2px solid #cfd8dc;
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+}
+
+/* --- メニューグリッド --- */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+/* --- メニューカード共通スタイル --- */
+.menu-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 30px 20px;
+    text-align: center;
+    text-decoration: none;
+    color: #333333;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.menu-icon {
+    font-size: 40px;
+    margin-bottom: 15px;
+    transition: transform 0.3s ease;
+}
+
+.menu-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    transition: color 0.3s ease;
+}
+
+.menu-desc {
+    font-size: 13px;
+    color: #6c757d;
+    line-height: 1.5;
+}
+
+/* 共通ホバー効果 (少し上に浮き上がる) */
+.menu-card:hover {
+    transform: translateY(-5px);
+}
+.menu-card:hover .menu-icon {
+    transform: scale(1.1);
+}
+
+/* 1. 申請作成 (ビジネスブルー) */
+.card-creation { border-top: 5px solid #2196f3; }
+.card-creation:hover { box-shadow: 0 8px 20px rgba(33, 150, 243, 0.2); }
+.card-creation:hover .menu-title { color: #1976d2; }
+
+/* 2. 申請履歴 (インディゴ/パープル) */
+.card-history { border-top: 5px solid #5c6bc0; }
+.card-history:hover { box-shadow: 0 8px 20px rgba(92, 107, 192, 0.2); }
+.card-history:hover .menu-title { color: #3f51b5; }
+
+/* 3. 未承認一覧 (エグゼクティブ・ダーク) */
+.card-approval { border-top: 5px solid #424242; }
+.card-approval:hover { box-shadow: 0 8px 20px rgba(66, 66, 66, 0.2); }
+.card-approval:hover .menu-title { color: #212121; }
+
+/* 4. ユーザー情報一覧 (人事部・ティールグリーン) */
+.card-hr { border-top: 5px solid #00796b; }
+.card-hr:hover { box-shadow: 0 8px 20px rgba(0, 121, 107, 0.2); }
+.card-hr:hover .menu-title { color: #004d40; }
+
+/* 5. 申請ステータス変更 (システム管理者・レッド) */
+.card-admin { border-top: 5px solid #e53935; }
+.card-admin:hover { box-shadow: 0 8px 20px rgba(229, 57, 53, 0.2); }
+.card-admin:hover .menu-title { color: #b71c1c; }

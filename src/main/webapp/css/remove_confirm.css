@@ -1,0 +1,91 @@
+@charset "UTF-8";
+@charset "UTF-8";
+
+/* ==========================================================================
+   AppApp システム - 削除完了画面専用スタイル (Teal & Soft Red Theme)
+   ========================================================================== */
+
+/* --- 全体・ベース設定 --- */
+body {
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+    background-color: #f0f4f4; /* 人事部のベース背景色 */
+    margin: 0;
+    padding: 0;
+    color: #333333;
+}
+
+/* --- ナビゲーションバー (一覧や更新画面と統一) --- */
+.navbar {
+    background-color: #00695c;
+    
+}
+
+/* --- メインコンテナとカードデザイン --- */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 75vh; /* 画面中央に配置するための高さ設定 */
+}
+
+.complete-card {
+    background-color: #ffffff;
+    padding: 50px 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+    /* 💡 削除完了を表すソフトレッドのアクセントライン */
+    border-top: 8px solid #e53935; 
+}
+
+/* --- 削除アイコンのスタイル --- */
+.delete-icon {
+    width: 80px;
+    height: 80px;
+    background-color: #ffebee; /* 薄い赤色の背景 */
+    color: #c62828; /* 濃い赤色のテキスト/アイコン */
+    font-size: 36px;
+    line-height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 25px auto;
+    font-weight: bold;
+}
+
+.complete-card h2 {
+    color: #37474f; /* 濃いブルーグレーで落ち着きを出す */
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 24px;
+}
+
+.complete-card p {
+    color: #6c757d;
+    margin-bottom: 35px;
+    line-height: 1.6;
+    font-size: 15px;
+}
+
+/* --- 一覧へ戻るボタン --- */
+.btn-home {
+    background-color: #546e7a; /* 戻るボタンは落ち着いたブルーグレーを使用 */
+    color: white;
+    text-decoration: none;
+    padding: 14px 35px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 15px;
+    transition: background-color 0.2s, transform 0.1s;
+    display: inline-block;
+    box-shadow: 0 2px 4px rgba(84, 110, 122, 0.3);
+}
+
+.btn-home:hover {
+    background-color: #37474f; /* ホバー時に暗くする */
+    transform: translateY(-2px);
+}
+
+.btn-home:active {
+    transform: scale(0.98);
+}
