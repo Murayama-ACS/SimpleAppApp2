@@ -44,7 +44,7 @@ public class EmployeeRemove extends HttpServlet {
 		String url = "WEB-INF/jsp/user_info.jsp";
 		String emp_id = request.getParameter("removeEmp_id");
 		EmployeeDAO empDAO = new EmployeeDAO();
-		int result = empDAO.deleteEmpInfo(emp_id);
+		int result = empDAO.deleteEmpInfo(emp_id, employee.getEmp_id());//変更点
 
 		if(result == 0) {
 			request.setAttribute("eMsg", "ユーザーの削除に失敗しました。");

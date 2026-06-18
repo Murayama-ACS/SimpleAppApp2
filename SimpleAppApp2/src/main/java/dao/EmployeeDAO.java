@@ -102,18 +102,18 @@ public class EmployeeDAO extends DAO{
 		return result;
 	}
 
-	//引数の社員IDを持つ社員を削除するメソッド
+	/*//引数の社員IDを持つ社員を削除するメソッド
 	public int deleteEmpInfo(String emp_id) {
 		Connection con = dbConnect();
 		int result = 0;
 		//削除対象の削除フラグを更新、データ自体はDBに残存
 		String sql = "update employees SET is_deleted = 1 WHERE emp_id=? AND is_deleted = 0";
-
+	
 		try {
 			if(con != null) {
 				PreparedStatement st = con.prepareStatement(sql);
 				st.setString(1, emp_id);
-
+	
 				int rs = st.executeUpdate();
 				result = rs;
 			}
@@ -127,10 +127,75 @@ public class EmployeeDAO extends DAO{
 			}else {
 				result = 0;
 			}
-
+	
 			return result;
 		}
 		return result;
+	}*/
+	// 引数に削除実行者の empId を追加しています
+	public int deleteEmpInfo(String targetEmpId, String deleterEmpId) {
+	    String updateSql = "UPDATE employees SET is_deleted = 1 WHERE emp_id = ? AND is_deleted = 0";
+	    String insertSql = "INSERT INTO emp_delete_histories (history_id, emp_del_id, emp_id, delete_date) VALUES (?, ?, ?, ?)";
+	    Connection con = null;
+	    int result = 0;
+
+	    try {
+	        con = dbConnect();
+	        if (con == null) return 0;
+
+	        con.setAutoCommit(false); // トランザクション開始
+
+	        // 1) 削除フラグ更新
+	        try (PreparedStatement psUpdate = con.prepareStatement(updateSql)) {
+	            psUpdate.setString(1, targetEmpId);
+	            int updated = psUpdate.executeUpdate();
+	            if (updated == 0) {
+	                // 対象が存在しないか、既に削除済み
+	                con.rollback();
+	                return -1;
+	            }
+	        }
+
+	        // 2) 履歴テーブルに記録
+	        try (PreparedStatement psInsert = con.prepareStatement(insertSql)) {
+	            String historyId = generateHistoryId(); // 下で定義するヘルパー
+	            psInsert.setString(1, historyId);
+	            psInsert.setString(2, targetEmpId);   // 削除対象の emp_id
+	            psInsert.setString(3, deleterEmpId);    // 削除を実行したユーザーの emp_id
+	            psInsert.setTimestamp(4, new java.sql.Timestamp(System.currentTimeMillis()));
+	            psInsert.executeUpdate();
+	        }
+
+	        con.commit();
+	        result = 1;
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        if (con != null) {
+	            try { con.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+	        }
+	        result = 0;
+	    } finally {
+	        if (con != null) {
+	            try { con.setAutoCommit(true); con.close(); } catch (SQLException ignored) {}
+	        }
+	    }
+	    return result;
+	}
+
+	// 簡易履歴ID生成（20文字に切る）
+	private String generateHistoryId() {
+	    // yyyyMMddHHmmss + 4桁ランダム = 18+? -> adjust to 20 chars
+	    String ts = new java.text.SimpleDateFormat("yyyyMMddHHmmss").format(new java.util.Date());
+	    int rand = (int)(Math.random() * 90_00) + 1000; // 1000-9999
+	    String id = ts + rand;
+	    // 長さが20になるよう調整（必要に応じて別方式に差し替えてください）
+	    if (id.length() > 20) {
+	        return id.substring(0, 20);
+	    } else if (id.length() < 20) {
+	        // パディング
+	        return String.format("%-20s", id).replace(' ', '0');
+	    }
+	    return id;
 	}
 
 	// PageResult クラス（DAO クラスファイルと同じパッケージに置く）
