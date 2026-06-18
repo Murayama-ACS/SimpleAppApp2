@@ -118,24 +118,58 @@ public class ApplicationDAO extends DAO {
 	}
 
 	/**
-	 * 4. 指定された申請IDの削除フラグ(is_deleted)を1（削除済み）に更新する（論理削除）
+	 * 4.指定された申請IDのstatus_idを7（削除）にし、削除フラグを1に更新すると同時に、削除履歴テーブルへ記録する
 	 */
-	public int logicalDelete(String apctId) {
+	public int logicalDelete(String apctId, String operatorEmpId) {
 		Connection con = dbConnect();
+		PreparedStatement stHist = null;
+		PreparedStatement stApp = null;
 		int result = 0;
-		String sql = "UPDATE applications SET is_deleted = 1, update_date = ? WHERE apct_id = ? AND is_deleted = 0";
+		
+		// 履歴ID（history_id）用のユニークなタイムスタンプ文字列を生成
+		String timeStamp = new java.text.SimpleDateFormat("yyMMddHHmmssSSS").format(new java.util.Date());
+		String historyId = "DLH" + timeStamp;
+		LocalDateTime now = LocalDateTime.now();
+		
+		String sqlHistory = "INSERT INTO app_delete_histories (history_id, apct_id, emp_id, delete_date) VALUES (?, ?, ?, ?)";
+		
+		// 【修正】status_id = 7 を追加
+		String sqlApplication = "UPDATE applications SET status_id = 7, is_deleted = 1, update_date = ? WHERE apct_id = ? AND is_deleted = 0";
+		
 		try {
 			if (con != null) {
-				PreparedStatement st = con.prepareStatement(sql);
-				st.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
-				st.setString(2, apctId);
-				result = st.executeUpdate();
+				// トランザクションの開始
+				con.setAutoCommit(false);
+				
+				// 1. 削除履歴テーブルへ直接インサート
+				stHist = con.prepareStatement(sqlHistory);
+				stHist.setString(1, historyId);
+				stHist.setString(2, apctId);
+				stHist.setString(3, operatorEmpId);
+				stHist.setTimestamp(4, Timestamp.valueOf(now));
+				stHist.executeUpdate();
+				
+				// 2. 申請テーブルのステータスと論理削除フラグを更新
+				stApp = con.prepareStatement(sqlApplication);
+				stApp.setTimestamp(1, Timestamp.valueOf(now));
+				stApp.setString(2, apctId);
+				result = stApp.executeUpdate();
+				
+				// 両方の処理が成功したためコミット
+				con.commit();
 			}
 		} catch (SQLException e) {
-			System.out.println("ApplicationDAO logicalDeleteエラー: " + e.getMessage());
+			System.out.println("ApplicationDAO logicalDelete(status_id=7対応版)エラー: " + e.getMessage());
+			if (con != null) {
+				try { con.rollback(); } catch (SQLException ex) {}
+			}
+			result = 0;
 		} finally {
+			if (stHist != null) try { stHist.close(); } catch (SQLException e) {}
+			if (stApp != null) try { stApp.close(); } catch (SQLException e) {}
 			dbClose(con);
 		}
+		
 		return result;
 	}
 
