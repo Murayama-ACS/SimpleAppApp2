@@ -1,23 +1,24 @@
 @charset "UTF-8";
-@charset "UTF-8";
 
-/*共通ナビゲーションバーの構造 (色は各ページのCSSで指定します)*/
+/* 共通ナビゲーションバーの構造 (色は各ページのCSSで指定します) */
 
-/* 構造とレイアウトのみ定義 */
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 15px 30px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    overflow-x: auto;
 }
 
 .navbar-brand { 
-	color:#ffffff;
+    color: #ffffff;
     font-size: 20px; 
     font-weight: bold; 
     letter-spacing: 1px; 
+    /* 文字の折り返しを防ぎ、要素が縮むのを防ぐ */
     white-space: nowrap; 
+    flex-shrink: 0;
 }
 
 /* メニューエリア */
@@ -26,6 +27,8 @@
     gap: 8px;
     flex-grow: 1;
     margin-left: 40px; 
+    /* 画面縮小時にメニュー全体が潰れないようにする */
+    flex-shrink: 0;
 }
 
 .nav-link {
@@ -36,6 +39,9 @@
     padding: 8px 15px;
     border-radius: 4px;
     transition: all 0.2s ease;
+    /* 文字の縦並び（意図しない改行）を防ぐ */
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 /* 現在のページやホバー時のハイライト */
@@ -44,14 +50,24 @@
     background-color: rgba(255, 255, 255, 0.2);
 }
 
+/* 通知ベルエリア（JSPのインラインスタイルから移動） */
+.navbar-actions {
+    margin-right: 20px;
+    position: relative;
+    /* アイコンが押しつぶされないようにする */
+    flex-shrink: 0; 
+}
+
 /* ユーザーエリア */
 .navbar-user { 
     font-size: 14px; 
-	color:#ffffff;
+    color: #ffffff;
     display: flex; 
     align-items: center; 
     gap: 15px; 
+    /* 文字の折り返しを防ぎ、要素が縮むのを防ぐ */
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .logout-btn {
@@ -62,5 +78,8 @@
     border-radius: 4px;
     font-weight: bold;
     transition: 0.2s;
+    /* ログアウトボタンのテキスト改行を防ぐ */
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 .logout-btn:hover { background-color: rgba(255, 255, 255, 0.15); }

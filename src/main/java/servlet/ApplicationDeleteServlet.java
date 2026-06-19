@@ -25,7 +25,7 @@ public class ApplicationDeleteServlet extends HttpServlet {
 		// 2. 削除対象の申請IDをフロントエンド（JSP）の隠しフォームから取得
 		String apctId = request.getParameter("apct_id");
 
-		// 💡 3. 【追加】セッションから現在ログインしているユーザーの情報を取得
+		//  3. 【追加】セッションから現在ログインしているユーザーの情報を取得
 		// 誰がこの削除操作を行ったのか（operatorEmpId）を履歴に残すために必要です。
 		HttpSession session = request.getSession();
 		EmployeeBean loginUser = (EmployeeBean) session.getAttribute("empBean");
@@ -45,7 +45,7 @@ public class ApplicationDeleteServlet extends HttpServlet {
 			
 			// 申請IDが空でないことを確認してから削除処理を実行
 			if (apctId != null && !apctId.trim().isEmpty()) {
-				// 💡 4. 【修正】DAOの新しいメソッドに合わせて、申請IDと操作者IDの2つの引数を渡す！
+				//  4. 【修正】DAOの新しいメソッドに合わせて、申請IDと操作者IDの2つの引数を渡す！
 				result = dao.logicalDelete(apctId, operatorEmpId);
 			}
 			

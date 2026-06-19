@@ -74,9 +74,6 @@ public class EmployeeInfo extends HttpServlet {
 	    if (pageParam != null) {
 	        try { page = Integer.parseInt(pageParam); } catch (NumberFormatException ex) { page = 1; }
 	    }
-	    if (request.getParameter("search") != null) { // 新しい検索なら1ページ目
-	        page = 1;
-	    }
 	    if (page < 1) page = 1;
 
 	    final int LIMIT = 20;

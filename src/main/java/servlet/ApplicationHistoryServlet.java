@@ -64,10 +64,7 @@ public class ApplicationHistoryServlet extends HttpServlet {
 		if (pageStr != null && !pageStr.isEmpty()) {
 			try { page = Integer.parseInt(pageStr); } catch (NumberFormatException e) {}
 		}
-		if (request.getParameter("search") != null) {
-			page = 1; // 検索ボタンを押したときは1ページ目に戻す
-		}
-
+		
 		int limit = 20; // 1ページに表示する件数
 		int offset = (page - 1) * limit;
 

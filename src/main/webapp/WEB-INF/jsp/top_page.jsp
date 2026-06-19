@@ -66,7 +66,7 @@
                 <a href="ApplicationStatus" class="menu-card card-admin">
                     <div class="menu-icon">🔏</div>
                     <div class="menu-title">申請ステータス変更</div>
-                    <div class="menu-desc">管理者が申請ステータスを確認します。</div>
+                    <div class="menu-desc">経理部が申請ステータスを確認します。</div>
                 </a>
             </c:if>
 

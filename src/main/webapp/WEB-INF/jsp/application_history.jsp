@@ -212,7 +212,7 @@
                                                     <%-- 修正・削除可能か（ステータスが「申請中(1)」で、かつ自分の申請の場合） --%>
                                                     <c:set var="canEditOrDelete" value="${app.status_id == 1 && isOwnApp}" />
                                                     <%-- 管理部による強制削除権限（全社管理タブ、管理部所属、ステータスが「部承認待ち(2)」の場合） --%>
-                                                    <c:set var="isManagementDelete" value="${currentScope == 'management' && empBean.dpt_id == 'D100' && app.status_id == 2}" />
+                                                    <c:set var="isManagementDelete" value="${currentScope == 'management' && empBean.dpt_id == 'D100' && app.status_id !=5 && app.status_id != 6}" />
 
                                                     <%-- 修正ボタンの表示制御 --%>
                                                     <c:if test="${canEditOrDelete}">
@@ -256,30 +256,61 @@
     <%--フロントエンドのJavaScript処理 --%>
     <script>
         // テーブルヘッダーのソート処理
-        function doSort(key) {
-            const currentSort = '${sort}';
-            const currentDir = '${dir}';
-            let newDir = 'ASC'; // デフォルトは昇順
-            
-            // 同じ列を再度クリックした場合は降順（DESC）に切り替える
-            if(currentSort === key && currentDir === 'ASC') { newDir = 'DESC'; }
-            
-            // 現在のURLパラメータを書き換え、ページをリロードしてバックエンドにソート指示を送る
-            const url = new URL(window.location.href);
-            url.searchParams.set('sort', key);
-            url.searchParams.set('dir', newDir);
-            url.searchParams.set('page', '1'); // ソート条件が変わったら1ページ目に戻す
-            window.location.href = url.toString();
-        }
+		function doSort(key) {
+		    const currentSort = '${sort}';
+		    const currentDir = '${dir}';
+		    let newDir = 'ASC'; 
+		    if(currentSort === key && currentDir === 'ASC') { newDir = 'DESC'; }
+		    
+		    // ソート条件が変わったら1ページ目に戻す
+		    buildAndNavigate(key, newDir, 1);
+		}
 
         // ページネーション処理
         function doPage(pageNum) {
-            // URLパラメータの 'page' のみを書き換えてリロードする
-            const url = new URL(window.location.href);
+		    const currentSort = '${sort}';
+		    const currentDir = '${dir}';
+		    buildAndNavigate(currentSort, currentDir, pageNum);
+		}
+     	// 【追加】共通のURL構築・遷移関数（すべてのパラメータをかき集める）
+        function buildAndNavigate(sortKey, sortDir, pageNum) {
+            const url = new URL(window.location.href.split('?')[0]); // ベースURLのみ取得
+            
+            // 1. タブの状態を取得
+            url.searchParams.set('scope', '${currentScope}');
+            url.searchParams.set('filter', '${currentStatusFilter == "incomplete" ? "unapproved" : "all"}');
+            
+            // 2. 検索フォームの入力値を取得
+            const qStatus = document.querySelector('select[name="q_status"]').value;
+            const qType = document.querySelector('select[name="q_type"]').value;
+            const qAmount = document.querySelector('input[name="q_amount"]').value.trim();
+            
+            // q_name と q_department は権限によって存在しない場合があるため、安全に取得
+            const nameInput = document.querySelector('input[name="q_name"]');
+            const deptSelect = document.querySelector('select[name="q_department"]');
+            
+            // 検索条件が1つでも入力されていれば search=true をセット
+            let hasSearchData = (qStatus !== "" || qType !== "" || qAmount !== "");
+            if (nameInput && nameInput.value.trim() !== "") hasSearchData = true;
+            if (deptSelect && deptSelect.value !== "") hasSearchData = true;
+            
+            if (hasSearchData) {
+                url.searchParams.set('search', 'true');
+                url.searchParams.set('q_status', qStatus);
+                url.searchParams.set('q_type', qType);
+                url.searchParams.set('q_amount', qAmount);
+                if (nameInput) url.searchParams.set('q_name', nameInput.value.trim());
+                if (deptSelect) url.searchParams.set('q_department', deptSelect.value);
+            }
+            
+            // 3. ソートとページング情報をセット
+            if (sortKey) url.searchParams.set('sort', sortKey);
+            if (sortDir) url.searchParams.set('dir', sortDir);
             url.searchParams.set('page', pageNum);
+            
+            // 4. 画面遷移
             window.location.href = url.toString();
         }
-
         // 削除ボタン押下時の確認ポップアップ (SweetAlert2を使用)
         function confirmDelete(apctId) {
             Swal.fire({

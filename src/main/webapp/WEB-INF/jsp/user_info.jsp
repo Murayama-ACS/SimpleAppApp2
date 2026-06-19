@@ -11,14 +11,14 @@
     <%-- 共通ナビゲーションCSS、社員管理一覧専用CSS、およびポップアップ用ライブラリ（SweetAlert2）の読み込み --%>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/user_info.css">
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/navbar.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
 </head>
 <body>
     <%-- 通知の未読カウントなどの機能を含む共通ヘッダーをインクルード --%>
     <%@ include file="/WEB-INF/jsp/header.jsp" %>
 
-    <div class="container container-wide"> 
+    <div class="container container-wide">
         <div class="application-card">
             
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
@@ -35,9 +35,11 @@
 
                 <%-- 社員絞り込み検索フォーム領域 --%>
                 <div class="search-form-container">
-                    <form action="${pageContext.request.contextPath}/EmployeeInfo" method="get">
+                    <form action="${pageContext.request.contextPath}/EmployeeInfo" method="get" id="searchForm">
                         <input type="hidden" name="search" value="true">
-
+						<input type="hidden" name="page" id="pageInput" value="${page}">
+					    <input type="hidden" name="sort" id="sortInput" value="${param.sort}">
+					    <input type="hidden" name="dir" id="dirInput" value="${param.dir}">
                         <div style="font-weight: bold; color: #495057;">社員検索</div>
                         <div class="search-inputs">
                             <%-- 各項目は、検索実行後も入力した条件を維持できるように EL式（${q_emp_id}等）を value に設定 --%>
@@ -161,31 +163,26 @@
     <%-- フロントエンドのJavaScript処理 --%>
     <script>
         // テーブルのヘッダーをクリックしたときの動的ソート処理
-        function doSort(key) {
-            const currentSort = '${param.sort}';
-            const currentDir = '${param.dir}';
-            let newDir = 'ASC'; // デフォルトは昇順
-            
-            // 同じ列をクリックしたら昇順・降順を反転させる
-            if(currentSort === key && currentDir === 'ASC') {
-                newDir = 'DESC';
-            }
-            
-            // 現在のURL（検索条件なども含む）を取得し、ソートパラメータを書き換えてリロード
-            const url = new URL(window.location.href);
-            url.searchParams.set('sort', key);
-            url.searchParams.set('dir', newDir);
-            url.searchParams.set('page', '1'); // 並び順が変わったら1ページ目に戻す
-            window.location.href = url.toString();
-        }
-
-        // ページネーションボタンをクリックしたときの処理
-        function doPage(pageNum) {
-            // 現在のURLの 'page' パラメータのみを指定されたページ番号に書き換えてリロード
-            const url = new URL(window.location.href);
-            url.searchParams.set('page', pageNum);
-            window.location.href = url.toString();
-        }
+		function doPage(pageNum) {
+		    document.getElementById('pageInput').value = pageNum;
+		    document.getElementById('searchForm').submit();
+		}
+		
+		function doSort(key) {
+		    const currentSort = document.getElementById('sortInput').value;
+		    const currentDir = document.getElementById('dirInput').value;
+		    let newDir = 'ASC';
+		    
+		    if(currentSort === key && currentDir === 'ASC') {
+		        newDir = 'DESC';
+		    }
+		    
+		    document.getElementById('sortInput').value = key;
+		    document.getElementById('dirInput').value = newDir;
+		    document.getElementById('pageInput').value = 1;
+		    
+		    document.getElementById('searchForm').submit();
+		}
 
         // 削除ボタン押下時の確認ポップアップ (SweetAlert2を使用)
         function confirmDelete(empId, empName) {
