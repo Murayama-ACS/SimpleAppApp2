@@ -37,10 +37,11 @@ public class QuizDAO extends DAO {
 		public int insertQuiz(QuizBean quizBean) {
 			String sqlCheck = "SELECT 1 FROM security_quiz WHERE emp_id = ? AND quiz = ?";
 			String sqlInsert = "INSERT INTO security_quiz (emp_id, quiz, answer) VALUES (?,?,?)";
-
-			try (Connection con = dbConnect()) {
+			Connection con = dbConnect();
+			try  {
 			    if (con == null) {
 			        System.out.println("DB接続に失敗");
+			        dbClose(con);
 			        return 0;
 			    }
 
@@ -68,6 +69,8 @@ public class QuizDAO extends DAO {
 			} catch (SQLException e) {
 			    System.out.println("SQLエラー: " + e.getMessage());
 			    return 0;
+			}finally {
+				dbClose(con);
 			}
 			}
 		//public int updateUser(EmployeeBean empBean, String newPass) {
@@ -119,8 +122,9 @@ public class QuizDAO extends DAO {
 				System.out.println("SQLエラー");
 				System.out.println(e.getMessage());
 				return null;
+			}finally {
+				dbClose(con);
 			}
-			dbClose(con);
 			
 			return quizBean;
 		}
@@ -135,7 +139,8 @@ public class QuizDAO extends DAO {
 	        }
 
 	        String sql = "SELECT sq_id, answer FROM security_quiz WHERE quiz = ? AND emp_id = ?";
-	        try (Connection con = dbConnect();
+	        Connection con = dbConnect();
+	        try (
 	             PreparedStatement ps = con.prepareStatement(sql)) {
 	            ps.setString(1, quiz);
 	            ps.setString(2, empId);
@@ -162,6 +167,8 @@ public class QuizDAO extends DAO {
 	                    return null;
 	                }
 	            }
+	        }finally {
+				dbClose(con);
 	        }
 	    }
 }

@@ -13,7 +13,8 @@ public class DepartmentDAO extends DAO{
 	public List<DepartmentBean> findAll(){
         String sql = "SELECT dpt_id, dpt_name FROM departments ORDER BY dpt_name";
         List<DepartmentBean> list = new ArrayList<>();
-        try (Connection con = dbConnect();
+        Connection con = dbConnect();
+        try (
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -26,6 +27,8 @@ public class DepartmentDAO extends DAO{
 			System.out.println("SQLエラー");
 			System.out.println(e.getMessage());
 			return null;
+		}finally {
+			dbClose(con);
 		}
         return list;
     }

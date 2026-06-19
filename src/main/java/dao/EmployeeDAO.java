@@ -42,6 +42,9 @@ public class EmployeeDAO extends DAO{
 				result = 0;
 			}
 			return result;
+		}finally {
+			dbClose(con);
+
 		}
 		return result;
 	}
@@ -70,14 +73,16 @@ public class EmployeeDAO extends DAO{
 			System.out.println("SQLエラー");
 			System.out.println(e.getMessage());
 			return 0;
+		}finally {
+			dbClose(con);
 		}
 		return result;
 	}
 	public int updateEmpInfo(EmployeeBean emp){
 		String sql = "UPDATE employees SET emp_name = ?, furigana = ?, email = ?, dpt_id = ?, pos_id = ? WHERE emp_id = ? and is_deleted = 0";
 		int result = 0;
+		Connection con = dbConnect();
 		try (
-				Connection con = dbConnect();
 				PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setString(1, emp.getEmp_name());
 			ps.setString(2, emp.getFurigana());
@@ -98,6 +103,8 @@ public class EmployeeDAO extends DAO{
 				result = 0;
 			}
 			return result;
+		}finally {
+			dbClose(con);
 		}
 		return result;
 	}
@@ -136,11 +143,10 @@ public class EmployeeDAO extends DAO{
 	public int deleteEmpInfo(String targetEmpId, String deleterEmpId) {
 	    String updateSql = "UPDATE employees SET is_deleted = 1 WHERE emp_id = ? AND is_deleted = 0";
 	    String insertSql = "INSERT INTO emp_delete_histories (history_id, emp_del_id, employee_id, delete_date) VALUES (?, ?, ?, ?)";
-	    Connection con = null;
+	    Connection con = dbConnect();
 	    int result = 0;
 
 	    try {
-	        con = dbConnect();
 	        if (con == null) return 0;
 
 	        con.setAutoCommit(false); // トランザクション開始
@@ -178,6 +184,7 @@ public class EmployeeDAO extends DAO{
 	        if (con != null) {
 	            try { con.setAutoCommit(true); con.close(); } catch (SQLException ignored) {}
 	        }
+			dbClose(con);
 	    }
 	    return result;
 	}
@@ -280,7 +287,8 @@ public class EmployeeDAO extends DAO{
 		sql.append(" LIMIT ? OFFSET ? ");
 
 		ArrayList<EmployeeBean> list = new ArrayList<>();
-		try (Connection con = dbConnect();
+		Connection con = dbConnect();
+		try (
 		     PreparedStatement ps = con.prepareStatement(sql.toString())) {
 
 		    // パラメータをセット
@@ -311,6 +319,8 @@ public class EmployeeDAO extends DAO{
 		            list.add(empBean);
 		        }
 		    }
+		}finally {
+			dbClose(con);
 		}
 
 		boolean hasNext = false;
@@ -383,9 +393,9 @@ public class EmployeeDAO extends DAO{
 			System.out.println("SQLエラー");
 			System.out.println(e.getMessage());
 			return null;
+		}finally {
+			dbClose(con);
 		}
-		dbClose(con);
-
 		return employee;
 	}
 
@@ -396,8 +406,8 @@ public class EmployeeDAO extends DAO{
 		String sel = isEmail
 				? "SELECT emp_id, emp_name, email, password, dpt_id, pos_id FROM employees WHERE email = ? and is_deleted = 0"
 						: "SELECT emp_id, emp_name, email, password, dpt_id, pos_id FROM employees WHERE emp_id = ? and is_deleted = 0";
-
-		try (Connection con = dbConnect();
+		Connection con = dbConnect();
+		try (
 				PreparedStatement ps = con.prepareStatement(sel)) {
 			ps.setString(1, identifier);
 			try (ResultSet rs = ps.executeQuery()) {
@@ -430,18 +440,23 @@ public class EmployeeDAO extends DAO{
 					return null;
 				}
 			}
+		}finally {
+			dbClose(con);
 		}
 	}
 
 	public String findEmpIdByEmail(String email) throws SQLException {//
 		String sql = "SELECT emp_id FROM employees WHERE email = ?";
-		try (Connection con = dbConnect();
+		Connection con = dbConnect();
+		try (
 				PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setString(1, email);
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) return rs.getString("emp_id");
 				return null;
 			}
+		}finally {
+			dbClose(con);
 		}
 	}
 	// パスワード検証のプレースホルダ（既存 DB が平文かハッシュかに応じて実装を変更）

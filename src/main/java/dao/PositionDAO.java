@@ -13,7 +13,8 @@ public class PositionDAO extends DAO{
 	public List<PositionBean> findAll(){
         String sql = "SELECT pos_id, pos_name FROM positions ORDER BY pos_id";
         List<PositionBean> list = new ArrayList<>();
-        try (Connection con = dbConnect();
+        Connection con = dbConnect();
+        try (
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -25,7 +26,10 @@ public class PositionDAO extends DAO{
         }catch(SQLException e) {
 			System.out.println("SQLエラー");
 			System.out.println(e.getMessage());
+			dbClose(con);
 			return null;
+		}finally {
+			dbClose(con);
 		}
         return list;
     }

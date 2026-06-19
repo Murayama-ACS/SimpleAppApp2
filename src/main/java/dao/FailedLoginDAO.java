@@ -20,30 +20,35 @@ public class FailedLoginDAO extends DAO {
 	// ロック中かチェック（DB時刻を使う）
 	public boolean isLocked(String empId) throws SQLException {
 		String sql = "SELECT locked_until FROM failed_logins WHERE emp_id = ?";
-		try (Connection con = dbConnect();
+		Connection con = dbConnect();
+		try (
 				PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setString(1, empId);
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
 					Timestamp lockedUntil = rs.getTimestamp("locked_until");
 					if (lockedUntil != null) {
+						dbClose(con);
 						// DB の UTC_TIMESTAMP() と比較する簡易チェック（アプリ時刻と同期していればOK）
 						return lockedUntil.toInstant().isAfter(Instant.now());
 					}
 				}
 			}
 		}
+		dbClose(con);
 		return false;
 	}
 
 	// 成功時リセット（パスワード成功・全体リセット）
 	public void resetOnSuccess(String empId) throws SQLException {
 		String upd = "UPDATE failed_logins SET password_attempts = 0, first_failed_password_at = NULL, last_failed_password_at = NULL, quiz_attempts = 0, first_failed_quiz_at = NULL, last_failed_quiz_at = NULL, locked_until = NULL, lock_count = 0 WHERE emp_id = ?";
-		try (Connection con = dbConnect();
+		Connection con = dbConnect();
+		try (
 				PreparedStatement ps = con.prepareStatement(upd)) {
 			ps.setString(1, empId);
 			ps.executeUpdate();
 		}
+		dbClose(con);
 	}
 
 	// パスワード失敗を記録 → 戻り値で状態を返す
@@ -130,6 +135,7 @@ public class FailedLoginDAO extends DAO {
 				throw ex;
 			} finally {
 				con.setAutoCommit(true);
+				dbClose(con);
 			}
 		}
 	}
@@ -218,6 +224,7 @@ public class FailedLoginDAO extends DAO {
 				throw ex;
 			} finally {
 				con.setAutoCommit(true);
+				dbClose(con);
 			}
 		}
 	}
@@ -240,7 +247,8 @@ public class FailedLoginDAO extends DAO {
 
 	public Integer getRemainingPasswordAttemptsByEmpId(String empId) throws SQLException {
 		String sql = "SELECT password_attempts, first_failed_password_at, locked_until FROM failed_logins WHERE emp_id = ?";
-		try (Connection con = dbConnect();
+		Connection con = dbConnect();
+		try (
 				PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setString(1, empId);
 			try (ResultSet rs = ps.executeQuery()) {
@@ -261,6 +269,8 @@ public class FailedLoginDAO extends DAO {
 				if (remaining < 0) remaining = 0;
 				return remaining;
 			}
+		}finally {
+			dbClose(con);
 		}
 	}
 
@@ -282,6 +292,8 @@ public class FailedLoginDAO extends DAO {
 				if (remaining < 0) remaining = 0;
 				return remaining;
 			}
+		}finally {
+			Connection con = dbConnect();
 		}
 	}
 }
