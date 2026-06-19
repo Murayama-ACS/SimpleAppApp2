@@ -446,7 +446,7 @@ public class EmployeeDAO extends DAO{
 	}
 
 	public String findEmpIdByEmail(String email) throws SQLException {//
-		String sql = "SELECT emp_id FROM employees WHERE email = ?";
+		String sql = "SELECT emp_id FROM employees WHERE email = ? and is_deleted = 0";
 		Connection con = dbConnect();
 		try (
 				PreparedStatement ps = con.prepareStatement(sql)) {

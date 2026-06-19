@@ -246,7 +246,10 @@ public class FailedLoginDAO extends DAO {
 	}
 
 	public Integer getRemainingPasswordAttemptsByEmpId(String empId) throws SQLException {
-		String sql = "SELECT password_attempts, first_failed_password_at, locked_until FROM failed_logins WHERE emp_id = ?";
+		String sql = "SELECT fl.password_attempts, fl.first_failed_password_at, fl.locked_until " +
+		        "FROM failed_logins fl " +
+		        "JOIN employees e ON fl.emp_id = e.emp_id AND e.is_deleted = 0 " +
+		        "WHERE fl.emp_id = ?";
 		Connection con = dbConnect();
 		try (
 				PreparedStatement ps = con.prepareStatement(sql)) {
@@ -275,7 +278,10 @@ public class FailedLoginDAO extends DAO {
 	}
 
 	public Integer getRemainingQuizAttemptsByEmpId(String empId) throws SQLException {
-		String sql = "SELECT quiz_attempts, first_failed_quiz_at, locked_until FROM failed_logins WHERE emp_id = ?";
+		String sql = "SELECT fl.quiz_attempts, fl.first_failed_quiz_at, fl.locked_until " +
+		        "FROM failed_logins fl " +
+		        "JOIN employees e ON fl.emp_id = e.emp_id AND e.is_deleted = 0 " +
+		        "WHERE fl.emp_id = ?";
 		try (Connection con = dbConnect();
 				PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setString(1, empId);
