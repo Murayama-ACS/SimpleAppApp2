@@ -57,12 +57,12 @@
             <tr><th>上司のコメント</th><td style="color: rgb(255, 128, 64);">${empty approval.comment ? 'なし' : approval.comment}</td></tr>
             <tr><th>備考</th><td>${empty application.note ? 'なし' : application.note}</td></tr>
         </table>
-
         <div class="dual-nav-container">
             <%-- 戻るボタン：セッションに直前の一覧画面のURL（検索条件含む）があればそこへ戻り、なければデフォルトの履歴一覧へ戻る --%>
             <a href="${not empty sessionScope.lastListUrl ? sessionScope.lastListUrl : pageContext.request.contextPath += '/ApplicationHistoryServlet'}" class="back-link">⬅ 一覧に戻る</a>
         </div>
     </div>
+    
 
 </body>
 </html>

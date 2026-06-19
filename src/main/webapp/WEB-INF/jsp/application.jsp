@@ -12,6 +12,9 @@
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/application.css">
     <%-- ポップアップ用の高機能ライブラリ SweetAlert2 --%>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+    <%-- Font Awesome（アイコン）の読み込み --%>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
 </head>
 <body>
     <%-- 共通ヘッダー（ナビゲーションメニュー・通知ベル）を読み込み --%>
@@ -20,8 +23,8 @@
     <div class="container">
         <div class="application-card">
             
-            <div class="card-header">
-                <h2>新規申請提出</h2>
+            <div class="card-header">          	
+                <h2><i class="fa-solid fa-pen-to-square"></i>&nbsp;&nbsp;新規申請提出</h2>
             </div>
             
             <div class="card-body">

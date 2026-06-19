@@ -10,6 +10,8 @@
     <title>申請履歴一覧 - AppApp システム</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/application_history.css">
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/navbar.css">
+    <%-- Font Awesome（アイコン）の読み込み --%>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
 </head>
 <body>
@@ -20,7 +22,7 @@
         <div class="application-card">
             
             <div class="card-header">
-                <h2>申請履歴・状況確認</h2>
+                <h2><i class="fa-solid fa-file-lines"></i>&nbsp;&nbsp;申請履歴・状況確認</h2>
             </div>
             
             <div class="card-body">

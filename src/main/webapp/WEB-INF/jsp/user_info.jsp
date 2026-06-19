@@ -12,7 +12,8 @@
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/user_info.css">
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/navbar.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+    <%-- Font Awesome（アイコン）の読み込み --%>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <%-- 通知の未読カウントなどの機能を含む共通ヘッダーをインクルード --%>
@@ -22,7 +23,7 @@
         <div class="application-card">
             
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <h2>社員管理・一覧</h2>
+                <h2><i class="fa-solid fa-address-card"></i>&nbsp;&nbsp;社員管理・一覧</h2>
                 <%-- 新規社員登録画面への遷移ボタン --%>
                 <a href="${pageContext.request.contextPath}/EmployeeAdd" class="btn-add-new">＋ 新規社員登録</a>
             </div>
@@ -147,7 +148,7 @@
                         </tbody>
                     </table>
                 </div>
-                
+               
                 <%-- ページネーション機能 --%>
                 <div class="pagination">
                     <button class="page-btn" onclick="doPage(${page - 1})" ${page <= 1 ? 'disabled' : ''}>◀ 前のページ</button>

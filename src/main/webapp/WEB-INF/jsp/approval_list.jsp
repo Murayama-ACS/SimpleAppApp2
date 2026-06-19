@@ -10,6 +10,8 @@
     <%-- 共通ナビゲーションCSS、一覧画面専用CSS、およびポップアップ用ライブラリ（SweetAlert2）の読み込み --%>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/approval_list.css">
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/navbar.css">
+    <%-- Font Awesome（アイコン）の読み込み --%>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
 </head>
 <body>
@@ -20,7 +22,7 @@
         <div class="application-card">
             
             <div class="card-header">
-                <h2>未承認申請一覧</h2>
+                <h2><i class="fa-solid fa-list-check"></i>&nbsp;&nbsp;未承認申請一覧</h2>
             </div>
             
             <div class="card-body">

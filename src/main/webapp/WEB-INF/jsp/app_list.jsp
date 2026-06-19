@@ -11,6 +11,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/navbar.css">
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/app_list.css">
+    <%-- Font Awesome（アイコン）の読み込み --%>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <%-- 通知機能・メニューを含む共通ヘッダーをインクルード --%>
@@ -19,7 +21,7 @@
     <div class="container">
         <div class="card">
             <div class="card-header">
-                <h2>申請ステータス変更一覧 (最終経理処理)</h2>
+                <h2><i class="fa-solid fa-file-invoice-dollar"></i>&nbsp;&nbsp;申請ステータス変更一覧 (最終経理処理)</h2>
             </div>
             
             <div class="card-body">
