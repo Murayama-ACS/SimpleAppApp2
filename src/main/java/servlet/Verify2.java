@@ -38,6 +38,10 @@ public class Verify2 extends HttpServlet {
         request.setAttribute("q2", q2);
         request.setAttribute("q3", q3);
         request.setAttribute("empId", empId);
+        
+        System.out.println("q1:" + q1 + ":a1:" + a1);
+        System.out.println("q2:" + q2 + ":a2:" + a2);
+        System.out.println("q3:" + q3 + ":a3:" + a3);
 
         FailedLoginDAO flDao = new FailedLoginDAO();
 
