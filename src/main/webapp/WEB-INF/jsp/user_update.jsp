@@ -115,7 +115,7 @@
             // 3. SweetAlert2を使ってリッチな確認ダイアログを表示
             Swal.fire({
                 title: '社員情報を更新しますか？',
-                // JSP内でJSのテンプレートリテラル(${})を使うため、先頭にバックスラッシュ(\)をつけてエスケープ処理
+                // JSP内でJSのテンプレートリテラルを使うため、先頭にバックスラッシュ(\)をつけてエスケープ処理
                 html: `<strong>\${empName}</strong> さんの情報を<br><strong>\${dptName}</strong> 所属として更新します。`,
                 icon: 'question',
                 showCancelButton: true,
