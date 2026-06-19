@@ -61,16 +61,14 @@
     
     <%-- 通知ベルアイコン領域 --%>
     <div class="navbar-actions">
-        <a href="${pageContext.request.contextPath}/NotificationList" style="text-decoration: none; font-size: 20px;">
-            🔔
-            <%-- 上部のJavaコードで計算した globalUnreadCount が1件以上ある場合のみ、赤いバッジ（小紅点）を表示 --%>
-            <c:if test="${globalUnreadCount > 0}">
-                <span style="position: absolute; top: -5px; right: -10px; background: #dc3545; color: white; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 50%;">
-                    ${globalUnreadCount}
-                </span>
-            </c:if>
-        </a>
-    </div>
+	    <a href="${pageContext.request.contextPath}/NotificationList" class="nav-bell-container">
+	        <i class="fa-solid fa-bell"></i>	        
+	        <%-- globalUnreadCount が1件以上ある場合のみ、赤いバッジを表示 --%>
+	        <c:if test="${globalUnreadCount > 0}">
+	            <span class="nav-badge">${globalUnreadCount}</span>
+	        </c:if>
+	    </a>
+	</div>
 
     <%-- ログインユーザー情報とログアウトボタン --%>
     <div class="navbar-user">

@@ -50,15 +50,50 @@
     background-color: rgba(255, 255, 255, 0.2);
 }
 
-/* 通知ベルエリア（JSPのインラインスタイルから移動） */
+
 .navbar-actions {
     margin-right: 20px;
-    position: relative;
-    /* アイコンが押しつぶされないようにする */
     flex-shrink: 0; 
+    display: flex;
+    align-items: center;
 }
 
-/* ユーザーエリア */
+.nav-bell-container {
+    position: relative; 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff; 
+    text-decoration: none;
+    font-size: 22px; 
+    padding: 5px; 
+    transition: all 0.2s ease;
+}
+
+.nav-bell-container:hover {
+    color: rgba(255, 255, 255, 0.75); 
+    transform: scale(1.1); 
+}
+
+.nav-badge {
+    position: absolute;
+    top: -3px;     
+    right: -6px;  
+    background-color: #ff4757; 
+    color: #ffffff;
+    font-size: 9px; 
+    font-weight: bold;
+    min-width: 14px;  
+    height: 14px;     
+    padding: 0 3px;   
+    border-radius: 14px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); 
+}
+
+/*  ユーザーエリア */
 .navbar-user { 
     font-size: 14px; 
     color: #ffffff;
@@ -82,4 +117,6 @@
     white-space: nowrap;
     flex-shrink: 0;
 }
-.logout-btn:hover { background-color: rgba(255, 255, 255, 0.15); }
+.logout-btn:hover { 
+    background-color: rgba(255, 255, 255, 0.15); 
+}
