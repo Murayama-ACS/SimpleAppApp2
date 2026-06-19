@@ -11,9 +11,11 @@
 <body>
 	    <div class="login-card">
         <div class="card-header">
-            <h1>AppApp System</h1>
-            <div class="subtitle">申請管理システム</div>
-        </div>
+    <div class="brand-banner">
+        <img src="${pageContext.request.contextPath}/images/logo.png" alt="AppApp System" class="sys-logo-hero">
+    </div>
+    <div class="subtitle">申請管理システム</div>
+</div>
 
         <div class="card-body">
             <h2>ログイン</h2>    

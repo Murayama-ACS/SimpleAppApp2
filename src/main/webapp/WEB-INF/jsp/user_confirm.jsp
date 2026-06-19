@@ -47,13 +47,25 @@
                     <td>${insertEmpBean.email}</td>
                 </tr>
                 <tr>
-                    <th>部署ID</th>
-                    <td>${insertEmpBean.dpt_id}</td>
-                </tr>
-                <tr>
-                    <th>役職ID</th>
-                    <td>${insertEmpBean.pos_id}</td>
-                </tr>
+    				<th>部署名</th>
+   					<td>
+				        <c:forEach var="dpt" items="${dptList}">
+				            <c:if test="${dpt.dpt_id == insertEmpBean.dpt_id}">
+				                ${dpt.dpt_name}
+				            </c:if>
+				        </c:forEach>
+				    </td>
+				</tr>
+				<tr>
+				    <th>役職名</th>
+				    <td>
+				        <c:forEach var="pos" items="${posList}">
+				            <c:if test="${pos.pos_id == insertEmpBean.pos_id}">
+				                ${pos.pos_name}
+				            </c:if>
+				        </c:forEach>
+				    </td>
+				</tr>
             </table>
 
             <%--  確定・登録フォーム --%>

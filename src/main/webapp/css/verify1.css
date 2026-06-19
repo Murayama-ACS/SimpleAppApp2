@@ -19,7 +19,7 @@
 	}
 	
 	.reset-card h2 {
-	    background-color:#0056b3; 
+	    background-color:rgb(0, 157, 174); 
 	    color: #FFFFFF; 
 	    font-size: 26px; 
 	    margin: 0; 
@@ -28,7 +28,7 @@
 	}
 	
 	.step-indicator {
-	    background-color:#0056b3; 
+	    background-color:rgb(0, 157, 174); 
 	    color: #FFFFFF; 
 	    font-size: 13px; 
 	    margin: 0; 
@@ -62,7 +62,7 @@
 	}
 	
 	.form-group input:focus { 
-	    border-color: #0056b3; 
+	    border-color: rgb(0, 157, 174); 
 	    outline: none; 
 	}
 	
@@ -70,7 +70,7 @@
 	    width: 100%; 
 	    padding: 12px; 
 		margin-top: 16px;
-	    background-color: #0056b3; 
+	    background-color: rgb(0, 157, 174); 
 	    color: white; 
 	    border: none; 
 	    border-radius: 4px; 
@@ -80,7 +80,7 @@
 	}
 	
 	.btn-submit:hover { 
-	    background-color: #004494; 
+	    background-color: rgb(0, 141, 157); 
 	}
 	
 	.back-link { 

@@ -15,9 +15,6 @@
         <div class="card-body">
             <form action="Verify2" method="post">
 
-                <input type="hidden" name="q1" value="${q1}">
-                <input type="hidden" name="q2" value="${q2}">
-                <input type="hidden" name="q3" value="${q3}">
                 <input type="hidden" name="empId" value="${empId}">
 
                 <div class="qa-group">

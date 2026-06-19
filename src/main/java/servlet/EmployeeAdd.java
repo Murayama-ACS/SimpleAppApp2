@@ -183,18 +183,36 @@ public class EmployeeAdd extends HttpServlet {
 			System.out.println("dpt_id:" + dpt_id);
 			System.out.println("pos_id:" + pos_id);
 
+			// ... (约162行)
 			if(emp_id.isEmpty() || emp_name.isEmpty() || emp_furigana.isEmpty() || email.isEmpty() || dpt_id == null || pos_id == null) {
-				request.setAttribute("eMsg", "社員ID、名前、ふりがな、Email、部署、役職のいずれかが入力されていません。");
+			    request.setAttribute("eMsg", "社員ID、名前、ふりがな、Email、部署、役職のいずれかが入力されていません。");
 			}else {
-				EmployeeBean insertEmpBean = new EmployeeBean(emp_id, emp_name, emp_furigana, email, dpt_id, pos_id);
-				session.setAttribute("insertEmpBean", insertEmpBean);
-				url = "WEB-INF/jsp/user_confirm.jsp";
-			}
-			/* ========================================================================== */
-		}
+			    EmployeeBean insertEmpBean = new EmployeeBean(emp_id, emp_name, emp_furigana, email, dpt_id, pos_id);
+			    session.setAttribute("insertEmpBean", insertEmpBean);
 
+			    /* ==========================================================================
+			     * 【追加】确认画面で名前を表示するために、DAOからリストを取得してrequestにセットする
+			     * ========================================================================== */
+			    try {
+			        dao.DepartmentDAO deptDao = new dao.DepartmentDAO();
+			        request.setAttribute("dptList", deptDao.findAll());
+			        
+			        dao.PositionDAO posDao = new dao.PositionDAO();
+			        request.setAttribute("posList", posDao.findAll());
+			    } catch (Exception e) {
+			        // 万が一DB取得に失敗した場合の処理
+			        e.printStackTrace();
+			        request.setAttribute("eMsg", "部署・役職データの取得に失敗しました。");
+			        // 取得失敗してもIDはBeanにあるので、urlは変えずそのまま進めます。
+			        // JSP側でListがない場合は空欄になります。
+			    }
+			    /* ========================================================================== */
+
+			    url = "WEB-INF/jsp/user_confirm.jsp";
+			}
+		}
 		RequestDispatcher rd = request.getRequestDispatcher(url);
 		rd.forward(request, response);
 	}
-
 }
+	

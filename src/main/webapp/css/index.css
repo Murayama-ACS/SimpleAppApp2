@@ -53,7 +53,7 @@
 	    margin-top: 0;
 	    text-align: center;
 	    color: #333;
-	    margin-bottom: 25px;
+	    margin-bottom: 20px;
 	    font-size: 20px; 
 	}
 	
@@ -117,7 +117,7 @@
 	.btn-submit {
 	    width: 100%;
 	    padding: 14px;
-	    background-color: #0056b3;
+	    background-color: rgb(0, 157, 174);
 	    color: white;
 	    border: none;
 	    border-radius: 4px;
@@ -127,7 +127,7 @@
 	    transition: background 0.3s;
 	}
 	.btn-submit:hover {
-	    background-color: #004494;
+	    background-color: #008B99;
 	}
 	.success-message{
 		color: #28a745; 
@@ -139,4 +139,35 @@
 		margin-bottom: 15px; 
 		font-size: 14px; 
 		font-weight: bold;
+	}
+	
+	/*----------------*/
+	.card-header {
+	    background: none !important; 
+	    background-color: transparent !important;
+	    padding: 0 !important; 
+	    border-bottom: none !important; 
+	    text-align: center;
+	    margin-bottom: 0px;
+	}
+
+	.brand-banner {
+	    width: 100%;
+	    margin: 0;
+	    border-radius: 8px 8px 0 0; 
+	    overflow: hidden; 
+	}
+
+	.sys-logo-hero {
+	    width: 100%;
+	    height: auto;
+	    display: block;
+	}
+
+	.card-header .subtitle {
+	    color: #555555; 
+	    font-size: 14px;
+	    font-weight: 600;
+	    letter-spacing: 3px; 
+	    margin-top: 16px; 
 	}

@@ -22,7 +22,7 @@
 	    box-sizing: border-box;
 	}
     .card-header {
-	  	background-color: #0056b3;
+	  	background-color: rgb(0, 157, 174);
 	  	padding: 30px 20px;
 	  	text-align: center;
 	  	color: white;
@@ -45,7 +45,7 @@
     .section-title {
         font-size: 18px;
         font-weight: bold;
-        color: #0056b3;
+        color: rgb(0, 157, 174);
         border-bottom: 2px solid #e9ecef;
         padding-bottom: 8px;
         margin-top: 10px;
@@ -88,9 +88,9 @@
     input[type="text"]:focus, 
     input[type="password"]:focus,
     select:focus {
-        border-color: #0056b3;
+        border-color: rgb(0, 157, 174);
         outline: none;
-        box-shadow: 0 0 0 3px rgba(0,86,179,0.1);
+        box-shadow: 0 0 0 3px rgba(0, 157, 174, 0.1);
     }
     /* 質問と回答のグループ */
     .qa-group {
@@ -107,7 +107,7 @@
     .btn-submit {
         width: 100%;
         padding: 14px;
-        background-color: #0056b3;
+        background-color: rgb(0, 157, 174);
         color: white;
         border: none;
         border-radius: 4px;
@@ -118,7 +118,7 @@
         margin-top: 10px;
     }
     .btn-submit:hover {
-        background-color: #004494;
+        background-color: rgb(0, 143, 159);
     }
 	.popup-overlay {
 	    position: fixed;
@@ -147,7 +147,7 @@
 	.popup-text { color: #666; font-size: 15px; line-height: 1.6; margin-bottom: 30px; }
 
 	.btn-primary {
-	    background-color: #0056b3;
+	    background-color: rgb(0, 157, 174);
 	    color: white;
 	    border: none;
 	    padding: 12px 30px;
