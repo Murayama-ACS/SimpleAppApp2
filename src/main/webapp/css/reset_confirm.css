@@ -1,18 +1,10 @@
 @charset "UTF-8";
-	body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f0f2f5; 
-        margin: 0;
-        padding: 0;
-        color: #333;
-    }
-    .navbar {
-        background-color: #0056b3;
-    }
-    .navbar-brand {
-        font-size: 20px;
-        font-weight: bold;
-    }
+	body {   
+	    background-color: #f4f5f7;
+	    margin: 0;
+	    padding: 0;
+	    color: #333;
+	}
     .container {
         max-width: 600px; 
         margin: 60px auto;
@@ -23,13 +15,14 @@
         border-radius: 8px;
         padding: 40px 30px;
         text-align: center;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        border-top: 4px solid #0056b3; 
+        box-shadow: 0 4px 6px rgba(0, 157, 174, 0.1);
+        border-top: 7px solid rgb(0, 157, 174); 
     }
 
     .result-icon {
         font-size: 50px;
         margin-bottom: 20px;
+		color:rgb(0, 157, 174);
     }
 
     .result-title {
@@ -37,7 +30,7 @@
         font-weight: bold;
         margin-bottom: 15px;
     }
-    .result-title.success { color: #28a745; } 
+    .result-title.success { color: rgb(0, 157, 174); } 
     .result-title.error { color: #d9534f; }  
     
     .result-desc {
@@ -49,7 +42,7 @@
     .btn-action {
         display: inline-block;
         padding: 12px 35px;
-        background-color: #0056b3;
+        background-color: rgb(0, 157, 174);
         color: white;
         text-decoration: none;
         border-radius: 4px;
@@ -57,7 +50,7 @@
         transition: background 0.3s;
     }
     .btn-action:hover {
-        background-color: #004494;
+        background-color: rgb(0, 141, 157);
     }
     .btn-action.secondary {
         background-color: #6c757d;

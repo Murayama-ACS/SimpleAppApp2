@@ -38,7 +38,7 @@ body {
 
 /* --- ログイン情報・フィルター --- */
 .info-display {
-    background-color: rgb(254, 254, 224);
+    background-color: rgb(255, 255, 255);
     padding: 15px 20px;
     border-radius: 4px;
     margin-bottom: 25px;
@@ -133,7 +133,7 @@ body {
     border-bottom: 1px solid #eeeeee;
     vertical-align: middle;
 }
-.data-table tr:hover td { background-color: #fafcfc; }
+.data-table tr:hover td { background-color: rgb(255, 247, 219); }
 
 /* バッジ類 */
 .badge-urgent { 

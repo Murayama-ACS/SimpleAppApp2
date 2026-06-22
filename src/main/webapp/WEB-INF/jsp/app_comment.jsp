@@ -76,9 +76,9 @@
                     </div>
                     
                     <%-- 承認・却下ボタン（クリック時にJSのconfirmAction関数を呼び出す） --%>
-                    <div style="display: flex; justify-content: center; gap: 15px;">
-                        <button type="button" onclick="confirmAction('approve', '承認')" style="background-color: #28a745; color: white; box-shadow: 0 2px 4px rgba(40,167,69,0.3);">承認する</button>
-                        <button type="button" onclick="confirmAction('reject', '却下')" style="background-color: #dc3545; color: white; box-shadow: 0 2px 4px rgba(220,53,69,0.3);">却下する</button>
+                    <div class="btn-container">
+                        <button class="btn-sm btn-approve" type="button" onclick="confirmAction('approve', '承認')" >承認する</button>
+                        <button class="btn-sm btn-reject" type="button" onclick="confirmAction('reject', '却下')" >却下する</button>
                     </div>
                 </form>
             </div>

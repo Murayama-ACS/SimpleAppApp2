@@ -5,17 +5,16 @@
 <head>
     <meta charset="UTF-8">
     <title>パスワード再設定結果</title>
-    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/navbar.css">
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/reset_confirm.css">
+    <%-- Font Awesome（アイコン）の読み込み --%>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <%@ include file="/WEB-INF/jsp/header.jsp" %>
-
     <div class="container">
         <div class="result-card">
             <c:choose>
                 <c:when test="${isSuccess}">
-                    <div class="result-icon">📗</div>
+                    <div class="result-icon"><i class="fa-regular fa-circle-check"></i></div>
                     <div class="result-title success">設定成功</div>
                     <div class="result-desc">${message}</div>
                     <a href="${pageContext.request.contextPath}/index.jsp" class="btn-action">ログイン画面へ戻る</a>

@@ -11,7 +11,7 @@
     <%-- 共通ナビゲーションCSSとトップページ専用（グリッドレイアウト等）のCSSを読み込み --%>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/navbar.css">
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/top_page.css">
-    <!-- Font Awesome（アイコン）の読み込み -->
+    <%-- Font Awesome（アイコン）の読み込み --%>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>

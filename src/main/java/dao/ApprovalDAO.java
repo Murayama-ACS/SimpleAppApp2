@@ -61,8 +61,10 @@ public class ApprovalDAO extends DAO {
 		ApprovalBean approval = null;
 
 		// テーブル名を approval から approvals に修正
-		String sql = "SELECT approval_id, apct_id, emp_id, status_id, comment, time FROM approvals WHERE apct_id = ?";
-
+		// 修改后的 SQL：按时间降序排列，只取最新的一条
+		String sql = "SELECT approval_id, apct_id, emp_id, status_id, comment, time "
+		           + "FROM approvals WHERE apct_id = ? "
+		           + "ORDER BY time DESC LIMIT 1";
 		try {
 			if (con != null) {
 				st = con.prepareStatement(sql);

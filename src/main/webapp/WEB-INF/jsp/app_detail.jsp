@@ -47,8 +47,8 @@
             <tr>
                 <th>申請状態</th>
                 <td>
-                    <%-- 状態名に応じて文字色を動的に変更（承認:緑, 却下:赤, その他:黄色） --%>
-                    <span style="font-weight: bold; color: ${application.statusName == '承認' ? '#28a745' : (application.statusName == '却下' ? '#dc3545' : '#ffc107')};">
+                    <%-- 状態名に応じて文字色を動的に変更（完了:緑, 却下:赤, その他:黄色） --%>
+                    <span style="font-weight: bold; color: ${application.statusName == '完了' ? '#28a745' : (application.statusName == '却下' ? '#dc3545' : '#ffc107')};">
                         ${application.statusName}
                     </span>
                 </td>
