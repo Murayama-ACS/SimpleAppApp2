@@ -33,7 +33,7 @@
                     <div class="menu-desc">新しい申請書を作成・提出します。</div>
                 </a>
             </c:if>
-
+			
             <%-- 申請履歴メニュー --%>
             <%-- 自身の履歴確認や全社状況の確認に使うため、権限に関わらず全員に表示 --%>
             <a href="ApplicationHistoryServlet" class="menu-card card-history">
@@ -61,7 +61,7 @@
                     <div class="menu-desc">社員情報を確認・編集、または追加します。</div>
                 </a>
             </c:if>
-
+			
             <%-- 申請ステータス変更（経理処理）メニュー --%>
             <%-- 部署IDが 'D200' (経理部) に完全一致するユーザーにのみ表示 --%>
             <c:if test="${empBean.dpt_id =='D200' }">

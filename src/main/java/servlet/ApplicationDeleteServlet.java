@@ -55,7 +55,14 @@ public class ApplicationDeleteServlet extends HttpServlet {
 			}
 			
 			// 5. 正常完了時は、申請履歴一覧画面（ApplicationHistoryServlet）へリダイレクトして画面を更新
-			response.sendRedirect(request.getContextPath() + "/ApplicationHistoryServlet");
+			// セッションから直前の検索・ページング状態を含むURLを取得
+			String lastListUrl = (String) request.getSession().getAttribute("lastListUrl");
+			if (lastListUrl != null && !lastListUrl.isEmpty()) {
+			    // 記憶があれば、検索状態を保ったまま元の場所へドンピシャで戻る
+			    response.sendRedirect(lastListUrl);
+			} else {
+			    response.sendRedirect(request.getContextPath() + "/ApplicationHistoryServlet");
+			}
 			
 		} catch (Exception e) {
 			// 6. エラー発生時のログ出力とフォワード処理
