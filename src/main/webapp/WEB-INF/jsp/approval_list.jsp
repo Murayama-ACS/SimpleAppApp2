@@ -64,8 +64,10 @@
                             <%-- 各項目は、検索実行後も入力値を保持できるように EL式（${q_dept}等）を value に設定 --%>
                             <input type="text" name="q_dept" value="${q_dept}" placeholder="部署名（一部入力可）">
                             <input type="text" name="q_name" value="${q_name}" placeholder="申請者名（一部入力可）">
-                            <input type="number" name="q_amount_min" value="${q_amount_min}" placeholder="最小金額 (円)" min="0">
-                            <input type="number" name="q_amount_max" value="${q_amount_max}" placeholder="最大金額 (円)" min="0">
+                            <input type="number" name="q_amount_min" value="${q_amount_min}" placeholder="最小金額 (円)" min="0" style="padding:8px; border:1px solid #ccc; border-radius:4px; width: 120px;">
+                            <span style="color:#6c757d;">〜</span>
+                            <input type="number" name="q_amount_max" value="${q_amount_max}" placeholder="最大金額 (円)" min="0" style="padding:8px; border:1px solid #ccc; border-radius:4px; width: 120px;">
+
                             <select name="q_urgent">
                                 <option value="">緊急度（すべて）</option>
                                 <option value="緊急" ${q_urgent == '緊急' ? 'selected' : ''}>至急</option>
@@ -181,7 +183,7 @@
 
     <%-- フロントエンドのJavaScript処理 --%>
     <script>
-        // ソート処理用の関数
+        // テーブルヘッダーのソート処理
         function doSort(key) {
             const currentSort = '${sort}';
             const currentDir = '${dir}';
@@ -192,16 +194,38 @@
                 newDir = 'DESC';
             }
             
-            // 現在のURLにパラメータを追加して画面をリロード
-            const url = new URL(window.location.href);
-            url.searchParams.set('sort', key);
-            url.searchParams.set('dir', newDir);
+            // 統合されたナビゲーション関数を呼び出す
+            buildAndNavigate(key, newDir);
+        }
+
+        // すべてのパラメータを維持して遷移する関数
+        function buildAndNavigate(sortKey, sortDir) {
+            const url = new URL(window.location.href.split('?')[0]); // ベースURLのみ取得
+            
+            // 1. 検索フォームの入力値を取得
+            const qDept = document.querySelector('input[name="q_dept"]').value.trim();
+            const qName = document.querySelector('input[name="q_name"]').value.trim();
+            const qAmountMin = document.querySelector('input[name="q_amount_min"]').value.trim();
+            const qAmountMax = document.querySelector('input[name="q_amount_max"]').value.trim();
+            const qUrgent = document.querySelector('select[name="q_urgent"]').value;
+            
+            // 検索条件が1つでも入力されていればパラメータを設定
+            if (qDept !== "") url.searchParams.set('q_dept', qDept);
+            if (qName !== "") url.searchParams.set('q_name', qName);
+            if (qAmountMin !== "") url.searchParams.set('q_amount_min', qAmountMin);
+            if (qAmountMax !== "") url.searchParams.set('q_amount_max', qAmountMax);
+            if (qUrgent !== "") url.searchParams.set('q_urgent', qUrgent);
+            
+            // 2. ソート情報をセット
+            if (sortKey) url.searchParams.set('sort', sortKey);
+            if (sortDir) url.searchParams.set('dir', sortDir);
+            
+            // 3. 画面遷移
             window.location.href = url.toString();
         }
 
         // 承認・却下時のコメント入力ポップアップ処理 (SweetAlert2)
         function openSweetAlert(apctId, statusId, actionName) {
-            // アクションが「却下(6)」の場合は赤色、それ以外（承認）の場合は緑色にボタン色を設定
             const btnColor = (statusId === 6) ? '#dc3545' : '#28a745'; 
             
             Swal.fire({
@@ -215,17 +239,13 @@
                 confirmButtonColor: btnColor,
                 cancelButtonColor: '#6c757d',
                 customClass: {
-                    input: 'swal-textarea-custom' // テキストエリアの見た目を整えるカスタムクラス
+                    input: 'swal-textarea-custom'
                 }
             }).then((result) => {
-                // ユーザーが「確定」ボタンを押した場合
                 if (result.isConfirmed) {
-                    // ポップアップで入力された値を、下部の隠しフォーム（Hidden Form）にセットする
                     document.getElementById('hiddenApctId').value = apctId;
                     document.getElementById('hiddenStatusId').value = statusId;
-                    document.getElementById('hiddenComment').value = result.value || ""; // コメントが空なら空文字をセット
-                    
-                    // 隠しフォームを送信し、バックエンド（ApplicationWaitListServletのPOST処理）へデータを送る
+                    document.getElementById('hiddenComment').value = result.value || ""; 
                     document.getElementById('hiddenSubmitForm').submit();
                 }
             });

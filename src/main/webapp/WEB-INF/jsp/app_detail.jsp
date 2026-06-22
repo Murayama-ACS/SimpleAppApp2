@@ -58,11 +58,21 @@
             <tr><th>備考</th><td>${empty application.note ? 'なし' : application.note}</td></tr>
         </table>
         <div class="dual-nav-container">
-            <%-- 戻るボタン：セッションに直前の一覧画面のURL（検索条件含む）があればそこへ戻り、なければデフォルトの履歴一覧へ戻る --%>
-            <a href="${not empty sessionScope.lastListUrl ? sessionScope.lastListUrl : pageContext.request.contextPath += '/ApplicationHistoryServlet'}" class="back-link">⬅ 一覧に戻る</a>
+            <c:choose>
+                <%-- URLパラメータに from=noti がある場合（通知センターから来た場合） --%>
+                <c:when test="${param.from == 'noti'}">
+                    <%-- Sessionを無視して、確実に通知センターへ戻る --%>
+                    <a href="${pageContext.request.contextPath}/NotificationList" class="back-link">⬅ 通知センターに戻る</a>
+                </c:when>
+                
+                <%-- それ以外（申請一欄から来た場合） --%>
+                <c:otherwise>
+                    <%-- 検索条件を維持するために、Sessionに保存されたURLへ戻る --%>
+                    <a href="${not empty sessionScope.lastListUrl ? sessionScope.lastListUrl : pageContext.request.contextPath += '/ApplicationHistoryServlet'}" class="back-link">⬅ 申請履歴一覧に戻る</a>
+                </c:otherwise>
+            </c:choose>
         </div>
     </div>
     
-
 </body>
 </html>

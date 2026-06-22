@@ -35,7 +35,14 @@ public class ApplicationHistoryServlet extends HttpServlet {
 
 		// 2. タブ・フィルタパラメータの取得
 		String scope = request.getParameter("scope");
-		if (scope == null || scope.isEmpty()) scope = "self";
+		if (scope == null || scope.isEmpty()) {
+		    // E04(社長)の場合は「自身の申請」がないため、デフォルトを「配下の申請」にする
+		    if ("E04".equals(loginUser.getPos_id())) {
+		        scope = "subordinate";
+		    } else {
+		        scope = "self"; // 社長以外は「自身の申請」がデフォルト
+		    }
+		}
 
 		String filter = request.getParameter("filter");
 		String statusFilter = "unapproved".equals(filter) ? "incomplete" : "";
@@ -45,11 +52,17 @@ public class ApplicationHistoryServlet extends HttpServlet {
 		String qName = request.getParameter("q_name");
 		String qDepartment = request.getParameter("q_department");
 		String qType = request.getParameter("q_type");
-		String qAmountStr = request.getParameter("q_amount");
+		String qAmountMinStr = request.getParameter("q_amount_min");
+		String qAmountMaxStr = request.getParameter("q_amount_max");
 		
 		Integer qAmountMin = null;
-		if (qAmountStr != null && !qAmountStr.trim().isEmpty()) {
-			try { qAmountMin = Integer.parseInt(qAmountStr.trim()); } catch (NumberFormatException e) {}
+		Integer qAmountMax = null;
+		
+		if (qAmountMinStr != null && !qAmountMinStr.trim().isEmpty()) {
+			try { qAmountMin = Integer.parseInt(qAmountMinStr.trim()); } catch (NumberFormatException e) {}
+		}
+		if (qAmountMaxStr != null && !qAmountMaxStr.trim().isEmpty()) {
+			try { qAmountMax = Integer.parseInt(qAmountMaxStr.trim()); } catch (NumberFormatException e) {}
 		}
 
 		// 4. ソート・ページングパラメータの取得
@@ -82,7 +95,7 @@ public class ApplicationHistoryServlet extends HttpServlet {
 			// 5. 新しい検索・ページングメソッドを呼び出す（第12メソッド）
 			ApplicationDAO.PageResult<ApplicationBean> pageResult = dao.searchApplications(
 					loginUser, scope, statusFilter, qStatus, qName, qDepartment, qType,
-					qAmountMin, null, sortKey, sortDir, limit, offset
+					qAmountMin, qAmountMax, sortKey, sortDir, limit, offset
 			);
 
 			// 6. JSPへ渡すデータをセット
@@ -99,7 +112,8 @@ public class ApplicationHistoryServlet extends HttpServlet {
 			request.setAttribute("q_name", qName);
 			request.setAttribute("q_department", qDepartment);
 			request.setAttribute("q_type", qType);
-			request.setAttribute("q_amount", qAmountStr);
+			request.setAttribute("q_amount_min", qAmountMinStr);
+			request.setAttribute("q_amount_max", qAmountMaxStr);
 
 		} catch (SQLException e) {
 			e.printStackTrace();

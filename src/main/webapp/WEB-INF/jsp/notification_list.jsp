@@ -56,7 +56,7 @@
                                         <td style="color: #3f51b5;">${noti.apctId}</td>
                                         <td>${noti.content}</td>
                                         <td>
-                                        	<%-- ステータスIDによってバッジの色を動的に変更（6:却下、5:完了 は赤/グレー系に） --%>
+                                        	<%-- ステータスIDによってバッジの色を動的に変更 --%>
                                              <span class="status-badge ${noti.statusId == 6 ? 'status-rejected' : (noti.statusId == 1 || noti.statusId == 2 || noti.statusId == 3 || noti.statusId == 4 ? 'status-pending' : 'status-approved')}">
                                                     ${noti.statusName}
                                              </span>
@@ -68,7 +68,7 @@
                                         </td>
                                         <%-- 該当の申請ID（apct_id）をURLパラメータとして渡し、詳細画面へリンク --%>
                                         <td style="text-align: center;">
-                                            <a href="${pageContext.request.contextPath}/ApplicationDetail?apct_id=${noti.apctId}" class="btn-sm btn-detail" style="text-decoration: none;">確認</a>
+                                            <a href="${pageContext.request.contextPath}/ApplicationDetail?apct_id=${noti.apctId}&from=noti" class="btn-sm btn-detail" style="text-decoration: none;">確認</a>
                                         </td>
                                     </tr>
                                 </c:forEach>

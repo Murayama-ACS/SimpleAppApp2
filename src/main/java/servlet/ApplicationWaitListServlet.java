@@ -54,7 +54,7 @@ public class ApplicationWaitListServlet extends HttpServlet {
 		String qAmountMin = request.getParameter("q_amount_min");
 		String qAmountMax = request.getParameter("q_amount_max");
 		String qUrgent = request.getParameter("q_urgent");
-
+		
 		// 4. ソートパラメータの取得
 		String sortKey = request.getParameter("sort");
 		if (sortKey == null || sortKey.isEmpty()) sortKey = "date"; // デフォルトは申請日順
@@ -69,9 +69,7 @@ public class ApplicationWaitListServlet extends HttpServlet {
 			request.setAttribute("dpt_name", dptName);
 			// DAOの第10メソッド（検索・ソート対応版）を呼び出す
 			List<ApplicationBean> applications = appDao.getPendingApplications(
-					employee, qDept, qName, qAmountMin, qAmountMax, qUrgent, sortKey, sortDir);
-
-			// 画面にデータを渡す
+					employee, qDept, qName, qAmountMin, qAmountMax, qUrgent, sortKey, sortDir);			// 画面にデータを渡す
 			request.setAttribute("applications", applications);
 			
 			// 検索状態を画面に維持するためのセット

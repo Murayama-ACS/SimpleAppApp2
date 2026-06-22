@@ -30,7 +30,7 @@ public class ApplicationDetailServlet extends HttpServlet {
 		HttpSession session = request.getSession();
 		EmployeeBean employee = (EmployeeBean) session.getAttribute("empBean"); 
 		if (employee == null) {
-			employee = (EmployeeBean) session.getAttribute("loginEmployee"); 
+			employee = (EmployeeBean) session.getAttribute("empBean"); 
 		}
 
 		if (employee == null) {

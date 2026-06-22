@@ -127,7 +127,9 @@
                                 </select>
                             </c:if>
 
-                            <input type="number" name="q_amount" value="${q_amount}" placeholder="金額（指定額以上）" min="0">
+                            <input type="number" name="q_amount_min" value="${q_amount_min}" placeholder="最小金額 (円)" min="0" style="padding:8px; border:1px solid #ccc; border-radius:4px; width: 120px;">
+                            <span style="color:#6c757d;">〜</span>
+                            <input type="number" name="q_amount_max" value="${q_amount_max}" placeholder="最大金額 (円)" min="0" style="padding:8px; border:1px solid #ccc; border-radius:4px; width: 120px;">
 
                             <button type="submit" class="btn-search">検索</button>
                             <a href="ApplicationHistoryServlet?scope=${currentScope}&filter=${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}" class="btn-clear">クリア</a>
@@ -285,9 +287,8 @@
             // 2. 検索フォームの入力値を取得
             const qStatus = document.querySelector('select[name="q_status"]').value;
             const qType = document.querySelector('select[name="q_type"]').value;
-            const qAmount = document.querySelector('input[name="q_amount"]').value.trim();
-            
-            // q_name と q_department は権限によって存在しない場合があるため、安全に取得
+            const qAmountMin = document.querySelector('input[name="q_amount_min"]').value.trim();
+            const qAmountMax = document.querySelector('input[name="q_amount_max"]').value.trim();
             const nameInput = document.querySelector('input[name="q_name"]');
             const deptSelect = document.querySelector('select[name="q_department"]');
             
@@ -300,7 +301,8 @@
                 url.searchParams.set('search', 'true');
                 url.searchParams.set('q_status', qStatus);
                 url.searchParams.set('q_type', qType);
-                url.searchParams.set('q_amount', qAmount);
+                url.searchParams.set('q_amount_min', qAmountMin);
+                url.searchParams.set('q_amount_max', qAmountMax);
                 if (nameInput) url.searchParams.set('q_name', nameInput.value.trim());
                 if (deptSelect) url.searchParams.set('q_department', deptSelect.value);
             }
