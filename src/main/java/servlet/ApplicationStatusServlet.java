@@ -27,7 +27,8 @@ public class ApplicationStatusServlet extends HttpServlet {
 
 		// D100(管理部) または D200(経理部) 以外は弾く
 		if (loginUser == null || (!"D200".equals(loginUser.getDpt_id()) && !"D100".equals(loginUser.getDpt_id()))) {
-			response.sendRedirect(request.getContextPath() + "/index.jsp");
+			request.setAttribute("eMsg", "アクセス権限がありません。");
+			request.getRequestDispatcher("/index.jsp").forward(request, response);
 			return;
 		}
 
