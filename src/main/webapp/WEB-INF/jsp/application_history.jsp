@@ -276,7 +276,6 @@
 		    const currentDir = '${dir}';
 		    buildAndNavigate(currentSort, currentDir, pageNum);
 		}
-     	// 【追加】共通のURL構築・遷移関数（すべてのパラメータをかき集める）
        // 【追加】共通のURL構築・遷移関数（すべてのパラメータをかき集める）
         function buildAndNavigate(sortKey, sortDir, pageNum) {
             const url = new URL(window.location.href.split('?')[0]); // ベースURLのみ取得

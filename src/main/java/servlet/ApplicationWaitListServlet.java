@@ -36,7 +36,7 @@ public class ApplicationWaitListServlet extends HttpServlet {
 		EmployeeBean employee = (EmployeeBean) session.getAttribute("empBean"); 
 
 		if (employee == null) {
-			response.sendRedirect(request.getContextPath() + "/WEB-INF/jsp/approval_list.jsp");
+			response.sendRedirect(request.getContextPath() + "/index.jsp");
 			return;
 		}
 
@@ -44,7 +44,7 @@ public class ApplicationWaitListServlet extends HttpServlet {
 		String posId = employee.getPos_id();
 		if ("E00".equals(posId)) {
 			request.setAttribute("eMsg", "アクセス権限がありません。");
-			request.getRequestDispatcher("/WEB-INF/jsp/approval_list.jsp").forward(request, response);
+			request.getRequestDispatcher("/index.jsp").forward(request, response);
 			return;
 		}
 
@@ -118,7 +118,7 @@ public class ApplicationWaitListServlet extends HttpServlet {
 		EmployeeBean employee = (EmployeeBean) session.getAttribute("empBean");
 
 		if (employee == null) {
-			response.sendRedirect(request.getContextPath() + "//WEB-INF/jsp/approval_list.jsp");
+			response.sendRedirect(request.getContextPath() + "/index.jsp");
 			return;
 		}
 
