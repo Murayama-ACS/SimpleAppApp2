@@ -277,6 +277,7 @@
 		    buildAndNavigate(currentSort, currentDir, pageNum);
 		}
      	// 【追加】共通のURL構築・遷移関数（すべてのパラメータをかき集める）
+       // 【追加】共通のURL構築・遷移関数（すべてのパラメータをかき集める）
         function buildAndNavigate(sortKey, sortDir, pageNum) {
             const url = new URL(window.location.href.split('?')[0]); // ベースURLのみ取得
             
@@ -292,8 +293,7 @@
             const nameInput = document.querySelector('input[name="q_name"]');
             const deptSelect = document.querySelector('select[name="q_department"]');
             
-            // 検索条件が1つでも入力されていれば search=true をセット
-            let hasSearchData = (qStatus !== "" || qType !== "" || qAmount !== "");
+            let hasSearchData = (qStatus !== "" || qType !== "" || qAmountMin !== "" || qAmountMax !== "");
             if (nameInput && nameInput.value.trim() !== "") hasSearchData = true;
             if (deptSelect && deptSelect.value !== "") hasSearchData = true;
             
