@@ -388,7 +388,7 @@ public class ApplicationDAO extends DAO {
 	}
 
 	/**
-	 * 10. 検索条件とソート順を動的に反映する未承認申請一覧取得ロジック（全項目ソート対応版）
+	 * 検索条件とソート順を動的に反映する未承認申請一覧取得ロジック（直属の一般社員対応版）
 	 */
 	public List<ApplicationBean> getPendingApplications(
 			EmployeeBean employee, 
@@ -413,13 +413,13 @@ public class ApplicationDAO extends DAO {
 		String userPos = employee.getPos_id();
 
 		Map<String, String> colMap = Map.of(
-			"date",   "a.create_date",                   // 申請日
-			"id",     "a.apct_id",                       // 申請ID
-			"dept",   "d.dpt_name",                      // 申請者の部署（漢字）
-			"name",   "COALESCE(e.furigana, e.emp_name)",// 申請者の氏名（ふりがな/五十音）
-			"type",   "a.type",                          // 申請種別
-			"amount", "a.amount",                        // 申請金額
-			"urgent", "CASE WHEN a.urgent IN ('緊急', 'true', '1') THEN 1 ELSE 0 END" // 緊急度
+			"date",   "a.create_date",
+			"id",     "a.apct_id",
+			"dept",   "d.dpt_name",
+			"name",   "COALESCE(e.furigana, e.emp_name)",
+			"type",   "a.type",
+			"amount", "a.amount",
+			"urgent", "a.urgent"
 		);
 
 		String orderBy = colMap.getOrDefault(sortColumn, "a.create_date");
@@ -436,15 +436,22 @@ public class ApplicationDAO extends DAO {
 
 		List<Object> params = new ArrayList<>();
 
+		// 組織階層（権限ベース）による絞り込みブロック
 		if ("E04".equals(userPos)) {
-			sql.append("AND a.status_id = 1 AND e.pos_id IN ('E02', 'E03') ");
+			// 社長は配下の部長(E02)/本部長(E03)からの申請に加えて、社長直属の一般社員(E00)の申請を取得
+			sql.append("AND a.status_id = 1 AND ( (e.dpt_id NOT LIKE 'D7%' AND e.pos_id = 'E02') OR (e.dpt_id LIKE 'D7%' AND e.pos_id = 'E03') OR (e.dpt_id = ? AND e.pos_id = 'E00') ) AND e.emp_id != ? ");
+			params.add(userDpt);
+			params.add(employee.getEmp_id());
 		} else if ("E03".equals(userPos)) {
 			if (userDpt.startsWith("D7")) {
-				sql.append("AND a.status_id = 1 AND e.dpt_id LIKE 'D7%' AND e.pos_id = 'E02' ");
+				sql.append("AND a.status_id = 1 AND ( (e.dpt_id LIKE 'D7%' AND e.pos_id = 'E02') OR (e.dpt_id = ? AND e.pos_id = 'E00') ) AND e.emp_id != ? ");
+				params.add(userDpt);
+				params.add(employee.getEmp_id());
 			} else {
-				String deptPrefix = userDpt.substring(0, 3) + "%";
-				sql.append("AND a.status_id = 1 AND e.dpt_id LIKE ? AND e.emp_id != ? ");
+				String deptPrefix = userDpt.substring(0, 2) + "%"; 
+				sql.append("AND a.status_id = 1 AND ( (e.dpt_id LIKE ? AND e.pos_id = 'E02') OR (e.dpt_id = ? AND e.pos_id = 'E00') ) AND e.emp_id != ? ");
 				params.add(deptPrefix);
+				params.add(userDpt);
 				params.add(employee.getEmp_id());
 			}
 		} else if ("E02".equals(userPos)) {
@@ -452,13 +459,19 @@ public class ApplicationDAO extends DAO {
 				sql.append("AND ( (a.status_id = 1 AND e.dpt_id = 'D100' AND e.emp_id != ?) OR (a.status_id = 2) ) ");
 				params.add(employee.getEmp_id());
 			} else if ("D712".equals(userDpt)) {
-				sql.append("AND a.status_id = 1 AND e.dpt_id IN ('D710', 'D720') AND e.pos_id = 'E01' ");
+				sql.append("AND a.status_id = 1 AND ( (e.dpt_id IN ('D710', 'D720') AND e.pos_id = 'E01') OR (e.dpt_id = ? AND e.pos_id = 'E00') ) AND e.emp_id != ? ");
+				params.add(userDpt);
+				params.add(employee.getEmp_id());
 			} else if ("D734".equals(userDpt)) {
-				sql.append("AND a.status_id = 1 AND e.dpt_id IN ('D730', 'D740') AND e.pos_id = 'E01' ");
+				sql.append("AND a.status_id = 1 AND ( (e.dpt_id IN ('D730', 'D740') AND e.pos_id = 'E01') OR (e.dpt_id = ? AND e.pos_id = 'E00') ) AND e.emp_id != ? ");
+				params.add(userDpt);
+				params.add(employee.getEmp_id());
 			} else {
-				String deptPrefix = userDpt.substring(0, 3) + "%";
-				sql.append("AND a.status_id = 1 AND e.dpt_id LIKE ? AND e.emp_id != ? ");
+				// 部長は配下の課長(E01)からの申請に加えて、部直属の一般社員(E00)の申請を取得
+				String deptPrefix = userDpt.substring(0, 2) + "%"; 
+				sql.append("AND a.status_id = 1 AND ( (e.dpt_id LIKE ? AND e.pos_id = 'E01') OR (e.dpt_id = ? AND e.pos_id = 'E00') ) AND e.emp_id != ? ");
 				params.add(deptPrefix);
+				params.add(userDpt);
 				params.add(employee.getEmp_id());
 			}
 		} else if ("E01".equals(userPos)) {
@@ -474,6 +487,7 @@ public class ApplicationDAO extends DAO {
 			sql.append("AND 1 = 0 ");
 		}
 
+		// 動的検索条件の追加ブロック
 		if (searchDept != null && !searchDept.trim().isEmpty()) {
 			sql.append("AND d.dpt_name LIKE ? ");
 			params.add("%" + searchDept.trim() + "%");
@@ -524,7 +538,7 @@ public class ApplicationDAO extends DAO {
 				}
 			}
 		} catch (SQLException e) {
-			System.out.println("getPendingApplications 検索版エラー: " + e.getMessage());
+			System.out.println("getPendingApplications 直属一般社員対応版エラー: " + e.getMessage());
 		} finally {
 			if (rs != null) try { rs.close(); } catch (SQLException ex) {}
 			if (st != null) try { st.close(); } catch (SQLException ex) {}
