@@ -34,7 +34,7 @@ public class ApplicationStatusEditServlet extends HttpServlet {
         EmployeeBean employee = (EmployeeBean) session.getAttribute("empBean");
 
         if (employee == null) {
-            response.sendRedirect(request.getContextPath() + "/WEB-INF/jsp/index.jsp");
+            response.sendRedirect(request.getContextPath() + "/index.jsp");
             return;
         }
 

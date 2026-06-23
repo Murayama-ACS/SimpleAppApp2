@@ -26,7 +26,7 @@ public class ApplicationStatusServlet extends HttpServlet {
 		EmployeeBean loginUser = (EmployeeBean) session.getAttribute("empBean");
 
 		// D100(管理部) または D200(経理部) 以外は弾く
-		if (loginUser == null || (!"D200".equals(loginUser.getDpt_id()) && !"D100".equals(loginUser.getDpt_id()))) {
+		if (loginUser == null || (!"D200".equals(loginUser.getDpt_id()))) {
 			request.setAttribute("eMsg", "アクセス権限がありません。");
 			request.getRequestDispatcher("/index.jsp").forward(request, response);
 			return;
@@ -109,6 +109,16 @@ public class ApplicationStatusServlet extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		
 		String apctId = request.getParameter("apct_id");
+		
+		HttpSession session = request.getSession();
+		EmployeeBean loginUser = (EmployeeBean) session.getAttribute("empBean");
+
+		// D100(管理部) または D200(経理部) 以外は弾く
+		if (loginUser == null || (!"D200".equals(loginUser.getDpt_id()))) {
+			request.setAttribute("eMsg", "アクセス権限がありません。");
+			request.getRequestDispatcher("/index.jsp").forward(request, response);
+			return;
+		}
 		
 		if (apctId != null && !apctId.trim().isEmpty()) {
 			ApplicationDAO dao = new ApplicationDAO();
