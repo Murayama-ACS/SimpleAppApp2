@@ -38,6 +38,24 @@ public class FailedLoginDAO extends DAO {
 		dbClose(con);
 		return false;
 	}
+	
+	//アカウントロックの時間を取得
+	public Instant getLockedUntil(String empId) throws SQLException {
+        String sql = "SELECT locked_until FROM failed_logins WHERE emp_id = ?";
+        try (Connection con = dbConnect();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, empId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Timestamp ts = rs.getTimestamp("locked_until");
+                    if (ts != null) return ts.toInstant();
+                }
+            }finally {
+            	
+        }
+        return null;
+    }
+}
 
 	// 成功時リセット（パスワード成功・全体リセット）
 	public void resetOnSuccess(String empId) throws SQLException {
