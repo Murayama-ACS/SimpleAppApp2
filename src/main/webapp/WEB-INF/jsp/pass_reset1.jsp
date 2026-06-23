@@ -1,20 +1,16 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Password Reset</title>
-<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/pass_reset1.css">
-<script>
-function goToTopPage() {
-    window.location.href = "${pageContext.request.contextPath}/TopPageServlet";
-}
-</script>
+    <meta charset="UTF-8">
+    <title>Password Reset</title>
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/pass_reset1.css">
+    <%--追加：SweetAlert2のライブラリを読み込み --%>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-	<div class="setup-card">
+    <div class="setup-card">
         <div class="card-header">
             <h2>アカウント初期設定</h2>
             <div class="subtitle">
@@ -113,16 +109,27 @@ function goToTopPage() {
                 </div>
                 <button type="submit" class="btn-submit">設定を完了します</button>
             </form>
+
             <c:if test="${isSuccess}">
-		    	<div id="successPopup" class="popup-overlay">
-		        	<div class="popup-content">
-		            <div class="popup-icon">✅</div>
-		            <h3 class="popup-title">設定完了</h3>
-		            <p class="popup-text">パスワードと秘密の質問の設定が完了しました。<br>トップページへ移動します。</p>
-		            <button class="btn-primary" onclick="goToTopPage()">トップページへ</button>
-		        	</div>
-    			</div>
-			</c:if>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Swal.fire({
+                            title: '設定完了',
+                            html: 'パスワードと秘密の質問の設定が完了しました。<br>トップページへ移動します。',
+                            icon: 'success',
+                            showConfirmButton: true,
+                            confirmButtonText: 'トップページへ',
+                            confirmButtonColor: 'rgb(0, 157, 174)',
+                            allowOutsideClick: false // ポップアップの外側をクリックしても閉じないようにする
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // ボタンが押されたらTopPageServletへ遷移
+                                window.location.href = "${pageContext.request.contextPath}/TopPageServlet";
+                            }
+                        });
+                    });
+                </script>
+            </c:if>
         </div>
     </div>
 </body>

@@ -1,8 +1,5 @@
 @charset "UTF-8";
 
-/* ==========================================================================
-   未承認申請一覧 (Dark / Executive Theme)
-   ========================================================================== */
 
 body {
     font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
@@ -210,4 +207,11 @@ table tr:hover td { background-color: #f8f9fa; }
 }
 .sortable:hover {
     background-color: #4b5258;
+}
+.swal-comment-notice {
+    font-size: 13px;
+    color: rgb(255, 128, 0);
+    padding: 10px;
+    text-align: center;
+    margin-top: 20px; 
 }

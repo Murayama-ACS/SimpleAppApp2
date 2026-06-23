@@ -128,7 +128,7 @@ body {
 .btn-sm { 
     padding: 10px 24px; 
     font-size: 15px; 
-    border-radius: 10px; 
+    border-radius: 7px; 
     font-weight: bold; 
     cursor: pointer; 
     border: none; 
@@ -136,8 +136,8 @@ body {
     transition: all 0.2s ease; 
 }
 
-.btn-approve { background-color: #5c6bc0; }
-.btn-approve:hover { background-color: #3f51b5; }
+.btn-approve { background-color: #28a745;}
+.btn-approve:hover { background-color: #218838;}
 
 .btn-reject { background-color: #dc3545; }
 .btn-reject:hover { background-color: #c82333; }

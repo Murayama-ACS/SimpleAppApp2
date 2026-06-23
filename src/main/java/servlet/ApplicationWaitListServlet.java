@@ -86,12 +86,26 @@ public class ApplicationWaitListServlet extends HttpServlet {
 			if (errorMsg != null) {
 				request.setAttribute("errorMessage", errorMsg);
 			}
-			String queryString = request.getQueryString(); // URLの ? 以降のパラメータを取得
-			String currentUrl = request.getContextPath() + "/ApplicationWaitList";
-			if (queryString != null && !queryString.isEmpty()) {
-				currentUrl += "?" + queryString;
-			}
-			session.setAttribute("lastListUrl", currentUrl);
+			String queryString = request.getQueryString(); 
+	        String currentUrl = request.getContextPath() + "/ApplicationWaitList";
+	        
+	        if (queryString != null && !queryString.isEmpty()) {
+	            // 【重要】ポップアップ用のワンタイムパラメータを履歴URLから除外する（正規表現で削除）
+	            queryString = queryString.replaceAll("&?success=[^&]*", "")
+	                                     .replaceAll("&?action=[^&]*", "")
+	                                     .replaceAll("&?pendingStatus=[^&]*", "");
+	            
+	            // 先頭に '&' が残ってしまった場合のゴミ掃除
+	            if (queryString.startsWith("&")) {
+	                queryString = queryString.substring(1);
+	            }
+	            
+	            // パラメータがまだ残っていればURLに結合
+	            if (!queryString.isEmpty()) {
+	                currentUrl += "?" + queryString;
+	            }
+	        }
+	        session.setAttribute("lastListUrl", currentUrl);
 			RequestDispatcher rd = request.getParameter("apct_id") != null 
 					? request.getRequestDispatcher("WEB-INF/jsp/app_comment.jsp")
 							: request.getRequestDispatcher("/WEB-INF/jsp/approval_list.jsp");
@@ -200,8 +214,9 @@ public class ApplicationWaitListServlet extends HttpServlet {
 				return;
 			}
 
-			// 6. 旧仕様（app_done.jspへのフォワード）を廃止し、一覧へリダイレクト（パラメータ付き）
-			response.sendRedirect(request.getContextPath() + "/ApplicationWaitList?pendingStatus=" + pendingStatus + "&success=true");
+			String actionParam = (nextStatusId == 6) ? "reject" : "approve";
+			response.sendRedirect(request.getContextPath() + "/ApplicationWaitList?pendingStatus=" + pendingStatus + "&success=true&action=" + actionParam);
+			return;
 
 		} catch (Exception e) {
 			log("ApplicationWaitListServlet POST error", e);

@@ -199,8 +199,9 @@ public class ApplicationCommentServlet extends HttpServlet {
 					return;
 				}
 
-				response.sendRedirect(request.getContextPath() + "/ApplicationWaitList?success=true");
-				return; 
+				String actionParam = "reject".equals(actionType) ? "reject" : "approve";
+				response.sendRedirect(request.getContextPath() + "/ApplicationWaitList?success=true&action=" + actionParam);
+				return;
 			}
 
 			doGet(request, response);

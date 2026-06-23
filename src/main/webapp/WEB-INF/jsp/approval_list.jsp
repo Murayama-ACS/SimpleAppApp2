@@ -8,8 +8,8 @@
     <meta charset="UTF-8">
     <title>未承認申請一覧 - AppApp システム</title>
     <%-- 共通ナビゲーションCSS、一覧画面専用CSS、およびポップアップ用ライブラリ（SweetAlert2）の読み込み --%>
-    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/approval_list.css">
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/navbar.css">
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/approval_list.css">
     <%-- Font Awesome（アイコン）の読み込み --%>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
@@ -251,5 +251,35 @@
             });
         }
     </script>
+    <%-- URLに success=true が含まれている場合、完了ポップアップを表示 --%>
+    <c:if test="${param.success == 'true'}">
+        <script>
+            // ページが完全に読み込まれた後にポップアップを実行
+            document.addEventListener('DOMContentLoaded', function() {
+                // URLからアクション種別（approve または reject）を取得
+                const action = '${param.action}';
+                
+                // アクションに応じてタイトルとアイコンを切り替え
+                const titleStr = (action === 'reject') ? '却下完了' : '承認完了';
+                const iconType = (action === 'reject') ? 'success' : 'success';
+                const msgStr = (action === 'reject') ? '対象の申請を却下しました。' : '対象の申請を承認しました。';
+             // CSSクラス「swal-comment-notice」を適用（<br><br>も削除してCSSのmarginに任せる）
+                const comment = '<div class="swal-comment-notice">※コメントを入力された場合、送信されています。</div>';
+
+                // SweetAlert2 で完了メッセージを表示
+                Swal.fire({
+                    title: titleStr,
+                    html: msgStr+comment,
+                    icon: iconType,
+                    showConfirmButton: true,         
+                    confirmButtonText: '確認する',       
+                    confirmButtonColor: '#0047A5'   
+                }).then((result) => {
+                    const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                    window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+                });
+            });
+        </script>
+    </c:if>
 </body>
 </html>
