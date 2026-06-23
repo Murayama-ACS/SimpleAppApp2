@@ -21,5 +21,12 @@ public class DepartmentBean {
 		this.dpt_name = dpt_name;
 	}
 	
+	@Override
+	public String toString() {
+		return "DepartmentBean{" +
+				"dpt_id='" + dpt_id + '\'' +
+				", dpt_name='" + dpt_name + '\'' +
+				'}';
+	}
 	
 }
