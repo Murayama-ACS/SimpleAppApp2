@@ -323,7 +323,7 @@
                 showCancelButton: true,
                 confirmButtonColor: '#dc3545', // 危険な操作のため赤色を指定
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: '削除',
+                confirmButtonText: '削除する',
                 cancelButtonText: 'キャンセル'
             }).then((result) => {
                 // ユーザーが「削除」をクリックした場合のみ、該当の隠しフォームを送信する
@@ -333,5 +333,24 @@
             });
         }
     </script>
+    <c:if test="${param.deleteSuccess == 'true'}">
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: '削除完了',
+                    text: '指定された申請データを正常に削除しました。',
+                    icon: 'success',
+                    showConfirmButton: true,
+                    confirmButtonText: '確認する',
+                    confirmButtonColor: '#0047A5'
+                }).then(() => {
+                    //ポップアップを閉じた後、URLから「deleteSuccess=true」を消去
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('deleteSuccess');
+                    window.history.replaceState({}, '', url.toString());
+                });
+            });
+        </script>
+    </c:if>
 </body>
 </html>
