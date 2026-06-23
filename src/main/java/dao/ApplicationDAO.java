@@ -362,7 +362,8 @@ public class ApplicationDAO extends DAO {
 		} else {
 			sql.append("AND 1 = 0 ");
 		}
-		sql.append("ORDER BY a.create_date DESC");
+		// 【変更】緊急度(降順)、作成日(古い順) に変更
+		sql.append("ORDER BY CASE WHEN a.urgent IN ('緊急', 'true', '1') THEN 1 ELSE 0 END DESC, a.create_date ASC, a.apct_id DESC");
 
 		try {
 			if (con != null) {
@@ -419,7 +420,7 @@ public class ApplicationDAO extends DAO {
 			"name",   "COALESCE(e.furigana, e.emp_name)",
 			"type",   "a.type",
 			"amount", "a.amount",
-			"urgent", "a.urgent"
+			"urgent", "CASE WHEN a.urgent IN ('緊急', 'true', '1') THEN 1 ELSE 0 END" //【変更：緊急度でソートエラー修正】
 		);
 
 		String orderBy = colMap.getOrDefault(sortColumn, "a.create_date");
@@ -519,7 +520,12 @@ public class ApplicationDAO extends DAO {
 			params.add(searchUrgent.trim());
 		}
 
-		sql.append("ORDER BY ").append(orderBy).append(" ").append(dir).append(", a.apct_id DESC");
+		// 【変更】緊急度ソート時に第二ソートキーとして日付昇順を追加
+				if ("urgent".equals(sortColumn)) {
+					sql.append(" ORDER BY ").append(orderBy).append(" ").append(dir).append(", a.create_date ASC, a.apct_id DESC");
+				} else {
+					sql.append(" ORDER BY ").append(orderBy).append(" ").append(dir).append(", a.apct_id DESC");
+				}
 
 		try {
 			if (con != null) {
@@ -669,8 +675,13 @@ public class ApplicationDAO extends DAO {
 			sql.append("AND a.amount <= ? ");
 			params.add(qAmountMax);
 		}
-
-		sql.append(" ORDER BY ").append(orderBy).append(" ").append(dir).append(", a.apct_id DESC ");
+		// 【変更】緊急度ソート時に第二ソートキーとして日付昇順を追加
+		if ("urgent".equals(sortKey)) {
+			sql.append(" ORDER BY ").append(orderBy).append(" ").append(dir).append(", a.create_date ASC, a.apct_id DESC ");
+		} else {
+			sql.append(" ORDER BY ").append(orderBy).append(" ").append(dir).append(", a.apct_id DESC ");
+		}
+		
 		sql.append(" LIMIT ? OFFSET ?");
 
 		ArrayList<ApplicationBean> list = new ArrayList<>();
@@ -720,7 +731,8 @@ public class ApplicationDAO extends DAO {
 		.append("JOIN status s ON a.status_id = s.status_id ")
 		.append("JOIN departments d ON e.dpt_id = d.dpt_id ")
 		.append("WHERE a.is_deleted = 0 AND a.status_id IN (3, 4) ")
-		.append("ORDER BY a.create_date DESC");
+		// 【変更】緊急度(降順)、作成日(古い順) に変更
+		.append("ORDER BY CASE WHEN a.urgent IN ('緊急', 'true', '1') THEN 1 ELSE 0 END DESC, a.create_date ASC, a.apct_id DESC");
 		try {
 			if (con != null) {
 				st = con.prepareStatement(sql.toString());
@@ -809,7 +821,13 @@ public class ApplicationDAO extends DAO {
 			params.add(qUrgent);
 		}
 
-		sql.append(" ORDER BY ").append(orderBy).append(" ").append(dir).append(", a.apct_id DESC ");
+		// 【変更】緊急度ソート時に第二ソートキーとして日付昇順を追加
+		if ("urgent".equals(sortKey)) {
+			sql.append(" ORDER BY ").append(orderBy).append(" ").append(dir).append(", a.create_date ASC, a.apct_id DESC ");
+		} else {
+			sql.append(" ORDER BY ").append(orderBy).append(" ").append(dir).append(", a.apct_id DESC ");
+		}
+		
 		sql.append(" LIMIT ? OFFSET ?");
 
 		ArrayList<ApplicationBean> list = new ArrayList<>();

@@ -53,10 +53,10 @@ public class ApplicationStatusServlet extends HttpServlet {
 
 		// ソート・ページングパラメータの取得
 		String sortKey = request.getParameter("sort");
-		if (sortKey == null || sortKey.isEmpty()) sortKey = "date";
+		if (sortKey == null || sortKey.isEmpty()) sortKey = "urgent";// 【変更】デフォルトは緊急度
 
 		String sortDir = request.getParameter("dir");
-		if (sortDir == null || sortDir.isEmpty()) sortDir = "ASC";
+		if (sortDir == null || sortDir.isEmpty()) sortDir = "DESC";// 【変更】デフォルトは致急
 
 		int page = 1;
 		String pageStr = request.getParameter("page");
