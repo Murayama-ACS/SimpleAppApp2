@@ -35,10 +35,29 @@ public class EmployeeAdd extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// 1. ログインチェック
+		String loginUrl = "/index.jsp";
+		HttpSession session = request.getSession();
+		EmployeeBean employee = (EmployeeBean) session.getAttribute("empBean"); 
+
+		if (employee == null) {
+			request.setAttribute("eMsg", "アクセス権限がありません。");
+			response.sendRedirect(request.getContextPath() + loginUrl);
+			return;
+		}
+
+		// 2. 権限チェック
+		String ldptId = employee.getDpt_id();
+		if (!ldptId.matches("^D4.*$")) {
+			request.setAttribute("eMsg", "アクセス権限がありません。");
+			request.getRequestDispatcher(loginUrl).forward(request, response);
+			return;
+		}
+
 		try {
 			dao.DepartmentDAO deptDao = new dao.DepartmentDAO();
 			request.setAttribute("dptList", deptDao.findAll());
-			
+
 			dao.PositionDAO posDao = new dao.PositionDAO();
 			request.setAttribute("posList", posDao.findAll());
 		} catch (Exception e) {
@@ -56,6 +75,7 @@ public class EmployeeAdd extends HttpServlet {
 		EmployeeBean employee = (EmployeeBean) session.getAttribute("empBean"); 
 
 		if (employee == null) {
+			request.setAttribute("eMsg", "アクセス権限がありません。");
 			response.sendRedirect(request.getContextPath() + loginUrl);
 			return;
 		}
@@ -67,13 +87,24 @@ public class EmployeeAdd extends HttpServlet {
 			request.getRequestDispatcher(loginUrl).forward(request, response);
 			return;
 		}
+		
+		try {
+			dao.DepartmentDAO deptDao = new dao.DepartmentDAO();
+			request.setAttribute("dptList", deptDao.findAll());
+
+			dao.PositionDAO posDao = new dao.PositionDAO();
+			request.setAttribute("posList", posDao.findAll());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		String url = "WEB-INF/jsp/user_signup.jsp";
 
 		/* ==========================================================================
 		 * 【追加】リクエストが「画面入力（manual）」か「CSV」かを判別するロジック
 		 * ========================================================================== */
 		String mode = request.getParameter("mode");
-		
+
 		// multipart/form-dataのときは通常の方法でパラメータが取れない場合があるためPartから補正
 		if (mode == null && request.getContentType() != null && request.getContentType().startsWith("multipart/")) {
 			Part modePart = request.getPart("mode");
@@ -148,7 +179,7 @@ public class EmployeeAdd extends HttpServlet {
 							failureCount++;
 						}
 					}
-					
+
 					// 処理結果のセット
 					if (failureCount == 0) {
 						request.setAttribute("sMsg", successCount + "件のCSV登録が完了しました。");
@@ -157,7 +188,7 @@ public class EmployeeAdd extends HttpServlet {
 						request.setAttribute("eMsg", failureCount + "件の処理でエラーが発生しました。");
 						request.setAttribute("errorList", errorList);
 					}
-					
+
 				} catch (Exception e) {
 					e.printStackTrace();
 					request.setAttribute("eMsg", "CSVの解析中に予期せぬエラーが発生しました。");
@@ -185,34 +216,33 @@ public class EmployeeAdd extends HttpServlet {
 
 			// ... (约162行)
 			if(emp_id.isEmpty() || emp_name.isEmpty() || emp_furigana.isEmpty() || email.isEmpty() || dpt_id == null || pos_id == null) {
-			    request.setAttribute("eMsg", "社員ID、名前、ふりがな、Email、部署、役職のいずれかが入力されていません。");
+				request.setAttribute("eMsg", "社員ID、名前、ふりがな、Email、部署、役職のいずれかが入力されていません。");
 			}else {
-			    EmployeeBean insertEmpBean = new EmployeeBean(emp_id, emp_name, emp_furigana, email, dpt_id, pos_id);
-			    session.setAttribute("insertEmpBean", insertEmpBean);
+				EmployeeBean insertEmpBean = new EmployeeBean(emp_id, emp_name, emp_furigana, email, dpt_id, pos_id);
+				session.setAttribute("insertEmpBean", insertEmpBean);
 
-			    /* ==========================================================================
-			     * 【追加】确认画面で名前を表示するために、DAOからリストを取得してrequestにセットする
-			     * ========================================================================== */
-			    try {
-			        dao.DepartmentDAO deptDao = new dao.DepartmentDAO();
-			        request.setAttribute("dptList", deptDao.findAll());
-			        
-			        dao.PositionDAO posDao = new dao.PositionDAO();
-			        request.setAttribute("posList", posDao.findAll());
-			    } catch (Exception e) {
-			        // 万が一DB取得に失敗した場合の処理
-			        e.printStackTrace();
-			        request.setAttribute("eMsg", "部署・役職データの取得に失敗しました。");
-			        // 取得失敗してもIDはBeanにあるので、urlは変えずそのまま進めます。
-			        // JSP側でListがない場合は空欄になります。
-			    }
-			    /* ========================================================================== */
+				/* ==========================================================================
+				 * 【追加】确认画面で名前を表示するために、DAOからリストを取得してrequestにセットする
+				 * ========================================================================== */
+				try {
+					dao.DepartmentDAO deptDao = new dao.DepartmentDAO();
+					request.setAttribute("dptList", deptDao.findAll());
 
-			    url = "WEB-INF/jsp/user_confirm.jsp";
+					dao.PositionDAO posDao = new dao.PositionDAO();
+					request.setAttribute("posList", posDao.findAll());
+				} catch (Exception e) {
+					// 万が一DB取得に失敗した場合の処理
+					e.printStackTrace();
+					request.setAttribute("eMsg", "部署・役職データの取得に失敗しました。");
+					// 取得失敗してもIDはBeanにあるので、urlは変えずそのまま進めます。
+					// JSP側でListがない場合は空欄になります。
+				}
+				/* ========================================================================== */
+
+				url = "WEB-INF/jsp/user_confirm.jsp";
 			}
 		}
 		RequestDispatcher rd = request.getRequestDispatcher(url);
 		rd.forward(request, response);
 	}
 }
-	

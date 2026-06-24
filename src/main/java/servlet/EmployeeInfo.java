@@ -91,7 +91,15 @@ public class EmployeeInfo extends HttpServlet {
 	        e.printStackTrace();
 	        request.setAttribute("eMsg", "社員情報の取得中にエラーが発生しました");
 	    }
-
+	    
+	    if (session != null) {
+	        String flash = (String) session.getAttribute("flashError");
+	        if (flash != null) {
+	            request.setAttribute("eMsg", flash);
+	            session.removeAttribute("flashError"); // ここで削除（表示後に残さない）
+	        }
+	    }
+	    
 	    // 検索条件・ページング情報を戻す
 	    request.setAttribute("q_emp_id", empId);
 	    request.setAttribute("q_emp_name", empName);

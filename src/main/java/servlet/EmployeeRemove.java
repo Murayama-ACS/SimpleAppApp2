@@ -44,13 +44,17 @@ public class EmployeeRemove extends HttpServlet {
 		String url = "WEB-INF/jsp/user_info.jsp";
 		String emp_id = request.getParameter("removeEmp_id");
 		EmployeeDAO empDAO = new EmployeeDAO();
-		int result = empDAO.deleteEmpInfo(emp_id, employee.getEmp_id());//変更点
+		int result = empDAO.deleteEmpInfo("A0001", employee.getEmp_id());//変更点
 
-		if(result == 0) {
-			request.setAttribute("eMsg", "ユーザーの削除に失敗しました。");
-		}else if(result == -1){
-			request.setAttribute("eMsg", "既に存在しないユーザーです。");
-		}else {
+		if (result == 0) {
+		    session.setAttribute("flashError", "ユーザーの削除に失敗しました。");
+		    response.sendRedirect(request.getContextPath() + "/EmployeeInfo");
+		    return;
+		} else if (result == -1) {
+		    session.setAttribute("flashError", "既に存在しないユーザーです。");
+		    response.sendRedirect(request.getContextPath() + "/EmployeeInfo");
+		    return;
+		} else {
 			url = "WEB-INF/jsp/remove_confirm.jsp";
 		}
 		RequestDispatcher rd = request.getRequestDispatcher(url);

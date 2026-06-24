@@ -30,7 +30,7 @@
                     </div>
                     <div class="result-title error">設定エラー</div>
                     <div class="result-desc">${message}</div>
-                    <a href="${pageContext.request.contextPath}/ForgotPasswordServlet" class="btn-action secondary">最初からやり直す</a>
+                    <a href="${pageContext.request.contextPath}/index.jsp" class="btn-action secondary">最初からやり直す</a>
                 </c:otherwise>
             </c:choose>
         </div>
