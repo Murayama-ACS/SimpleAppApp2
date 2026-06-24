@@ -1,5 +1,8 @@
 @charset "UTF-8";
 
+/* =========================================
+   ベース設定
+========================================= */
 body {
     font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
     background-color: #f4f5f7;
@@ -8,10 +11,16 @@ body {
     color: #333;
 }
 
+/* =========================================
+   共通ナビゲーションバーのオーバーライド
+========================================= */
 .navbar {
-    background-color: #3f51b5; /* Indigo */
+    background-color: #5c6bc0; 
 }
 
+/* =========================================
+   メインコンテンツの枠組み
+========================================= */
 .detail-card {
     width: 90%;
     max-width: 800px;
@@ -20,18 +29,23 @@ body {
     padding: 40px;
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    border-top: 5px solid #5c6bc0;
+    border-top: 5px solid #5c6bc0; /* 上部のアクセントライン */
 }
 
+/* 「申請内容詳細」のタイトル */
 .detail-card h2 {
     margin-top: 0;
     margin-bottom: 25px;
     border-bottom: 2px solid #5c6bc0;
     padding-bottom: 12px;
-    color: #283593;
+    color: #283593; 
     font-size: 22px;
 }
 
+/* =========================================
+   申請者の基本情報・バッジ領域
+========================================= */
+/* 「⚠️ 至急案件」の警告バッジ */
 .badge-urgent-box {
     background-color: #ffebee;
     color: #c62828;
@@ -44,6 +58,7 @@ body {
     font-size: 14px;
 }
 
+/* 申請者情報がまとまっている薄いブルーグレーの枠 */
 .applicant-info-box {
     display: flex;
     justify-content: space-between;
@@ -53,17 +68,24 @@ body {
     padding: 15px 20px;
     border-radius: 4px;
     margin-bottom: 25px;
-    border-left: 4px solid #3f51b5;
+    border-left: 4px solid #3f51b5; /* 左側の強調ライン */
 }
+
+/* 申請者名・申請日時のテキスト要素 */
 .info-item { font-size: 14px; color: #3949ab; }
 .info-item strong { color: #1a237e; margin-right: 5px; }
 
+
+/* =========================================
+   詳細データテーブル
+========================================= */
 .detail-data-table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 30px;
 }
 
+/* テーブルの見出しセル */
 .detail-data-table th {
     background-color: #e8eaf6;
     color: #283593;
@@ -74,6 +96,7 @@ body {
     font-size: 14px;
 }
 
+/* テーブルのデータセル（右側の白い領域） */
 .detail-data-table td {
     padding: 14px 18px;
     border-bottom: 1px solid #eeeeee;
@@ -82,6 +105,22 @@ body {
     word-break: break-all;
 }
 
+/* 申請状態ごとのテキストカラー（JSPから移行） */
+.status-text { font-weight: bold; }
+.text-completed { color: #28a745; } /* 完了：緑 */
+.text-rejected  { color: #dc3545; } /* 却下：赤 */
+.text-pending   { color: #ffc107; } /* その他：黄 */
+
+/* 上司のコメントセルのテキストカラー（JSPから移行） */
+.comment-data {
+    color: rgb(255, 128, 64);
+}
+
+
+/* =========================================
+   ナビゲーション・戻るボタン
+========================================= */
+/* 戻るボタンを中央配置するためのコンテナ */
 .dual-nav-container {
     display: flex;
     justify-content: center;
@@ -90,6 +129,7 @@ body {
     padding-top: 25px;
 }
 
+/* 「⬅ 一覧に戻る」等のナビゲーションボタン */
 .nav-back-btn {
     background-color: #ffffff;
     color: #3f51b5;
@@ -108,10 +148,12 @@ body {
     border-color: #5c6bc0;
     transform: translateY(-1px);
 }
-.back-link{
-	display: block; 
-	color: #3f51b5; 
-	text-decoration: none; 
-	font-weight: bold; 
-	text-align: left; 
+
+/* 単純な文字リンクスタイル（※今回はnav-back-btnに統一したため使用していませんが予備として保持） */
+.back-link {
+    display: block; 
+    color: #3f51b5; 
+    text-decoration: none; 
+    font-weight: bold; 
+    text-align: left; 
 }

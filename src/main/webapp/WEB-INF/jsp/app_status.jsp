@@ -23,24 +23,22 @@
 
             <%-- 緊急フラグの判定：複数の表記（緊急、true、1）に対応し、該当する場合は警告バッジを表示 --%>
             <c:if test="${application.urgent == '緊急' || application.urgent == 'true' || application.urgent == '1'}">
-                <div style="display:inline-block; margin-bottom:15px; color:#dc3545; font-weight:bold; background:#ffeeba; padding:6px 12px; border-radius:4px; border:1px solid #ffdf7e;">
-                    ⚠️ 至急対応案件
-                </div>
+                <div class="badge-urgent-box">⚠️ 至急対応案件</div>
             </c:if>
 
             <%-- 申請者の基本情報と現在のステータス表示 --%>
             <div class="info-box">
-                <div><strong>申請者:</strong> ${application.employeeName} (${application.departmentName})</div>
-                <div style="margin-top: 5px;"><strong>現在の状態:</strong> <span style="font-weight:bold; color:#1565c0;">${application.statusName}</span></div>
+                <div class="info-item"><strong>申請者:</strong> ${application.employeeName} (${application.departmentName})</div>
+                <div class="info-item mt-5"><strong>現在の状態:</strong> <span class="status-highlight">${application.statusName}</span></div>
             </div>
 
             <%-- 申請内容の詳細データテーブル --%>
             <table class="data-table">
-                <tr><th>申請ID</th><td style="font-weight:bold;">${application.apctId}</td></tr>
+                <tr><th>申請ID</th><td class="bold-text">${application.apctId}</td></tr>
                 <tr><th>申請種別</th><td>${application.type}</td></tr>
                 <tr><th>精算方法</th><td><strong>${application.paymentMethod}</strong></td></tr>
                 <%-- 金額を「¥」マーク付きの3桁区切り（小数点なし）にフォーマットして強調表示 --%>
-                <tr><th>申請金額</th><td style="font-size: 18px; font-weight: bold; color: #d32f2f;"><fmt:formatNumber value="${application.amount}" type="currency" currencySymbol="¥" pattern="¥#,##0"/></td></tr>
+                <tr><th>申請金額</th><td class="amount-highlight"><fmt:formatNumber value="${application.amount}" type="currency" currencySymbol="¥" pattern="¥#,##0"/></td></tr>
                 <tr><th>申請内容</th><td>${application.content}</td></tr>
                 <tr><th>申請理由</th><td>${application.reason}</td></tr>
                 <tr><th>備考</th><td>${empty application.note ? 'なし' : application.note}</td></tr>
@@ -50,9 +48,9 @@
             <%-- ステータスが「5（経理完了）」ではない場合のみ、完了ボタンを表示する --%>
             <c:if test="${application.status_id != 5}">
                 <div class="action-area">
-                    <h3 style="margin-top: 0; margin-bottom: 15px; color: #333;">承認済みデータの経理処理を完了しますか？</h3>
+                    <h3 class="action-title">承認済みデータの経理処理を完了しますか？</h3>
                     <%-- 経理処理を実行するサーブレットへのPOST送信フォーム --%>
-                    <form id="completeForm" action="${pageContext.request.contextPath}/ApplicationStatusEdit" method="post" style="margin: 0;">
+                    <form id="completeForm" action="${pageContext.request.contextPath}/ApplicationStatusEdit" method="post" class="inline-form">
                         <input type="hidden" name="apct_id" value="${application.apctId}">
                         <%-- 誤操作防止のため type="button" にし、JSの確認ポップアップを経由させる --%>
                         <button type="button" class="btn-complete" onclick="confirmComplete()">✔ 経理処理を完了する</button>
@@ -62,7 +60,7 @@
 
             <div class="nav-links">
                 <%-- 戻るボタン：一覧画面の検索条件（q_name等）を維持したURL（lastAccountingListUrl）がセッションにあればそこに戻る --%>
-                <a href="${not empty sessionScope.lastAccountingListUrl ? sessionScope.lastAccountingListUrl : pageContext.request.contextPath += '/ApplicationStatus'}" class="back-link">⬅ ステータス変更一覧に戻る</a>
+                <a href="${not empty sessionScope.lastAccountingListUrl ? sessionScope.lastAccountingListUrl : pageContext.request.contextPath += '/ApplicationStatus'}" class="btn-back">⬅ ステータス変更一覧に戻る</a>
             </div>
         </div>
     </div>

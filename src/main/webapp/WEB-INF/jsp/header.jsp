@@ -27,9 +27,10 @@
 <nav class="navbar">
     <%-- システムロゴ・タイトル（クリックでTopPageへ戻る） --%>
     <div class="navbar-brand">
-        <a href="${pageContext.request.contextPath}/TopPageServlet" style="color: #ffffff; text-decoration: none; display: flex; align-items: center; gap: 10px;">
-            <img src="${pageContext.request.contextPath}/images/logo2.png" alt="Logo" style="height: 28px; width: auto;">
-            <span style="font-weight: bold; font-size: 1.2rem; letter-spacing: 1px;">AppApp システム</span>
+        <%-- インラインスタイルを排除し、専用のクラスを付与 --%>
+        <a href="${pageContext.request.contextPath}/TopPageServlet" class="brand-link">
+            <img src="${pageContext.request.contextPath}/images/logo2.png" alt="Logo" class="brand-logo">
+            <span class="brand-name">AppApp システム</span>
         </a>    
     </div>
     

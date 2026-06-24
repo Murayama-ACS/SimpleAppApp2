@@ -1,5 +1,8 @@
 @charset "UTF-8";
 
+/* =========================================
+   ベース設定
+========================================= */
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     background-color: #f4f5f7;
@@ -8,19 +11,23 @@ body {
     color: #333;
 }
 
-/* --- ナビゲーションバー (申請履歴と同じインディゴブルー) --- */
+/* =========================================
+   共通ナビゲーションバーのオーバーライド
+========================================= */
 .navbar {
     background-color: #3f51b5; 
 }
 
-/* --- メインコンテナ・カード --- */
+/* =========================================
+   メインコンテンツの枠組み
+========================================= */
 .container {
     width: 90%;
     max-width: 800px;
     margin: 40px auto;
 }
 
-/* カード全体の設定 */
+/* カード全体の設定（白背景、角丸、シャドウ） */
 .application-card {
     background-color: #ffffff;
     border-radius: 8px;
@@ -29,7 +36,9 @@ body {
     border: 1px solid #e0e0e0;
 }
 
-/* --- カードヘッダー (イエローテーマ) --- */
+/* =========================================
+   カードヘッダー領域
+========================================= */
 .card-header-edit {
     background-color: rgb(255, 219, 111);
     padding: 25px 20px;
@@ -45,20 +54,24 @@ body {
     letter-spacing: 1px;
 }
 
-/* --- カードボディ (実際の入力エリア) --- */
+/* =========================================
+   カードボディ（実際の入力フォームや情報が表示されるエリア）
+========================================= */
 .card-body {
     padding: 40px;
 }
 
+/* エラーメッセージの表示エリア（赤色の警告枠） */
 .error-display {
     background: #f8d7da; 
-	color: #721c24; 
-	padding: 15px; 
-	border-radius: 4px; 
-	margin-bottom: 20px; 
-	font-weight: bold;
+    color: #721c24; 
+    padding: 15px; 
+    border-radius: 4px; 
+    margin-bottom: 20px; 
+    font-weight: bold;
 }
 
+/* 修正対象の申請情報（IDや現在の状態）を表示する黄色い枠 */
 .info-display-edit {
     background-color: #fffbeb;
     padding: 15px 20px;
@@ -71,11 +84,21 @@ body {
 }
 .info-display-edit strong { color: #333; }
 
-/* --- フォームグループ --- */
+/* 申請の現在の状態を目立たせるための赤太文字スタイル */
+.status-highlight {
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+/* =========================================
+   フォーム入力要素
+========================================= */
+/* 各入力項目を囲むグループ */
 .form-group {
     margin-bottom: 25px;
 }
 
+/* 入力項目の見出しラベル */
 .form-group label {
     display: block;
     font-weight: bold;
@@ -84,6 +107,7 @@ body {
     font-size: 15px;
 }
 
+/* 「※必須」の赤いマーク */
 .required-mark {
     color: #dc3545;
     font-size: 12px;
@@ -91,6 +115,7 @@ body {
     font-weight: normal;
 }
 
+/* 入力フィールドの共通デザイン */
 .form-group input[type="number"],
 .form-group select,
 .form-group textarea {
@@ -106,12 +131,13 @@ body {
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+/* テキストエリア（申請内容など）特有の設定 */
 .form-group textarea {
-    resize: vertical;
+    resize: vertical; /* 縦方向のみサイズ変更可能に */
     min-height: 100px;
 }
 
-/* フォーカス時のイエローグロー効果 */
+/* 入力フィールドにカーソルが当たった時（フォーカス時）のイエローグロー効果 */
 .form-group input[type="number"]:focus,
 .form-group select:focus,
 .form-group textarea:focus {
@@ -120,7 +146,9 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
 }
 
-/* --- チェックボックス (緊急度) --- */
+/* =========================================
+   緊急フラグ用チェックボックス領域
+========================================= */
 .checkbox-group {
     margin-bottom: 35px;
     background-color: #f8f9fa; 
@@ -145,7 +173,10 @@ body {
     cursor: pointer;
 }
 
-/* --- 送信ボタン (イエローテーマ) --- */
+/* =========================================
+   送信ボタン・ナビゲーション
+========================================= */
+/* 「修正内容を上書き保存する」ボタン */
 .btn-edit-submit {
     display: block;
     width: 100%;
@@ -161,17 +192,25 @@ body {
     box-shadow: 0 4px 6px rgba(255, 193, 7, 0.2);
 }
 
+/* ボタンホバー時（マウスオーバー）のアニメーション */
 .btn-edit-submit:hover { 
     background-color: #ffc107; 
     transform: translateY(-1px);
     box-shadow: 0 6px 10px rgba(255, 193, 7, 0.3);
 }
 
+/* ボタンクリック時の沈み込みアニメーション */
 .btn-edit-submit:active {
     transform: scale(0.98);
 }
 
-/* --- 戻るリンク (インディゴブルー) --- */
+/* SweetAlert2のポップアップ内にある確認ボタンのテキストカラー */
+.swal-confirm-text {
+    color: #333;
+    font-weight: bold;
+}
+
+/* 画面最下部の「⬅ キャンセルして履歴一覧に戻る」リンク */
 .back-link {
     display: block;
     text-align: center;
@@ -181,4 +220,7 @@ body {
     font-weight: bold;
     transition: color 0.2s;
 }
-.back-link:hover { color: #283593; text-decoration: underline; }
+.back-link:hover { 
+    color: #283593; 
+    text-decoration: underline; 
+}

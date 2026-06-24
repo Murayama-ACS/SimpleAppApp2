@@ -1,6 +1,5 @@
 @charset "UTF-8";
 
-/* --- 1. 基础页面与卡片样式（你可能不小心删掉了这些） --- */
 body { 
     font-family: 'Segoe UI', Tahoma, sans-serif; 
     background-color: #f0f2f5; 
@@ -42,7 +41,6 @@ body {
     padding: 30px; 
 }
 
-/* --- 2. 密保问题与下拉菜单样式 --- */
 .qa-group { 
     margin-bottom: 22px; 
     border-bottom: 1px dashed #eee; 
@@ -90,7 +88,6 @@ body {
     box-shadow: 0 0 0 2px rgba(0, 157, 174, 0.1); 
 }
 
-/* --- 3. 按钮与错误提示样式 --- */
 .btn-submit { 
     width: 100%; 
     padding: 12px; 

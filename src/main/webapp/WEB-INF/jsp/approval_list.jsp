@@ -59,14 +59,14 @@
                 <%-- 絞り込み検索フォーム領域 --%>
                 <div class="search-form-container">
                     <form action="${pageContext.request.contextPath}/ApplicationWaitList" method="get">
-                        <div style="font-weight: bold; color: #343a40; font-size: 16px;">絞り込み検索</div>
+                        <div class="search-title">絞り込み検索</div>
                         <div class="search-inputs">
                             <%-- 各項目は、検索実行後も入力値を保持できるように EL式（${q_dept}等）を value に設定 --%>
                             <input type="text" name="q_dept" value="${q_dept}" placeholder="部署名（一部入力可）">
                             <input type="text" name="q_name" value="${q_name}" placeholder="申請者名（一部入力可）">
-                            <input type="number" name="q_amount_min" value="${q_amount_min}" placeholder="最小金額 (円)" min="0" style="padding:8px; border:1px solid #ccc; border-radius:4px; width: 120px;">
-                            <span style="color:#6c757d;">〜</span>
-                            <input type="number" name="q_amount_max" value="${q_amount_max}" placeholder="最大金額 (円)" min="0" style="padding:8px; border:1px solid #ccc; border-radius:4px; width: 120px;">
+                            <input type="number" name="q_amount_min" value="${q_amount_min}" placeholder="最小金額 (円)" min="0" class="search-input-num">
+                            <span class="search-separator">〜</span>
+                            <input type="number" name="q_amount_max" value="${q_amount_max}" placeholder="最大金額 (円)" min="0" class="search-input-num">
 
                             <select name="q_urgent">
                                 <option value="">緊急度（すべて）</option>
@@ -84,38 +84,38 @@
                     <table>
                         <thead>
                             <tr>
-                                <%-- 動的ソートヘッダー：現在ソート中の列は背景色(ダークグレー)と矢印(▲/▼)を動的に変更 --%>
-                                <th class="sortable" onclick="doSort('date')" style="cursor:pointer; ${sort == 'date' ? 'background-color:#4b5258; color:#ffffff;' : ''}">
-                                    申請日 <span style="color:${sort == 'date' ? '#ffffff' : '#868e96'};">${sort == 'date' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <%-- 動的ソートヘッダー：現在ソート中の列には active-sort クラスを付与 --%>
+                                <th class="sortable ${sort == 'date' ? 'active-sort' : ''}" onclick="doSort('date')">
+                                    申請日 <span class="sort-arrow ${sort == 'date' ? 'active-arrow' : ''}">${sort == 'date' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th class="sortable" onclick="doSort('id')" style="cursor:pointer; ${sort == 'id' ? 'background-color:#4b5258; color:#ffffff;' : ''}">
-                                    申請ID <span style="color:${sort == 'id' ? '#ffffff' : '#868e96'};">${sort == 'id' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'id' ? 'active-sort' : ''}" onclick="doSort('id')">
+                                    申請ID <span class="sort-arrow ${sort == 'id' ? 'active-arrow' : ''}">${sort == 'id' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th class="sortable" onclick="doSort('dept')" style="cursor:pointer; ${sort == 'dept' ? 'background-color:#4b5258; color:#ffffff;' : ''}">
-                                    部署 <span style="color:${sort == 'dept' ? '#ffffff' : '#868e96'};">${sort == 'dept' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'dept' ? 'active-sort' : ''}" onclick="doSort('dept')">
+                                    部署 <span class="sort-arrow ${sort == 'dept' ? 'active-arrow' : ''}">${sort == 'dept' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th class="sortable" onclick="doSort('name')" style="cursor:pointer; ${sort == 'name' ? 'background-color:#4b5258; color:#ffffff;' : ''}">
-                                    氏名 <span style="color:${sort == 'name' ? '#ffffff' : '#868e96'};">${sort == 'name' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'name' ? 'active-sort' : ''}" onclick="doSort('name')">
+                                    氏名 <span class="sort-arrow ${sort == 'name' ? 'active-arrow' : ''}">${sort == 'name' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th class="sortable" onclick="doSort('type')" style="cursor:pointer; ${sort == 'type' ? 'background-color:#4b5258; color:#ffffff;' : ''}">
-                                    申請種別 <span style="color:${sort == 'type' ? '#ffffff' : '#868e96'};">${sort == 'type' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'type' ? 'active-sort' : ''}" onclick="doSort('type')">
+                                    申請種別 <span class="sort-arrow ${sort == 'type' ? 'active-arrow' : ''}">${sort == 'type' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th class="sortable" onclick="doSort('amount')" style="cursor:pointer; ${sort == 'amount' ? 'background-color:#4b5258; color:#ffffff;' : ''}">
-                                    金額 <span style="color:${sort == 'amount' ? '#ffffff' : '#868e96'};">${sort == 'amount' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'amount' ? 'active-sort' : ''}" onclick="doSort('amount')">
+                                    金額 <span class="sort-arrow ${sort == 'amount' ? 'active-arrow' : ''}">${sort == 'amount' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
                                 <th>内容</th>
-                                <th class="sortable" onclick="doSort('urgent')" style="cursor:pointer; ${sort == 'urgent' ? 'background-color:#4b5258; color:#ffffff;' : ''}">
-                                    緊急度 <span style="color:${sort == 'urgent' ? '#ffffff' : '#868e96'};">${sort == 'urgent' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'urgent' ? 'active-sort' : ''}" onclick="doSort('urgent')">
+                                    緊急度 <span class="sort-arrow ${sort == 'urgent' ? 'active-arrow' : ''}">${sort == 'urgent' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th style="width: 220px; text-align: center;">操作</th>
+                                <th class="col-action-header">操作</th>
                             </tr>
                         </thead>
                         <tbody>
                             <c:choose>
                                 <%-- 自分に回ってきている承認待ちデータがない場合 --%>
                                 <c:when test="${empty applications}">
-                                    <tr>
-                                        <td colspan="9" style="text-align:center; padding: 40px; color: #6c757d;">
+                                    <tr class="empty-row">
+                                        <td colspan="9">
                                             現在、あなたに回ってきている未承認の申請はありません。
                                         </td>
                                     </tr>
@@ -130,7 +130,7 @@
                                                 <fmt:parseDate value="${app.createDate}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" type="both" />
                                                 <fmt:formatDate value="${parsedDate}" pattern="yyyy/MM/dd HH:mm" />
                                             </td>
-                                            <td style="font-weight: bold;">${app.apctId}</td>
+                                            <td class="col-id">${app.apctId}</td>
                                             <td>${app.departmentName}</td>
                                             <td>${app.employeeName}</td>
                                             <td>${app.type}</td>
@@ -150,7 +150,7 @@
                                             </td>
                                             
                                            <%-- アクションボタン領域 --%>
-                                           <td class="action-btns" style="justify-content: center;">
+                                           <td class="action-btns">
                                                 <a href="${pageContext.request.contextPath}/ApplicationComment?apct_id=${app.apctId}" class="btn btn-detail">詳細</a>                                    
                                                 
                                                 <%-- 現在のステータスが「2(部承認待ち)」なら次は「3(管理部承認)」、そうでなければ「2」をセット --%>
@@ -175,7 +175,7 @@
 
     <%-- 隠しフォーム（Hidden Form） --%>
     <%-- SweetAlert2のポップアップで入力されたコメントとアクション内容を、JS経由でここにセットしてPOST送信する --%>
-    <form id="hiddenSubmitForm" action="${pageContext.request.contextPath}/ApplicationWaitList" method="post" style="display: none;">
+    <form id="hiddenSubmitForm" action="${pageContext.request.contextPath}/ApplicationWaitList" method="post" class="hidden-form">
         <input type="hidden" name="apct_id" id="hiddenApctId">
         <input type="hidden" name="next_status_id" id="hiddenStatusId">
         <input type="hidden" name="comment" id="hiddenComment">
@@ -251,6 +251,7 @@
             });
         }
     </script>
+    
     <%-- URLに success=true が含まれている場合、完了ポップアップを表示 --%>
     <c:if test="${param.success == 'true'}">
         <script>
@@ -263,13 +264,14 @@
                 const titleStr = (action === 'reject') ? '却下完了' : '承認完了';
                 const iconType = (action === 'reject') ? 'success' : 'success';
                 const msgStr = (action === 'reject') ? '対象の申請を却下しました。' : '対象の申請を承認しました。';
-             // CSSクラス「swal-comment-notice」を適用（<br><br>も削除してCSSのmarginに任せる）
+                
+                // CSSクラス「swal-comment-notice」を適用（<br><br>も削除してCSSのmarginに任せる）
                 const comment = '<div class="swal-comment-notice">※コメントを入力された場合、送信されています。</div>';
 
                 // SweetAlert2 で完了メッセージを表示
                 Swal.fire({
                     title: titleStr,
-                    html: msgStr+comment,
+                    html: msgStr + comment,
                     icon: iconType,
                     showConfirmButton: true,         
                     confirmButtonText: '確認する',       

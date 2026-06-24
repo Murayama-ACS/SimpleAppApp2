@@ -8,8 +8,8 @@
 <head>
     <meta charset="UTF-8">
     <title>申請履歴一覧 - AppApp システム</title>
-    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/application_history.css">
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/navbar.css">
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/application_history.css">
     <%-- Font Awesome（アイコン）の読み込み --%>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
@@ -18,7 +18,7 @@
     <%-- 通知の未読カウントロジックを含む共通ナビゲーションバーを読み込み --%>
     <%@ include file="/WEB-INF/jsp/header.jsp" %>
     
-    <div class="container container-wide"> 
+    <div class="container-wide"> 
         <div class="application-card">
             
             <div class="card-header">
@@ -28,7 +28,7 @@
             <div class="card-body">
                 <%-- エラーメッセージが存在する場合のみ表示 --%>
                 <c:if test="${not empty errorMessage}">
-                    <div class="error-display" style="background:#f8d7da; color:#721c24; padding:15px; border-radius:4px; margin-bottom:20px;">⚠️ ${errorMessage}</div>
+                    <div class="error-display">⚠️ ${errorMessage}</div>
                 </c:if>
 
                 <%-- ログインユーザーの役職ID(pos_id)を判定し、画面表示用の役職名(posName)を変数としてセット --%>
@@ -90,7 +90,7 @@
                         <input type="hidden" name="filter" value="${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}">
                         <input type="hidden" name="search" value="true">
 
-                        <div style="font-weight: bold; color: #495057;">詳細絞り込み</div>
+                        <div class="search-form-title">詳細絞り込み</div>
                         <div class="search-inputs">
                             <%-- 各項目はEL式（${q_status == '1' ? 'selected' : ''}など）を使って、検索後も入力値を保持する --%>
                             <select name="q_status">
@@ -127,9 +127,9 @@
                                 </select>
                             </c:if>
 
-                            <input type="number" name="q_amount_min" value="${q_amount_min}" placeholder="最小金額 (円)" min="0" style="padding:8px; border:1px solid #ccc; border-radius:4px; width: 120px;">
-                            <span style="color:#6c757d;">〜</span>
-                            <input type="number" name="q_amount_max" value="${q_amount_max}" placeholder="最大金額 (円)" min="0" style="padding:8px; border:1px solid #ccc; border-radius:4px; width: 120px;">
+                            <input type="number" name="q_amount_min" value="${q_amount_min}" placeholder="最小金額 (円)" min="0" class="search-input-num">
+                            <span class="search-separator">〜</span>
+                            <input type="number" name="q_amount_max" value="${q_amount_max}" placeholder="最大金額 (円)" min="0" class="search-input-num">
 
                             <button type="submit" class="btn-search">検索</button>
                             <a href="ApplicationHistoryServlet?scope=${currentScope}&filter=${currentStatusFilter == 'incomplete' ? 'unapproved' : 'all'}" class="btn-clear">クリア</a>
@@ -142,30 +142,30 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <%-- 動的ソートヘッダー：現在ソートされている列の背景色と矢印の向きをEL式で変更 --%>
-                                <th class="sortable" onclick="doSort('id')" style="cursor:pointer; ${sort == 'id' ? 'background-color:#d0d4f5; color:#1a237e;' : ''}">
-                                    申請ID <span style="color:${sort == 'id' ? '#1a237e' : '#a0a0a0'};">${sort == 'id' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <%-- 動的ソートヘッダー：現在ソートされている列には active-sort クラスを付与 --%>
+                                <th class="sortable ${sort == 'id' ? 'active-sort' : ''}" onclick="doSort('id')">
+                                    申請ID <span class="sort-arrow ${sort == 'id' ? 'active-arrow' : ''}">${sort == 'id' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th class="sortable" onclick="doSort('name')" style="cursor:pointer; ${sort == 'name' ? 'background-color:#d0d4f5; color:#1a237e;' : ''}">
-                                    申請者 <span style="color:${sort == 'name' ? '#1a237e' : '#a0a0a0'};">${sort == 'name' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'name' ? 'active-sort' : ''}" onclick="doSort('name')">
+                                    申請者 <span class="sort-arrow ${sort == 'name' ? 'active-arrow' : ''}">${sort == 'name' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th class="sortable" onclick="doSort('type')" style="cursor:pointer; ${sort == 'type' ? 'background-color:#d0d4f5; color:#1a237e;' : ''}">
-                                    種別 <span style="color:${sort == 'type' ? '#1a237e' : '#a0a0a0'};">${sort == 'type' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'type' ? 'active-sort' : ''}" onclick="doSort('type')">
+                                    種別 <span class="sort-arrow ${sort == 'type' ? 'active-arrow' : ''}">${sort == 'type' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th class="sortable" onclick="doSort('amount')" style="cursor:pointer; ${sort == 'amount' ? 'background-color:#d0d4f5; color:#1a237e;' : ''}">
-                                    金額 <span style="color:${sort == 'amount' ? '#1a237e' : '#a0a0a0'};">${sort == 'amount' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'amount' ? 'active-sort' : ''}" onclick="doSort('amount')">
+                                    金額 <span class="sort-arrow ${sort == 'amount' ? 'active-arrow' : ''}">${sort == 'amount' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th class="sortable" onclick="doSort('method')" style="cursor:pointer; ${sort == 'method' ? 'background-color:#d0d4f5; color:#1a237e;' : ''}">
-                                    精算 <span style="color:${sort == 'method' ? '#1a237e' : '#a0a0a0'};">${sort == 'method' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'method' ? 'active-sort' : ''}" onclick="doSort('method')">
+                                    精算 <span class="sort-arrow ${sort == 'method' ? 'active-arrow' : ''}">${sort == 'method' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th class="sortable" onclick="doSort('urgent')" style="cursor:pointer; ${sort == 'urgent' ? 'background-color:#d0d4f5; color:#1a237e;' : ''}">
-                                    緊急度 <span style="color:${sort == 'urgent' ? '#1a237e' : '#a0a0a0'};">${sort == 'urgent' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'urgent' ? 'active-sort' : ''}" onclick="doSort('urgent')">
+                                    緊急度 <span class="sort-arrow ${sort == 'urgent' ? 'active-arrow' : ''}">${sort == 'urgent' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th class="sortable" onclick="doSort('status')" style="cursor:pointer; ${sort == 'status' ? 'background-color:#d0d4f5; color:#1a237e;' : ''}">
-                                    状態 <span style="color:${sort == 'status' ? '#1a237e' : '#a0a0a0'};">${sort == 'status' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'status' ? 'active-sort' : ''}" onclick="doSort('status')">
+                                    状態 <span class="sort-arrow ${sort == 'status' ? 'active-arrow' : ''}">${sort == 'status' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th class="sortable" onclick="doSort('date')" style="cursor:pointer; ${sort == 'date' ? 'background-color:#d0d4f5; color:#1a237e;' : ''}">
-                                    申請日時 <span style="color:${sort == 'date' ? '#1a237e' : '#a0a0a0'};">${sort == 'date' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'date' ? 'active-sort' : ''}" onclick="doSort('date')">
+                                    申請日時 <span class="sort-arrow ${sort == 'date' ? 'active-arrow' : ''}">${sort == 'date' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
                                 <th>操作</th>
                             </tr>
@@ -174,14 +174,14 @@
                             <c:choose>
                                 <%-- データが0件の場合のプレースホルダー表示 --%>
                                 <c:when test="${empty appList}">
-                                    <tr><td colspan="9" style="text-align:center; padding: 40px; color: #6c757d;">該当する申請履歴がありません。</td></tr>
+                                    <tr class="empty-row"><td colspan="9">該当する申請履歴がありません。</td></tr>
                                 </c:when>
                                 
                                 <%-- データが存在する場合のループ処理 --%>
                                 <c:otherwise>
                                     <c:forEach var="app" items="${appList}">
                                         <tr>
-                                            <td style="font-weight: bold; color: #3f51b5;">${app.apctId}</td>
+                                            <td class="col-id">${app.apctId}</td>
                                             <td>${app.employeeName}</td>
                                             <td>${app.type}</td>
                                             <%-- 金額フォーマット：少数点以下を切り捨てて3桁区切り（¥1,000） --%>
@@ -208,7 +208,7 @@
                                             <td>
                                                 <div class="action-flex">
                                                     <%-- 詳細確認ボタン（全員表示） --%>
-                                                    <a href="${pageContext.request.contextPath}/ApplicationDetail?apct_id=${app.apctId}" class="btn-sm btn-detail" style="text-decoration: none;">詳細</a>
+                                                    <a href="${pageContext.request.contextPath}/ApplicationDetail?apct_id=${app.apctId}" class="btn-sm btn-detail">詳細</a>
 
                                                     <%-- アクション権限の判定フラグを作成 --%>
                                                     <%-- 自分の申請かどうか --%>
@@ -220,7 +220,7 @@
 
                                                     <%-- 修正ボタンの表示制御 --%>
                                                     <c:if test="${canEditOrDelete}">
-                                                        <form action="${pageContext.request.contextPath}/ApplicationEdit" method="post" style="margin: 0;">
+                                                        <form action="${pageContext.request.contextPath}/ApplicationEdit" method="post" class="inline-form">
                                                             <input type="hidden" name="apct_id" value="${app.apctId}">
                                                             <input type="hidden" name="isSubmit" value="false">
                                                             <button type="submit" class="btn-sm btn-edit">修正</button>
@@ -229,7 +229,7 @@
 
                                                     <%-- 削除ボタンの表示制御（本人 または 管理部） --%>
                                                     <c:if test="${canEditOrDelete || isManagementDelete}">
-                                                        <form action="${pageContext.request.contextPath}/ApplicationDelete" method="post" id="deleteForm_${app.apctId}" style="margin: 0;">
+                                                        <form action="${pageContext.request.contextPath}/ApplicationDelete" method="post" id="deleteForm_${app.apctId}" class="inline-form">
                                                             <input type="hidden" name="apct_id" value="${app.apctId}">
                                                             <%-- javascriptの関数を呼び出し、SweetAlertで確認ポップアップを出す --%>
                                                             <button type="button" class="btn-sm btn-delete" onclick="confirmDelete('${app.apctId}')">削除</button>
@@ -248,7 +248,7 @@
                 <%-- ページネーション --%>
                 <div class="pagination">
                     <button class="page-btn" onclick="doPage(${page - 1})" ${page <= 1 ? 'disabled' : ''}>◀ 前のページ</button>
-                    <span style="font-weight: bold; color: #495057;">ページ ${page}</span>
+                    <span class="page-current">ページ ${page}</span>
                     <button class="page-btn" onclick="doPage(${page + 1})" ${!hasNext ? 'disabled' : ''}>次のページ ▶</button>
                 </div>
 
@@ -260,23 +260,23 @@
     <%--フロントエンドのJavaScript処理 --%>
     <script>
         // テーブルヘッダーのソート処理
-		function doSort(key) {
-		    const currentSort = '${sort}';
-		    const currentDir = '${dir}';
-		    let newDir = 'ASC'; 
-		    if(currentSort === key && currentDir === 'ASC') { newDir = 'DESC'; }
-		    
-		    // ソート条件が変わったら1ページ目に戻す
-		    buildAndNavigate(key, newDir, 1);
-		}
+        function doSort(key) {
+            const currentSort = '${sort}';
+            const currentDir = '${dir}';
+            let newDir = 'ASC'; 
+            if(currentSort === key && currentDir === 'ASC') { newDir = 'DESC'; }
+            
+            // ソート条件が変わったら1ページ目に戻す
+            buildAndNavigate(key, newDir, 1);
+        }
 
         // ページネーション処理
         function doPage(pageNum) {
-		    const currentSort = '${sort}';
-		    const currentDir = '${dir}';
-		    buildAndNavigate(currentSort, currentDir, pageNum);
-		}
-       // 【追加】共通のURL構築・遷移関数（すべてのパラメータをかき集める）
+            const currentSort = '${sort}';
+            const currentDir = '${dir}';
+            buildAndNavigate(currentSort, currentDir, pageNum);
+        }
+       // 共通のURL構築・遷移関数（すべてのパラメータをかき集める）
         function buildAndNavigate(sortKey, sortDir, pageNum) {
             const url = new URL(window.location.href.split('?')[0]); // ベースURLのみ取得
             
@@ -314,6 +314,7 @@
             // 4. 画面遷移
             window.location.href = url.toString();
         }
+        
         // 削除ボタン押下時の確認ポップアップ (SweetAlert2を使用)
         function confirmDelete(apctId) {
             Swal.fire({
@@ -333,6 +334,8 @@
             });
         }
     </script>
+    
+    <%-- 削除成功時の完了ポップアップ --%>
     <c:if test="${param.deleteSuccess == 'true'}">
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -344,7 +347,7 @@
                     confirmButtonText: '確認する',
                     confirmButtonColor: '#0047A5'
                 }).then(() => {
-                    //ポップアップを閉じた後、URLから「deleteSuccess=true」を消去
+                    // ポップアップを閉じた後、URLから「deleteSuccess=true」を消去（F5リロード対策）
                     const url = new URL(window.location.href);
                     url.searchParams.delete('deleteSuccess');
                     window.history.replaceState({}, '', url.toString());

@@ -1,60 +1,89 @@
 @charset "UTF-8";
-	body {   
-	    background-color: #f4f5f7;
-	    margin: 0;
-	    padding: 0;
-	    color: #333;
-	}
-    .container {
-        max-width: 600px; 
-        margin: 60px auto;
-        padding: 0 20px;
-    }
-    .result-card {
-        background-color: #ffffff;
-        border-radius: 8px;
-        padding: 40px 30px;
-        text-align: center;
-        box-shadow: 0 4px 6px rgba(0, 157, 174, 0.1);
-        border-top: 7px solid rgb(0, 157, 174); 
-    }
 
-    .result-icon {
-        font-size: 50px;
-        margin-bottom: 20px;
-		color:rgb(0, 157, 174);
-    }
+/* =========================================
+   ベース設定
+========================================= */
+body {   
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+    background-color: #f4f5f7;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
 
-    .result-title {
-        font-size: 24px;
-        font-weight: bold;
-        margin-bottom: 15px;
-    }
-    .result-title.success { color: rgb(0, 157, 174); } 
-    .result-title.error { color: #d9534f; }  
-    
-    .result-desc {
-        font-size: 15px;
-        color: #666;
-        line-height: 1.6;
-        margin-bottom: 30px;
-    }
-    .btn-action {
-        display: inline-block;
-        padding: 12px 35px;
-        background-color: rgb(0, 157, 174);
-        color: white;
-        text-decoration: none;
-        border-radius: 4px;
-        font-weight: bold;
-        transition: background 0.3s;
-    }
-    .btn-action:hover {
-        background-color: rgb(0, 141, 157);
-    }
-    .btn-action.secondary {
-        background-color: #6c757d;
-    }
-    .btn-action.secondary:hover {
-        background-color: #5a6268;
-    }
+/* =========================================
+   中央のメインカード
+========================================= */
+.container {
+    width: 90%;
+    max-width: 500px;
+}
+
+.result-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 50px 30px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border-top: 7px solid rgb(0, 157, 174); /* 上部にシステムテーマ色のライン */
+}
+
+/* =========================================
+   アイコン領域
+========================================= */
+.result-icon {
+    font-size: 60px;
+    margin-bottom: 25px;
+}
+.success-icon { color: rgb(0, 157, 174); } /* 成功時のターコイズブルー */
+.error-icon   { color: #d9534f; }        /* 失敗時の赤色 */
+
+/* =========================================
+   結果タイトル・説明
+========================================= */
+.result-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+.result-title.success { color: rgb(0, 157, 174); } 
+.result-title.error   { color: #d9534f; }  
+
+.result-desc {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 35px;
+}
+
+/* =========================================
+   アクションボタン
+========================================= */
+.btn-action {
+    display: inline-block;
+    padding: 14px 40px;
+    background-color: rgb(0, 157, 174); /* メインの青色 */
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 157, 174, 0.2);
+}
+.btn-action:hover {
+    background-color: rgb(0, 141, 157);
+    transform: translateY(-1px);
+}
+
+/* 失敗時に表示されるセカンダリボタン（グレー） */
+.btn-action.secondary {
+    background-color: #6c757d;
+    box-shadow: 0 2px 4px rgba(108, 117, 125, 0.2);
+}
+.btn-action.secondary:hover {
+    background-color: #5a6268;
+}

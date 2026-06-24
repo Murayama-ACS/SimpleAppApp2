@@ -1,23 +1,26 @@
 @charset "UTF-8";
-@charset "UTF-8";
 
-
+/* =========================================
+   ベース設定
+========================================= */
 body {
     font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
-    background-color: #f0f4f4;
+    background-color: #f0f4f4; 
     margin: 0;
     padding: 0;
     color: #333333;
 }
 
-/* --- ナビゲーションバー --- */
+/* =========================================
+   共通ナビゲーションバーのオーバーライド
+========================================= */
 .navbar {
     background-color: #00695c;
-  
 }
 
-
-/* --- メインコンテナ --- */
+/* =========================================
+   コンテナと完了カードの枠組み
+========================================= */
 .container {
     display: flex;
     justify-content: center;
@@ -25,6 +28,7 @@ body {
     min-height: 80vh;
 }
 
+/* 処理完了を表示する白いカード枠 */
 .complete-card {
     background-color: #ffffff;
     padding: 60px 40px;
@@ -33,10 +37,14 @@ body {
     text-align: center;
     width: 100%;
     max-width: 500px;
-    border-top: 8px solid #28a745; /* 成功を示す緑のライン */
+    /* 登録成功を表す緑色のアクセントライン */
+    border-top: 8px solid #28a745; 
 }
 
-/* --- 成功アイコン --- */
+/* =========================================
+   コンテンツデザイン
+========================================= */
+/* 成功を表す丸いチェックアイコンの背景 */
 .success-icon {
     width: 80px;
     height: 80px;
@@ -49,18 +57,29 @@ body {
     font-weight: bold;
 }
 
-h2 {
+/* 完了タイトルの文字色 */
+.card-title {
     color: #004d40;
+    margin-top: 0;
     margin-bottom: 15px;
 }
 
-p {
+/* 完了メッセージのテキストスタイル */
+.card-message {
     color: #6c757d;
     margin-bottom: 40px;
     line-height: 1.6;
 }
 
-/* --- 戻るボタン --- */
+/* =========================================
+   ナビゲーションボタン
+========================================= */
+/* ボタン配置エリア */
+.action-area {
+    margin-top: 20px;
+}
+
+/* 一覧へ戻るボタンの基本デザイン */
 .btn-home {
     background-color: #00796b;
     color: white;
@@ -68,10 +87,11 @@ p {
     padding: 15px 40px;
     border-radius: 4px;
     font-weight: bold;
-    transition: 0.2s;
+    transition: background-color 0.2s, transform 0.1s;
     display: inline-block;
 }
 
+/* ボタンホバー時 */
 .btn-home:hover {
     background-color: #004d40;
     transform: translateY(-2px);

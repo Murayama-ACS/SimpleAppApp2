@@ -47,28 +47,29 @@
             <tr>
                 <th>申請状態</th>
                 <td>
-                    <%-- 状態名に応じて文字色を動的に変更（完了:緑, 却下:赤, その他:黄色） --%>
-                    <span style="font-weight: bold; color: ${application.statusName == '完了' ? '#28a745' : (application.statusName == '却下' ? '#dc3545' : '#ffc107')};">
+                    <%-- 状態名に応じて文字色を動的に変更するクラスを付与 --%>
+                    <span class="status-text ${application.statusName == '完了' ? 'text-completed' : (application.statusName == '却下' ? 'text-rejected' : 'text-pending')}">
                         ${application.statusName}
                     </span>
                 </td>
             </tr>
             <%-- 上司のコメントと備考：値が空(empty)の場合はデフォルトで「なし」と表示 --%>
-            <tr><th>上司のコメント</th><td style="color: rgb(255, 128, 64);">${empty approval.comment ? 'なし' : approval.comment}</td></tr>
+            <tr><th>上司のコメント</th><td class="comment-data">${empty approval.comment ? 'なし' : approval.comment}</td></tr>
             <tr><th>備考</th><td>${empty application.note ? 'なし' : application.note}</td></tr>
         </table>
+        
         <div class="dual-nav-container">
             <c:choose>
                 <%-- URLパラメータに from=noti がある場合（通知センターから来た場合） --%>
                 <c:when test="${param.from == 'noti'}">
                     <%-- Sessionを無視して、確実に通知センターへ戻る --%>
-                    <a href="${pageContext.request.contextPath}/NotificationList" class="back-link">⬅ 通知センターに戻る</a>
+                    <a href="${pageContext.request.contextPath}/NotificationList" class="nav-back-btn">⬅ 通知センターに戻る</a>
                 </c:when>
                 
                 <%-- それ以外（申請一欄から来た場合） --%>
                 <c:otherwise>
                     <%-- 検索条件を維持するために、Sessionに保存されたURLへ戻る --%>
-                    <a href="${not empty sessionScope.lastListUrl ? sessionScope.lastListUrl : pageContext.request.contextPath += '/ApplicationHistoryServlet'}" class="back-link">⬅ 申請履歴一覧に戻る</a>
+                    <a href="${not empty sessionScope.lastListUrl ? sessionScope.lastListUrl : pageContext.request.contextPath += '/ApplicationHistoryServlet'}" class="nav-back-btn">⬅ 申請履歴一覧に戻る</a>
                 </c:otherwise>
             </c:choose>
         </div>

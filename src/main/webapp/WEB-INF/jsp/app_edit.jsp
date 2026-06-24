@@ -32,7 +32,7 @@
                 <div class="info-display-edit">
                     <strong>【 申請情報 】</strong><br>
                     対象申請ID: <strong>${application.apctId}</strong> &nbsp;|&nbsp; 
-                    現在の状態: <span style="color:#d32f2f; font-weight:bold;">${application.statusName}</span>
+                    現在の状態: <span class="status-highlight">${application.statusName}</span>
                 </div>
 
                 <%-- 修正データを更新用サーブレット（ApplicationEdit）へPOST送信するフォーム --%>
@@ -107,7 +107,6 @@
             
             // 1. HTML5標準のバリデーションチェック（requiredの未入力など）を実行
             if (!form.checkValidity()) {
-                // 未入力エラーがある場合はブラウザ標準の警告ツールチップを表示して処理を中断
                 form.reportValidity();
                 return;
             }
@@ -118,23 +117,58 @@
                 text: 'この内容で申請を上書き保存します。よろしいですか？',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#ffc107', // 警告・修正を表す黄色系のカラー
+                confirmButtonColor: '#ffc107',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: '<span style="color:#333;font-weight:bold;">はい、保存します</span>',
+                // CSSクラスを指定してインラインスタイルを排除
+                confirmButtonText: '<span class="swal-confirm-text">保存します</span>',
                 cancelButtonText: 'キャンセル'
             }).then((result) => {
                 // ユーザーが「はい」を選択した場合の処理
                 if (result.isConfirmed) {
-                    // 通信中・処理中であることを明示し、ユーザーの連打による二重送信（多重登録防バグ）を防止
                     Swal.fire({
                         title: '保存中...',
                         text: 'しばらくお待ちください',
-                        allowOutsideClick: false, // ポップアップ外クリックでのクローズを禁止
-                        didOpen: () => { Swal.showLoading(); } // ローディングアニメーションを開始
+                        allowOutsideClick: false, 
+                        didOpen: () => { Swal.showLoading(); } 
                     });
+                    const formData = new URLSearchParams(new FormData(form));
                     
-                    // フォームを実際に送信してサーバー側にデータを送る
-                    form.submit();
+                    // 5. Fetch API を使用して、画面をリロードせずにサーバー(Servlet)へPOST送信
+                    fetch(form.action, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: formData
+                    })
+                    .then(async response => {  
+                        // サーバーからのレスポンスが正常（HTTP 200 OK等）な場合
+                        if(response.ok) {
+                            Swal.fire({
+                                title: '提出完了',
+                                text: '申請が正常に提出されました。',
+                                icon: 'success',
+                                customClass: { icon: 'my-custom-icon-size' },
+                                confirmButtonText: 'メインメニューへ',
+                                confirmButtonColor: '#1976d2',
+                            }).then(() => {
+                                // 完了後、TopPageへ自動遷移させる
+                                window.location.href = "${pageContext.request.contextPath}/ApplicationHistoryServlet"; 
+                            });
+                        } else {
+                            // サーバー側でバリデーションエラー等が起きた場合（HTTP 4xx/5xx）
+                            const errorMsg = await response.text();
+                            Swal.fire({
+                                title: 'エラー', 
+                                html: '<span class="swal-error-msg">' + errorMsg + '</span>', 
+                                icon: 'error',
+                                confirmButtonColor: '#dc3545'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        // ネットワーク切断など、通信自体に失敗した場合の処理
+                        console.error('Error:', error);
+                        Swal.fire('通信エラー', 'サーバーに接続できませんでした。', 'error');
+                    });
                 }
             });
         }

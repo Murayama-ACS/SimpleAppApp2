@@ -1,4 +1,8 @@
 @charset "UTF-8";
+
+/* =========================================
+   ベース設定
+========================================= */
 body {
     font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
     background-color: #f4f5f7;
@@ -7,9 +11,16 @@ body {
     color: #333;
 }
 
-/* ナビゲーションバー */
-.navbar { background-color: rgb(151, 23, 23); }
+/* =========================================
+   共通ナビゲーションバーのオーバーライド
+========================================= */
+.navbar { 
+    background-color: rgb(151, 23, 23); 
+}
 
+/* =========================================
+   メインコンテンツの枠組み
+========================================= */
 .container {
     width: 90%;
     max-width: 800px;
@@ -20,10 +31,11 @@ body {
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    border-top: 5px solid rgb(151, 23, 23);
+    border-top: 5px solid rgb(151, 23, 23); /* 上部のアクセントライン */
     padding: 40px;
 }
 
+/* 「経理処理（最終確認）」のタイトル */
 .detail-card h2 {
     margin-top: 0;
     margin-bottom: 25px;
@@ -33,6 +45,23 @@ body {
     font-size: 22px;
 }
 
+
+/* =========================================
+   申請者の基本情報・警告バッジ領域
+========================================= */
+/* 「⚠️ 至急対応案件」の警告バッジ（JSPから移行） */
+.badge-urgent-box {
+    display: inline-block; 
+    margin-bottom: 15px; 
+    color: #dc3545; 
+    font-weight: bold; 
+    background: #ffeeba; 
+    padding: 6px 12px; 
+    border-radius: 4px; 
+    border: 1px solid #ffdf7e;
+}
+
+/* 申請者情報がまとまっている枠 */
 .info-box {
     background-color: #faebeb;
     padding: 15px 20px;
@@ -43,12 +72,29 @@ body {
     font-size: 15px;
 }
 
+/* 各情報アイテムのマージン調整用クラス */
+
+.mt-5 {
+    margin-top: 5px; /* 上部マージン（現在の状態 の表示用） */
+}
+
+/* 現在のステータス名を強調する青い文字（JSPから移行） */
+.status-highlight {
+    font-weight: bold; 
+    color: #1565c0;
+}
+
+
+/* =========================================
+   詳細データテーブル
+========================================= */
 .data-table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 30px;
 }
 
+/* テーブルの見出しセル（左側の薄い赤色背景） */
 .data-table th {
     background-color: #fdf5f5;
     color: rgb(151, 23, 23);
@@ -59,6 +105,7 @@ body {
     font-size: 14px;
 }
 
+/* テーブルのデータセル（右側の白い領域） */
 .data-table td {
     padding: 14px 18px;
     border-bottom: 1px solid #eeeeee;
@@ -67,7 +114,22 @@ body {
     word-break: break-all;
 }
 
-/* 経理完了アクションエリア */
+/* 申請IDの太字スタイル（JSPから移行） */
+.bold-text {
+    font-weight: bold;
+}
+
+/* 申請金額の特別強調スタイル（赤の大きな太文字（JSPから移行） */
+.amount-highlight {
+    font-size: 18px; 
+    font-weight: bold; 
+    color: #d32f2f;
+}
+
+
+/* =========================================
+   経理完了アクションエリア
+========================================= */
 .action-area {
     margin-top: 35px;
     padding: 30px;
@@ -77,8 +139,21 @@ body {
     text-align: center;
 }
 
+/* アクションエリアのタイトル（JSPから移行） */
+.action-title {
+    margin-top: 0; 
+    margin-bottom: 15px; 
+    color: #333;
+}
+
+/* ボタンの下の不要なマージンを消すクラス（JSPから移行） */
+.inline-form {
+    margin: 0;
+}
+
+/* 「経理処理を完了する」ボタン */
 .btn-complete {
-    background-color: #28a745; /* 最終処理完了は安心のグリーンのままキープ */
+    background-color: #28a745; 
     color: white;
     padding: 14px 35px;
     border: none;
@@ -89,8 +164,16 @@ body {
     transition: 0.2s;
     box-shadow: 0 4px 6px rgba(40,167,69,0.2);
 }
-.btn-complete:hover { background-color: #218838; transform: translateY(-1px); }
+.btn-complete:hover { 
+    background-color: #218838; 
+    transform: translateY(-1px); 
+}
 
+
+/* =========================================
+   ナビゲーション・戻るボタン
+========================================= */
+/* 戻るボタンを中央配置するためのコンテナ */
 .nav-links {
     display: flex;
     justify-content: center;
@@ -99,6 +182,7 @@ body {
     padding-top: 25px;
 }
 
+/* 「⬅ ステータス変更一覧に戻る」ボタン */
 .btn-back {
     background-color: #ffffff;
     color: rgb(151, 23, 23);
@@ -110,4 +194,7 @@ body {
     font-size: 14px;
     transition: 0.2s;
 }
-.btn-back:hover { background-color: #faebeb; border-color: rgb(151, 23, 23); }
+.btn-back:hover { 
+    background-color: #faebeb; 
+    border-color: rgb(151, 23, 23); 
+}

@@ -31,17 +31,17 @@
                 </c:if>
 
                 <%-- 詳細絞り込み検索フォーム領域 --%>
-                <div class="search-form-container" style="background-color: #fafafa; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 25px; border-left: 4px solid #b71c1c;">
+                <div class="search-form-container">
                     <%-- GETメソッドでApplicationStatusサーブレットへ検索条件を送信 --%>
                     <form action="${pageContext.request.contextPath}/ApplicationStatus" method="get">
-                        <div style="font-weight: bold; color: #731111; margin-bottom: 10px;">詳細絞り込み検索</div>
+                        <div class="search-form-title">詳細絞り込み検索</div>
                         
-                        <div class="search-inputs" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center;">
+                        <div class="search-inputs">
                             <%-- 各入力項目は、検索後も入力した値を保持できるように EL式（${q_dept} など）を value に設定 --%>
-                            <input type="text" name="q_dept" value="${q_dept}" placeholder="部署名（一部入力可）" style="padding:8px; border:1px solid #ccc; border-radius:4px;">
-                            <input type="text" name="q_name" value="${q_name}" placeholder="申請者名（一部入力可）" style="padding:8px; border:1px solid #ccc; border-radius:4px;">
+                            <input type="text" name="q_dept" value="${q_dept}" placeholder="部署名（一部入力可）" class="search-input-text">
+                            <input type="text" name="q_name" value="${q_name}" placeholder="申請者名（一部入力可）" class="search-input-text">
                             
-                            <select name="q_type" style="padding:8px; border:1px solid #ccc; border-radius:4px;">
+                            <select name="q_type" class="search-select">
                                 <option value="">すべての種別</option>
                                 <option value="備品購入申請" ${q_type == '備品購入申請' ? 'selected' : ''}>備品購入申請</option>
                                 <option value="研修参加申請" ${q_type == '研修参加申請' ? 'selected' : ''}>研修参加申請</option>
@@ -51,19 +51,19 @@
                             </select>
 
                             <%-- 金額の範囲検索（最小〜最大） --%>
-                            <input type="number" name="q_amount_min" value="${q_amount_min}" placeholder="最小金額 (円)" min="0" style="padding:8px; border:1px solid #ccc; border-radius:4px; width: 120px;">
-                            <span style="color:#6c757d;">〜</span>
-                            <input type="number" name="q_amount_max" value="${q_amount_max}" placeholder="最大金額 (円)" min="0" style="padding:8px; border:1px solid #ccc; border-radius:4px; width: 120px;">
+                            <input type="number" name="q_amount_min" value="${q_amount_min}" placeholder="最小金額 (円)" min="0" class="search-input-num">
+                            <span class="search-separator">〜</span>
+                            <input type="number" name="q_amount_max" value="${q_amount_max}" placeholder="最大金額 (円)" min="0" class="search-input-num">
                             
-                            <select name="q_urgent" style="padding:8px; border:1px solid #ccc; border-radius:4px;">
+                            <select name="q_urgent" class="search-select">
                                 <option value="">緊急度（すべて）</option>
                                 <option value="緊急" ${q_urgent == '緊急' ? 'selected' : ''}>至急</option>
                                 <option value="通常" ${q_urgent == '通常' ? 'selected' : ''}>通常</option>
                             </select>
 
-                            <button type="submit" class="btn-search" style="background-color:#b71c1c; color:white; border:none; padding:8px 20px; border-radius:4px; cursor:pointer; font-weight:bold;">検索</button>
+                            <button type="submit" class="btn-search">検索</button>
                             <%-- 条件をクリアする場合はパラメータなしで一覧へリンク --%>
-                            <a href="${pageContext.request.contextPath}/ApplicationStatus" class="btn-clear" style="color:#b71c1c; text-decoration:none; font-size:14px; font-weight:bold;">条件クリア</a>
+                            <a href="${pageContext.request.contextPath}/ApplicationStatus" class="btn-clear">条件クリア</a>
                         </div>
                     </form>
                 </div>
@@ -73,40 +73,40 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <%-- 動的ソートヘッダー：クリック時にJS関数を呼び出し。現在ソート中の列は背景色と矢印(▲/▼)を変更 --%>
-                                <th class="sortable" onclick="doSort('id')" style="cursor:pointer; ${sort == 'id' ? 'background-color:#f0caca; color:#731111;' : ''}">
-                                    申請ID <span style="color:${sort == 'id' ? '#731111' : '#d98282'};">${sort == 'id' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <%-- 動的ソートヘッダー：現在ソート中の列には active-sort クラスを付与 --%>
+                                <th class="sortable ${sort == 'id' ? 'active-sort' : ''}" onclick="doSort('id')">
+                                    申請ID <span class="sort-arrow ${sort == 'id' ? 'active-arrow' : ''}">${sort == 'id' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th class="sortable" onclick="doSort('dpt')" style="cursor:pointer; ${sort == 'dpt' ? 'background-color:#f0caca; color:#731111;' : ''}">
-                                    部署名 <span style="color:${sort == 'dpt' ? '#731111' : '#d98282'};">${sort == 'dpt' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'dpt' ? 'active-sort' : ''}" onclick="doSort('dpt')">
+                                    部署名 <span class="sort-arrow ${sort == 'dpt' ? 'active-arrow' : ''}">${sort == 'dpt' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th class="sortable" onclick="doSort('name')" style="cursor:pointer; ${sort == 'name' ? 'background-color:#f0caca; color:#731111;' : ''}">
-                                    申請者 <span style="color:${sort == 'name' ? '#731111' : '#d98282'};">${sort == 'name' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'name' ? 'active-sort' : ''}" onclick="doSort('name')">
+                                    申請者 <span class="sort-arrow ${sort == 'name' ? 'active-arrow' : ''}">${sort == 'name' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th class="sortable" onclick="doSort('type')" style="cursor:pointer; ${sort == 'type' ? 'background-color:#f0caca; color:#731111;' : ''}">
-                                    申請種別 <span style="color:${sort == 'type' ? '#731111' : '#d98282'};">${sort == 'type' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'type' ? 'active-sort' : ''}" onclick="doSort('type')">
+                                    申請種別 <span class="sort-arrow ${sort == 'type' ? 'active-arrow' : ''}">${sort == 'type' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th class="sortable" onclick="doSort('amount')" style="cursor:pointer; ${sort == 'amount' ? 'background-color:#f0caca; color:#731111;' : ''}">
-                                    金額 <span style="color:${sort == 'amount' ? '#731111' : '#d98282'};">${sort == 'amount' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'amount' ? 'active-sort' : ''}" onclick="doSort('amount')">
+                                    金額 <span class="sort-arrow ${sort == 'amount' ? 'active-arrow' : ''}">${sort == 'amount' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th class="sortable" onclick="doSort('urgent')" style="cursor:pointer; ${sort == 'urgent' ? 'background-color:#f0caca; color:#731111;' : ''}">
-                                    緊急度 <span style="color:${sort == 'urgent' ? '#731111' : '#d98282'};">${sort == 'urgent' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'urgent' ? 'active-sort' : ''}" onclick="doSort('urgent')">
+                                    緊急度 <span class="sort-arrow ${sort == 'urgent' ? 'active-arrow' : ''}">${sort == 'urgent' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th class="sortable" onclick="doSort('status')" style="cursor:pointer; ${sort == 'status' ? 'background-color:#f0caca; color:#731111;' : ''}">
-                                    現在状態 <span style="color:${sort == 'status' ? '#731111' : '#d98282'};">${sort == 'status' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'status' ? 'active-sort' : ''}" onclick="doSort('status')">
+                                    現在状態 <span class="sort-arrow ${sort == 'status' ? 'active-arrow' : ''}">${sort == 'status' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th class="sortable" onclick="doSort('date')" style="cursor:pointer; ${sort == 'date' ? 'background-color:#f0caca; color:#731111;' : ''}">
-                                    申請日時 <span style="color:${sort == 'date' ? '#731111' : '#d98282'};">${sort == 'date' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
+                                <th class="sortable ${sort == 'date' ? 'active-sort' : ''}" onclick="doSort('date')">
+                                    申請日時 <span class="sort-arrow ${sort == 'date' ? 'active-arrow' : ''}">${sort == 'date' ? (dir == 'ASC' ? '▲' : '▼') : '⇅'}</span>
                                 </th>
-                                <th style="width: 100px; text-align: center;">操作</th>
+                                <th class="col-action">操作</th>
                             </tr>
                         </thead>
                         <tbody>
                             <c:choose>
                                 <%-- 経理処理待ちのデータがない場合 --%>
                                 <c:when test="${empty applications}">
-                                    <tr>
-                                        <td colspan="9" style="text-align:center; padding: 40px; color: #6c757d;">現在、処理待ちの申請はありません。</td>
+                                    <tr class="empty-row">
+                                        <td colspan="9">現在、処理待ちの申請はありません。</td>
                                     </tr>
                                 </c:when>
                                 
@@ -114,19 +114,19 @@
                                 <c:otherwise>
                                     <c:forEach var="app" items="${applications}">
                                         <tr>
-                                            <td style="font-weight: bold; color: #b71c1c;">${app.apctId}</td>
+                                            <td class="col-id">${app.apctId}</td>
                                             <td>${app.departmentName}</td>
                                             <td>${app.employeeName}</td>
                                             <td>${app.type}</td>
                                             <%-- 金額をカンマ区切り（小数点なし）で表示 --%>
-                                            <td style="font-weight: bold;"><fmt:formatNumber value="${app.amount}" type="currency" currencySymbol="¥" pattern="¥#,##0"/></td>
+                                            <td class="col-amount"><fmt:formatNumber value="${app.amount}" type="currency" currencySymbol="¥" pattern="¥#,##0"/></td>
                                             <td>
                                                 <%-- 緊急フラグの判定 --%>
                                                 <c:if test="${app.urgent == '緊急' || app.urgent == 'true' || app.urgent == '1'}">
                                                     <span class="badge-urgent">至急</span>
                                                 </c:if>
                                                 <c:if test="${!(app.urgent == '緊急' || app.urgent == 'true' || app.urgent == '1')}">
-                                                    <span style="color:#6c757d; font-size:12px;">通常</span>
+                                                    <span class="badge-normal">通常</span>
                                                 </c:if>
                                             </td>
                                             <td><span class="status-badge">${app.statusName}</span></td>
@@ -135,9 +135,9 @@
                                                 <fmt:parseDate value="${app.createDate}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" type="both" />
                                                 <fmt:formatDate value="${parsedDate}" pattern="yyyy/MM/dd HH:mm" />
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td class="col-action">
                                                 <%-- 完了処理画面（app_status.jsp）へ遷移するためのPOSTフォーム --%>
-                                                <form action="${pageContext.request.contextPath}/ApplicationStatus" method="post" style="margin: 0;">
+                                                <form action="${pageContext.request.contextPath}/ApplicationStatus" method="post" class="inline-form">
                                                     <input type="hidden" name="apct_id" value="${app.apctId}">
                                                     <button type="submit" class="btn-detail">完了処理</button>
                                                 </form>
@@ -154,12 +154,12 @@
                 <div class="pagination">
                     <%-- 現在が1ページ目の場合は「前のページ」ボタンを無効化（disabled） --%>
                     <button class="page-btn" onclick="doPage(${page - 1})" ${page <= 1 ? 'disabled' : ''}>◀ 前のページ</button>
-                    <span style="font-weight: bold; color: rgb(151, 23, 23);">ページ ${page}</span>
+                    <span class="page-current">ページ ${page}</span>
                     <%-- 次のページがない場合（hasNext=false）は「次のページ」ボタンを無効化 --%>
                     <button class="page-btn" onclick="doPage(${page + 1})" ${!hasNext ? 'disabled' : ''}>次のページ ▶</button>
                 </div>
 
-                <a href="${pageContext.request.contextPath}/TopPageServlet" class="back-link" style="margin-top: 30px;">⬅ メインメニューに戻る</a>
+                <a href="${pageContext.request.contextPath}/TopPageServlet" class="back-link">⬅ メインメニューに戻る</a>
             </div> 
         </div> 
     </div>

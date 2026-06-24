@@ -1,5 +1,8 @@
 @charset "UTF-8";
 
+/* =========================================
+   ベース設定
+========================================= */
 body {
     font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
     background-color: #f4f5f7;
@@ -8,193 +11,204 @@ body {
     color: #333;
 }
 
-/* --- ナビゲーションバー (Indigo) --- */
+/* =========================================
+   共通ナビゲーションバーのオーバーライド
+========================================= */
 .navbar {
-    background-color: rgb(232, 174, 2);
+    background-color: #0047A5; 
 }
 
-/* --- メインコンテナ --- */
-.container-wide {
-    width: 95%;
-    max-width: 1400px;
-    margin: 30px auto;
-}
-
-.application-card {
-    background-color: #ffffff;
+/* =========================================
+   メインコンテンツの枠組み
+========================================= */
+.notification-card {
+    max-width: 1000px;
+    margin: 40px auto;
+    background: #ffffff;
+    padding: 35px 40px;
     border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    border-top: 5px solid rgb(232, 174, 2); /* Indigoのアクセント */
-    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border-top: 4px solid #0047A5; /* 上部のアクセントライン（システムのメインカラー） */
 }
 
-.card-header h2 {
+/* =========================================
+   ヘッダー領域
+========================================= */
+/* 「通知センター」の大見出しタイトル */
+.notification-title {
     margin-top: 0;
-    color: rgb(232, 174, 2);
-    border-bottom: 2px solid rgb(232, 174, 2);
+    color: #333333;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+/* 「※このページを開くと〜」の補足説明テキスト */
+.notification-desc {
+    color: #6c757d;
+    font-size: 14px;
+    margin-bottom: 25px;
     padding-bottom: 15px;
-    margin-bottom: 25px;
+    border-bottom: 1px solid #eaeaea; /* 下部の区切り線 */
 }
 
-/* --- ログイン情報・フィルター --- */
-.info-display {
-    background-color: rgb(255, 255, 255);
-    padding: 15px 20px;
-    border-radius: 4px;
-    margin-bottom: 25px;
-    color: #3949ab;
-    border-left: 4px solid rgb(232, 174, 2);
-}
-.user-position { font-weight: bold; color: #1a237e; }
-
-.filter-panel { margin-bottom: 25px; }
-.filter-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.filter-label { font-weight: bold; color: rgb(232, 174, 2); min-width: 80px; }
-
-.filter-btn {
-    padding: 8px 20px;
-    border: 1px solid rgb(254, 254, 224);
-    background-color: #ffffff;
-    color: rgb(232, 174, 2);
-    text-decoration: none;
-    border-radius: 20px;
-    font-size: 14px;
-    transition: all 0.2s;
-}
-.filter-btn:hover { background-color: #e8eaf6; }
-.filter-btn.active {
-    background-color: rgb(232, 174, 2);
-    color: #ffffff;
-    border-color: rgb(232, 174, 2);
-    font-weight: bold;
-    box-shadow: 0 2px 5px rgba(63,81,181,0.3);
-}
-
-/* --- 検索フォーム --- */
-.search-form-container {
-    background-color: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    margin-bottom: 25px;
-}
-.search-inputs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-top: 15px;
-    align-items: center;
-}
-.search-inputs select, .search-inputs input {
-    padding: 10px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 14px;
-}
-.btn-search {
-    background-color: rgb(232, 174, 2);
-    color: white;
-    padding: 10px 25px;
-    border: none;
-    border-radius: 4px;
-    font-weight: bold;
-    cursor: pointer;
-}
-.btn-search:hover { background-color: rgb(232, 174, 2) }
-.btn-clear { color: #6c757d; text-decoration: none; font-size: 14px; }
-
-/* --- テーブルとスクロール --- */
+/* =========================================
+   データテーブル（通知一覧の表）
+========================================= */
+/* 画面が狭くなった時にテーブルを横スクロールさせるコンテナ */
 .table-scroll-container {
-    max-height: 500px;
-    overflow-y: auto;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    background-color: #ffffff;
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
 }
 
 .data-table {
     width: 100%;
-	min-width: 900px;
+    min-width: 800px;
     border-collapse: collapse;
 }
+
+/* テーブルのヘッダー見出しセル（最上行のグレー背景部分） */
 .data-table th {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background-color: #e8eaf6; 
-    color: rgb(232, 174, 2);
+    background-color: #f8f9fa;
+    color: #495057;
     padding: 15px;
     text-align: left;
-    box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);
+    font-size: 14px;
+    border-bottom: 2px solid #dee2e6;
 }
+
+/* テーブルの各データセル（各通知の内容が表示される部分） */
 .data-table td {
-	white-space: nowrap;
     padding: 15px;
-    border-bottom: 1px solid #eeeeee;
+    border-bottom: 1px solid #f1f3f5;
     vertical-align: middle;
+    font-size: 14px;
 }
-.data-table tr:hover td { background-color: rgb(255, 247, 219); }
 
-/* バッジ類 */
-.badge-urgent { 
-	background-color: #dc3545; 
-	color: white; 
-	padding: 4px 8px; 
-	border-radius: 4px; 
-	font-size: 12px; 
-	font-weight: bold; 
+/* =========================================
+   重要：未読・既読の動的デザイン切り替え
+   （JSP側のロジックで条件分岐して付与されるクラス）
+========================================= */
+/* 未読状態 */
+.unread-row {
+    background-color: #f4f8ff;
+    font-weight: 600;
+    color: #212529;
+    box-shadow: inset 4px 0 0 #0047A5; 
+    transition: background-color 0.2s;
 }
-.status-badge { 
-	padding: 5px 12px; 
-	border-radius: 20px; 
-	font-size: 12px; 
-	font-weight: bold; 
-	display: inline-block; 
+/* 未読行のマウスホバー時ハイライト効果 */
+.unread-row:hover { 
+    background-color: #e9f2ff; 
 }
-.status-pending { background-color: #fff3cd; color: #856404; }
-.status-approved { background-color: #d4edda; color: #155724; }
-.status-rejected { background-color: #f8d7da; color: #721c24; }
 
-/* --- アクションボタン --- */
-.action-flex { 
-	display: flex; 
-	gap: 8px; 
-	align-items: center; 
+/* 既読状態 */
+.read-row {
+    background-color: #ffffff;
+    color: #6c757d;
+    transition: background-color 0.2s;
 }
-.btn-sm { 
-	padding: 6px 12px; 
-	border-radius: 4px; 
-	font-size: 12px; 
-	font-weight: bold; 
-	cursor: pointer; 
-	border: none; 
-	color: white; 
+/* 既読行のマウスホバー时ハイライト効果 */
+.read-row:hover { 
+    background-color: #f8f9fa; 
 }
-.btn-detail { background-color: rgb(232, 174, 2); }
-.btn-detail:hover { background-color: rgb(232, 174, 2); }
-.btn-edit { background-color: #ff9800; }
-.btn-delete { background-color: #dc3545; }
 
-/* --- ページネーション・戻る --- */
-.pagination { 
-	display: flex; 
-	justify-content: center; 
-	align-items: center; 
-	gap: 20px; 
-	margin-top: 30px; 
+/* 申請IDの文字色切り替え */
+.unread-row .col-id { color: #0047A5; font-weight: bold; }
+.read-row .col-id { color: #6c757d; }
+
+
+/* =========================================
+   列ごとの個別スタイルクラス
+   （改行防止、幅制限、文字溢れ時の「...」省略処理）
+========================================= */
+/* 「日時」列：途中で改行されないように固定 */
+.col-time { 
+    white-space: nowrap; 
+    font-size: 13px; 
 }
-.page-btn { 
-	padding: 8px 15px; 
-	background-color: #ffffff; 
-	border: 1px solid #ced4da; 
-	border-radius: 4px; 
-	cursor: pointer; 
+
+/* 「処理者」の横に表示される役職名（例：(部長) の部分を少し小さく） */
+.col-approver-pos { 
+    font-size: 11px; 
+    color: #868e96; 
+    margin-left: 4px; 
 }
-.page-btn:disabled { color: #adb5bd; cursor: not-allowed; }
-.back-link { display: block; 
-	margin-top: 30px; 
-	color: rgb(232, 174, 2); 
-	text-decoration: none; 
-	font-weight: bold; 
-	text-align: left; 
+
+/* 「コメント」列*/
+.col-comment {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 「詳細」ボタン列：中央揃えにする */
+.col-action { 
+    text-align: center; 
+}
+
+/* 上司のコメントが空で、「なし」とグレー文字で表示する部分 */
+.empty-comment { 
+    color: #adb5bd; 
+    font-weight: normal; 
+}
+
+/* 通知データが0件の時のメッセージ表示スタイル */
+.empty-row td {
+    text-align: center;
+    padding: 50px 20px;
+    color: #6c757d;
+}
+
+
+/* =========================================
+   ステータスバッジ
+========================================= */
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    display: inline-block;
+}
+.status-pending  { background-color: #fff3cd; color: #856404; } /* 申請中 / 承認待ち（黄） */
+.status-approved { background-color: #d4edda; color: #155724; } /* 完了 / 承認済み（緑） */
+.status-rejected { background-color: #f8d7da; color: #721c24; } /* 却下（赤） */
+
+
+/* =========================================
+   ボタンとナビゲーションリンク
+========================================= */
+/* 「確認」ボタンの共通サイズ */
+.btn-sm {
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.2s;
+}
+
+/* 「确认」ボタン */
+.btn-detail { background-color: #0047A5; }
+.btn-detail:hover { background-color: #003380; }
+
+/* 画面最下部の「⬅ メインメニューに戻る」リンク */
+.back-link {
+    display: inline-block;
+    margin-top: 25px;
+    color: #0047A5;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+.back-link:hover { 
+    text-decoration: underline; 
+    color: #003380; 
 }

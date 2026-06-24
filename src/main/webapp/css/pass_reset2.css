@@ -1,92 +1,127 @@
 @charset "UTF-8";
-	body { 
-	    font-family: 'Segoe UI', Tahoma, sans-serif; 
-	    background-color: #f0f2f5; 
-	    display: flex; 
-	    justify-content: center; 
-	    align-items: center; 
-	    height: 100vh; 
-	    margin: 0; 
-	}
-	
-	.reset-card {
-	    background-color: #ffffff;
-	    width: 400px; 
-	    border-radius: 8px;
-	    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-	    padding: 0; 
-	    overflow: hidden; 
-	}
-	
-	.reset-card h2 {
-	    background-color: rgb(0, 157, 174); 
-	    color: #FFFFFF; 
-	    font-size: 24px; 
-	    margin: 0; 
-	    padding: 25px 0 5px 0; 
-	    text-align: center; 
-	}
-	
-	.step-indicator {
-	    background-color: rgb(0, 157, 174); 
-	    color: #FFFFFF; 
-	    font-size: 13px; 
-	    margin: 0; 
-	    padding: 0 0 20px 0; 
-	    text-align: center;
-	}
-	
-	.card-body {
-	    padding: 30px; 
-	}
-	
-	.form-group { 
-	    margin-bottom: 20px; 
-	}
-	
-	.form-group label { 
-	    display: block; 
-	    margin-bottom: 8px; 
-	    color: #555; 
-	    font-size: 14px; 
-	    font-weight: bold; 
-	}
-	
-	.form-group input { 
-	    width: 100%; 
-	    padding: 10px; 
-	    border: 1px solid #ccc; 
-	    border-radius: 4px; 
-	    box-sizing: border-box; 
-	    font-size: 14px; 
-	}
-	
-	.form-group input:focus { 
-	    border-color: rgb(0, 157, 174); 
-	    outline: none; 
-	}
-	
-	.btn-submit { 
-	    width: 100%; 
-	    padding: 12px; 
-	    background-color: rgb(0, 157, 174); 
-	    color: white; 
-	    border: none; 
-	    border-radius: 4px; 
-	    font-size: 16px; 
-	    font-weight: bold;
-	    cursor: pointer; 
-	    transition: 0.3s; 
-	    margin-top: 10px;
-	}
-	
-	.btn-submit:hover { 
-	    background-color: #218838;
-	}
-	
-	.error-message {
-	    color: #d9534f; 
-	    text-align: center;
-	    font-size: 14px;
-	    margin-bottom: 15px;
-	}
+
+/* =========================================
+  ベース設定
+========================================= */
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    background-color: #f0f2f5; /* ログイン・初期設定画面 */
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
+    margin: 0; 
+}
+
+/* =========================================
+    メインコンテナ（白いカード枠）
+========================================= */
+.reset-card {
+    background-color: #ffffff;
+    width: 400px; /* ログインカードと横幅を統一（400px） */
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); 
+    padding: 0; 
+    overflow: hidden; 
+}
+
+/* =========================================
+    カードヘッダー領域
+========================================= */
+/* 大見出しタイトル */
+.reset-card h2 {
+    background-color: rgb(0, 157, 174); 
+    color: #FFFFFF; 
+    font-size: 24px; 
+    margin: 0; 
+    padding: 25px 0 5px 0; 
+    text-align: center; 
+}
+
+/* 「ステップ 3 / 3」の表示部分 */
+.step-indicator {
+    background-color: rgb(0, 157, 174);
+    color: #FFFFFF; 
+    font-size: 13px; 
+    margin: 0; 
+    padding: 0 0 20px 0; 
+    text-align: center;
+}
+
+/* =========================================
+   メインコンテンツ領域（フォームの内側）
+========================================= */
+.card-body {
+    padding: 30px; 
+}
+
+/* =========================================
+   フォーム入力要素
+========================================= */
+/* 各入力項目（ラベル＋入力枠）を囲むグループ */
+.form-group { 
+    margin-bottom: 20px; 
+}
+
+/* 「新しいパスワード」「確認」のラベル項目 */
+.form-group label { 
+    display: block; 
+    margin-bottom: 8px; 
+    color: #555; 
+    font-size: 14px; 
+    font-weight: bold; 
+}
+
+/* パスワード入力フィールド本体 */
+.form-group input { 
+    width: 100%; 
+    padding: 12px; 
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+    box-sizing: border-box; 
+    font-size: 14px; 
+    transition: border-color 0.3s, box-shadow 0.3s; /* フォーカス時のアニメーション */
+}
+
+/* 入力枠にカーソルが当たった時のグロー効果 */
+.form-group input:focus { 
+    border-color: rgb(0, 157, 174); 
+    outline: none; 
+    box-shadow: 0 0 0 3px rgba(0, 157, 174, 0.1); 
+}
+
+/* =========================================
+    エラーメッセージ表示枠
+========================================= */
+.error-message {
+    background-color: #f8d7da; 
+    color: #721c24; 
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid #f5c6cb;
+    text-align: center;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+/* =========================================
+    サブミットボタン
+========================================= */
+.btn-submit { 
+    width: 100%; 
+    padding: 14px; 
+    background-color: rgb(0, 157, 174); 
+    color: white; 
+    border: none; 
+    border-radius: 4px; 
+    font-size: 16px; 
+    font-weight: bold;
+    cursor: pointer; 
+    transition: background-color 0.3s; 
+    margin-top: 10px;
+}
+
+/* ボタンホバー時の設定 */
+.btn-submit:hover { 
+    background-color: rgb(0, 143, 159); /* 【修正】初期設定画面と統一した青緑に変更 */
+}

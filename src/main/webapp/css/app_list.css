@@ -1,6 +1,8 @@
 @charset "UTF-8";
 
-
+/* =========================================
+   ベース設定
+========================================= */
 body {
     font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
     background-color: #f4f5f7;
@@ -9,13 +11,16 @@ body {
     color: #333;
 }
 
-/* --- ナビゲーションバー --- */
+/* =========================================
+   共通ナビゲーションバー
+========================================= */
 .navbar {
     background-color: rgb(151, 23, 23);
- }
+}
 
-
-/* --- メインコンテナ --- */
+/* =========================================
+   メインコンテンツの枠組み
+========================================= */
 .container {
     width: 95%;
     max-width: 1400px;
@@ -26,10 +31,11 @@ body {
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    border-top: 5px solid rgb(151, 23, 23);
+    border-top: 5px solid rgb(151, 23, 23); /* 上部のアクセントライン */
     padding: 30px;
 }
 
+/* 「申請ステータス変更一覧」のタイトル */
 .card-header h2 {
     margin-top: 0;
     color: rgb(151, 23, 23);
@@ -38,17 +44,99 @@ body {
     margin-bottom: 25px;
 }
 
-/* メッセージ表示 */
+/* エラーメッセージ表示枠 */
 .error-msg { 
-	background: #faebeb; 
-	color: rgb(151, 23, 23); 
-	padding: 15px; 
-	border-radius: 4px; 
-	margin-bottom: 20px; 
-	font-weight: bold; 
-	border: 1px solid #d98282;}
+    background: #faebeb; 
+    color: rgb(151, 23, 23); 
+    padding: 15px; 
+    border-radius: 4px; 
+    margin-bottom: 20px; 
+    font-weight: bold; 
+    border: 1px solid #d98282;
+}
 
-/* テーブルとスクロール*/
+/* =========================================
+   詳細絞り込み検索フォーム
+========================================= */
+/* 検索フォーム全体を囲むグレーの枠（左端に赤のアクセント） */
+.search-form-container {
+    background-color: #fafafa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 25px;
+    border-left: 4px solid #b71c1c;
+}
+
+/* 検索フォームのタイトル */
+.search-form-title {
+    font-weight: bold;
+    color: #731111;
+    margin-bottom: 10px;
+}
+
+/* 検索入力項目を横並びにするレイアウト */
+.search-inputs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+}
+
+/* 検索フォームのテキスト・セレクト入力欄の共通スタイル */
+.search-input-text,
+.search-select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* 金額入力用の少し幅が狭い入力欄 */
+.search-input-num {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 120px;
+}
+
+/* 金額の間の「〜」記号 */
+.search-separator {
+    color: #6c757d;
+}
+
+/* 検索実行ボタン */
+.btn-search {
+    background-color: #b71c1c;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+.btn-search:hover {
+    background-color: #731111;
+}
+
+/* 検索条件のクリアリンク */
+.btn-clear {
+    color: #b71c1c;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+.btn-clear:hover {
+    color: #731111;
+    text-decoration: underline;
+}
+
+
+/* =========================================
+   データテーブル（一覧表示部分）
+========================================= */
+/* テーブルをスクロール可能にするコンテナ */
 .table-scroll-container {
     max-height: 500px;
     overflow-y: auto;
@@ -63,6 +151,7 @@ body {
     border-collapse: collapse;
 }
 
+/* テーブルの見出し（スクロール時も上部に固定） */
 .data-table th {
     position: sticky;
     top: 0;
@@ -76,6 +165,30 @@ body {
     box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);
 }
 
+/* テーブルヘッダーのソート可能領域（マウスカーソルを指にする） */
+.sortable {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+/* 現在ソートされている列の強調ハイライト */
+.sortable.active-sort {
+    background-color: #f0caca;
+    color: #731111;
+}
+
+/* ソート矢印 */
+.sort-arrow {
+    color: #d98282;
+    margin-left: 4px;
+}
+
+/* ソート矢印 */
+.sort-arrow.active-arrow {
+    color: #731111;
+}
+
+/* テーブルのデータセル */
 .data-table td {
     padding: 15px;
     border-bottom: 1px solid #eeeeee;
@@ -84,26 +197,54 @@ body {
 }
 .data-table tr:hover td { background-color: #fafcfc; }
 
-/* バッジ類 */
-.badge-urgent { 
-	background-color: #dc3545; 
-	color: white; 
-	padding: 4px 8px; 
-	border-radius: 4px; 
-	font-size: 12px; 
-	font-weight: bold; 
-}
-.status-badge { 
-	background-color: #e3f2fd; 
-	color: #1565c0; 
-	padding: 5px 12px; 
-	border-radius: 20px; 
-	font-size: 12px; 
-	font-weight: bold; 
-	display: inline-block; 
+/* 対象データが0件の時のメッセージ行 */
+.empty-row td {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
 }
 
-/* --- アクションボタン --- */
+/* 列ごとの個別スタイル */
+.col-id { font-weight: bold; color: #b71c1c; } /* 申請ID */
+.col-amount { font-weight: bold; }             /* 金額 */
+.col-action { text-align: center; width: 100px; } /* 操作列 */
+
+
+/* =========================================
+   バッジ類
+========================================= */
+/* 至急バッジ（赤背景） */
+.badge-urgent { 
+    background-color: #dc3545; 
+    color: white; 
+    padding: 4px 8px; 
+    border-radius: 4px; 
+    font-size: 12px; 
+    font-weight: bold; 
+}
+
+/* 通常バッジ（グレーのテキストのみ） */
+.badge-normal {
+    color: #6c757d;
+    font-size: 12px;
+}
+
+/* ステータスバッジ（青背景） */
+.status-badge { 
+    background-color: #e3f2fd; 
+    color: #1565c0; 
+    padding: 5px 12px; 
+    border-radius: 20px; 
+    font-size: 12px; 
+    font-weight: bold; 
+    display: inline-block; 
+}
+
+
+/* =========================================
+   アクションボタン・ナビゲーション
+========================================= */
+/* 「完了処理」ボタン */
 .btn-detail {
     background-color: rgb(151, 23, 23);
     color: white;
@@ -117,32 +258,55 @@ body {
     box-shadow: 0 2px 4px rgba(151, 23, 23, 0.2);
 }
 .btn-detail:hover { 
-	background-color: #731111; 
-	transform: translateY(-1px); 
+    background-color: #731111; 
+    transform: translateY(-1px); 
 } 
 
+/* 完了処理ボタン用の余白を消すフォームスタイル */
+.inline-form {
+    margin: 0;
+}
+
+/* =========================================
+   ページネーション（画面下部のページ送り）
+========================================= */
+.pagination {
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    gap: 20px; 
+    margin-top: 30px;
+}
+
+/* 「◀ 前のページ」「次のページ ▶」ボタン */
+.page-btn {
+    padding: 8px 15px; 
+    border: 1px solid #ced4da; 
+    border-radius: 4px; 
+    background: white; 
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.page-btn:hover:not(:disabled) {
+    background-color: #f8f9fa;
+}
+
+/* 現在のページ番号テキスト */
+.page-current {
+    font-weight: bold;
+    color: rgb(151, 23, 23);
+}
+
+/* 画面最下部の「⬅ メインメニューに戻る」リンク */
 .back-link { 
-	display: inline-block; 
-	color: rgb(151, 23, 23); 
-	text-decoration: none; 
-	font-weight: bold; 
-	transition: 0.2s; 
+    display: inline-block; 
+    color: rgb(151, 23, 23); 
+    text-decoration: none; 
+    font-weight: bold; 
+    transition: 0.2s; 
+    margin-top: 30px;
 }
 .back-link:hover { 
-	color: #731111; 
-	text-decoration: underline; 
-}
-.pagination {
-	display: flex; 
-	justify-content: center; 
-	align-items: center; 
-	gap: 20px; 
-	margin-top: 30px;
-}
-.page-btn {
-	padding: 8px 15px; 
-	border: 1px solid #ced4da; 
-	border-radius: 4px; 
-	background: white; 
-	cursor: pointer;
+    color: #731111; 
+    text-decoration: underline; 
 }

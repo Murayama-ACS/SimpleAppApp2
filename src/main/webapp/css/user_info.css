@@ -1,56 +1,59 @@
 @charset "UTF-8";
-/* --- 全体・ベース設定 --- */
+
+/* =========================================
+   ベース設定
+========================================= */
 body {
     font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
-    background-color: #f0f4f4; /* わずかに青緑がかったグレー背景 */
+    background-color: #f0f4f4; 
     margin: 0;
     padding: 0;
     color: #333333;
 }
-
-/* --- ナビゲーションバー  --- */
+/* --- ナビゲーションバー --- */
 .navbar {
-    background-color: #00695c; 
+background-color: #00695c;
 }
-
-
-/* --- コンテナ・カードデザイン --- */
-.container {
-    width: 90%;
-    max-width: 1000px;
-    margin: 30px auto;
-}
-
-.container-wide {
-    max-width: 1200px; /* 一覧画面用のワイドコンテナ */
-}
+/* =========================================
+   メインコンテナ・カードデザイン
+========================================= */
+.container { width: 90%; max-width: 1000px; margin: 30px auto; }
+.container-wide { max-width: 1200px; }
 
 .application-card {
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     overflow: hidden;
-    /* 上部に人事部カラーのアクセントライン */
     border-top: 5px solid #00796b; 
 }
 
+/* カードヘッダー */
 .card-header {
     padding: 20px 30px;
     border-bottom: 1px solid #e0e0e0;
     background-color: #fafcfc;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+}
+.card-header h2 { margin: 0; color: #004d40; font-size: 22px; }
+
+/* カードボディ */
+.card-body { padding: 30px; }
+
+/* =========================================
+   メッセージ・インフォメーション
+========================================= */
+.error-display {
+    background: #f8d7da; 
+    color: #721c24; 
+    padding: 15px; 
+    border-radius: 4px; 
+    margin-bottom: 20px; 
+    font-weight: bold;
 }
 
-.card-header h2 {
-    margin: 0;
-    color: #004d40; 
-    font-size: 22px;
-}
-
-.card-body {
-    padding: 30px;
-}
-
-/* --- インフォメーション表示 --- */
 .info-display {
     background-color: #e0f2f1; 
     padding: 15px 20px;
@@ -62,17 +65,9 @@ body {
     color: #004d40;
 }
 
-.error-display {
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 15px 20px;
-    border-radius: 4px;
-    margin-bottom: 25px;
-    border: 1px solid #f5c6cb;
-    font-weight: bold;
-}
-
-/* --- 検索フォームエリア --- */
+/* =========================================
+   検索フォーム
+========================================= */
 .search-form-container {
     background-color: #f7fbfb;
     padding: 20px;
@@ -81,238 +76,85 @@ body {
     border: 1px solid #b2dfdb;
 }
 
-.search-inputs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    align-items: center;
-    margin-top: 15px;
-}
+.search-title { font-weight: bold; color: #495057; margin-bottom: 10px; }
 
-.search-inputs input[type="text"],
-.search-inputs select {
+.search-inputs { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
+
+.search-input-text, .search-select {
     padding: 8px 12px;
     border: 1px solid #ced4da;
     border-radius: 4px;
     font-size: 14px;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.search-inputs input[type="text"]:focus,
-.search-inputs select:focus {
-    border-color: #00796b;
-    box-shadow: 0 0 0 2px rgba(0, 121, 107, 0.2);
-}
-
-/* --- ボタン類 --- */
+/* =========================================
+   ボタン類
+========================================= */
 .btn-search {
-    background-color: #00796b;
-    color: white;
-    border: none;
-    padding: 9px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: 0.2s;
+    background-color: #00796b; color: white; border: none;
+    padding: 9px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;
 }
-
-.btn-search:hover {
-    background-color: #004d40;
-}
+.btn-search:hover { background-color: #004d40; }
 
 .btn-clear {
-    background-color: #78909c; 
-    color: white;
-    text-decoration: none;
-    padding: 8px 20px;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: bold;
-    transition: 0.2s;
-}
-
-.btn-clear:hover {
-    background-color: #546e7a;
+    background-color: #78909c; color: white; text-decoration: none;
+    padding: 8px 20px; border-radius: 4px; font-size: 14px; font-weight: bold;
 }
 
 .btn-add-new {
-    background-color: #f57c00; 
-    color: white;
-    text-decoration: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    font-weight: bold;
-    display: inline-block;
-    box-shadow: 0 2px 4px rgba(245,124,0,0.3);
-    transition: 0.2s;
+    background-color: #f57c00; color: white; text-decoration: none;
+    padding: 10px 20px; border-radius: 4px; font-weight: bold;
 }
 
-.btn-add-new:hover {
-    background-color: #ef6c00;
-    transform: translateY(-1px);
+/* テーブル内ボタン */
+.action-flex { display: flex; gap: 8px; justify-content: center; }
+.btn-sm { padding: 6px 12px; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; font-size: 12px; }
+.btn-edit { background-color: #ffb300; color: #212529; }
+.btn-delete { background-color: #e53935; }
+
+/* =========================================
+   データテーブル
+========================================= */
+.table-scroll-container {
+    max-height: 500px; overflow-y: auto; border: 1px solid #ced4da;
+    border-radius: 4px; margin-top: 15px; background-color: #ffffff;
 }
 
-/* テーブル内の小ボタン */
-.action-flex {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-}
-
-.btn-sm {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    color: white;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 12px;
-    transition: 0.2s;
-}
-
-.btn-edit {
-    background-color: #ffb300; 
-    color: #212529;
-}
-
-.btn-edit:hover {
-    background-color: #ffa000;
-}
-
-.btn-delete {
-    background-color: #e53935; 
-}
-
-.btn-delete:hover {
-    background-color: #c62828;
-}
-
-/* --- データテーブル --- */
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-}
+.data-table { width: 100%; border-collapse: collapse; }
 
 .data-table th {
-    background-color: #e0f2f1; 
-    color: #004d40;
-    padding: 12px 15px;
-    text-align: left;
-    font-size: 14px;
-    border-bottom: 2px solid #b2dfdb;
+    position: sticky; top: 0; z-index: 10;
+    background-color: #e0f2f1; color: #004d40;
+    padding: 12px 15px; text-align: left;
     white-space: nowrap;
 }
 
 .data-table td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #eeeeee;
-    font-size: 14px;
+    padding: 12px 15px; border-bottom: 1px solid #eeeeee;
     vertical-align: middle;
 }
 
-.data-table tr:hover td {
-    background-color: #f4f9f9;
-}
+.data-table tr:hover td { background-color: #f4f9f9; }
 
-/* ソート機能付きヘッダー */
-.sortable {
-    cursor: pointer;
-    position: relative;
-    padding-right: 25px !important;
-    transition: background-color 0.2s;
-}
+/* ソート用クラス */
+.sortable { cursor: pointer; transition: 0.2s; }
+.sortable:hover { background-color: #b2dfdb !important; }
+.sort-icon { color: #8a9c98; font-size: 12px; }
+.active-sort { background-color: #b2dfdb; color: #00332a; }
+.active-sort .sort-icon { color: #00332a; }
 
-.sortable:hover {
-    background-color: #b2dfdb !important;
-}
+/* セルごとのカスタマイズ */
+.col-emp-id { font-weight: bold; color: #0056b3; }
+.emp-name { font-weight: bold; }
+.emp-furigana { font-size: 11px; color: #6c757d; }
+.empty-state { text-align: center; padding: 40px; color: #6c757d; }
+.inline-form { margin: 0; display: inline-block; }
 
-.sort-icon {
-    font-size: 12px;
-    color: #00796b;
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-.empty-state {
-    text-align: center;
-    padding: 40px !important;
-    color: #6c757d;
-    font-style: italic;
-}
-
-/* --- ページネーション --- */
-.pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    margin-top: 30px;
-}
-
-.page-btn {
-    padding: 8px 16px;
-    background-color: #ffffff;
-    border: 1px solid #b2dfdb;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    color: #00796b;
-    transition: 0.2s;
-}
-
-.page-btn:hover:not(:disabled) {
-    background-color: #e0f2f1;
-}
-
-.page-btn:disabled {
-    background-color: #f8f9fa;
-    color: #adb5bd;
-    border-color: #e9ecef;
-    cursor: not-allowed;
-}
-
-/* --- フッターリンク --- */
-.back-link {
-    display: inline-block;
-    margin-top: 30px;
-    color: #00796b;
-    text-decoration: none;
-    font-weight: bold;
-    transition: color 0.2s;
-}
-
-.back-link:hover {
-    color: #004d40;
-    text-decoration: underline;
-}
-
-/* ==========================================================================
-   テーブルのスクロールとヘッダー固定 (Sticky Header & Scrollable Table)
-   ========================================================================== */
-
-.table-scroll-container {
-    max-height: 500px; /* ここでスクロール枠の高さを調整します */
-    overflow-y: auto;  /* 縦方向のスクロールバーを自動表示 */
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    margin-top: 15px;
-    background-color: #ffffff;
-}
-
-/* ヘッダーを上部に固定（スクロールしても追従する設定） */
-.data-table th {
-    position: sticky;
-    top: 0;
-    z-index: 10; /* スクロールした行がヘッダーの下に潜り込むようにする */
-    background-color: #e0f2f1; /* 透過しないように背景色を再指定 */
-    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1); 
-}
-
-/* スクロール枠の中のテーブルは上部マージンをなくす */
-.table-scroll-container .data-table {
-    margin-top: 0;
-}
+/* =========================================
+   ページネーション・フッター
+========================================= */
+.pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 30px; }
+.page-btn { padding: 8px 16px; background-color: #ffffff; border: 1px solid #b2dfdb; border-radius: 4px; cursor: pointer; color: #00796b; font-weight: bold; }
+.page-btn:disabled { background-color: #f8f9fa; color: #adb5bd; border-color: #e9ecef; }
+.page-count { font-weight: bold; color: #495057; }
+.back-link { display: block; margin-top: 30px; color: #495057; text-decoration: none; font-weight: bold; }

@@ -92,9 +92,9 @@
 	}
 	input[type="text"]:focus, 
 	input[type="password"]:focus {
-	    border-color: #0056b3;
+	    border-color: rgb(0, 157, 174);
 	    outline: none;
-	    box-shadow: 0 0 0 3px rgba(0,86,179,0.1);
+	    box-shadow: 0 0 0 3px rgba(0, 157, 174,0.1);
 	}
 	
 	/* パスワードを忘れた方へ */

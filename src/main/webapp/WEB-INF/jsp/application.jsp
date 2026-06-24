@@ -138,7 +138,7 @@
         const formattedAmount = Number(amount).toLocaleString();
         
         // 3. 確認ポップアップに表示するためのHTML（サマリー）を動的に組み立てる
-        // （入力された改行コード \n をHTMLの <br> タグに変換して表示を整える）
+        // インラインスタイルを排除し、クラス名（swal-summary-label等）に変更
         const summaryHtml = `
             <div class="swal-summary-container">
                 <div class="swal-summary-section">
@@ -148,8 +148,8 @@
                 </div>
                 <div class="swal-summary-section">
                     <strong>申請内容:</strong><br><div class="swal-summary-text">` + content.replace(/\n/g, '<br>') + `</div>
-                    <strong style="display:block; margin-top:10px;">申請理由:</strong><div class="swal-summary-text">` + reason.replace(/\n/g, '<br>') + `</div>
-                    <strong style="display:block; margin-top:10px;">備考:</strong><div class="swal-summary-text">` + note.replace(/\n/g, '<br>') + `</div>
+                    <strong class="swal-summary-label">申請理由:</strong><div class="swal-summary-text">` + reason.replace(/\n/g, '<br>') + `</div>
+                    <strong class="swal-summary-label">備考:</strong><div class="swal-summary-text">` + note.replace(/\n/g, '<br>') + `</div>
                 </div>
                 <div>
                     <strong>緊急度:</strong> ` + urgentText + `
@@ -159,7 +159,7 @@
 
         // 4. SweetAlert2を使って、入力内容の最終確認ダイアログを表示する
         Swal.fire({
-            title: '<span style="font-size: 22px; color: #0d47a1;">以下の内容で提出しますか？</span>',
+            title: '<span class="swal-confirm-title">以下の内容で提出しますか？</span>',
             html: summaryHtml,
             width: '700px', // 内容が多いので幅を広めに設定
             icon: 'question',
@@ -209,7 +209,7 @@
                         const errorMsg = await response.text();
                         Swal.fire({
                             title: 'エラー', 
-                            html: '<span style="color:#dc3545;">' + errorMsg + '</span>', 
+                            html: '<span class="swal-error-msg">' + errorMsg + '</span>', 
                             icon: 'error',
                             confirmButtonColor: '#dc3545'
                         });

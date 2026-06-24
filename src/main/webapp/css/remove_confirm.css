@@ -1,33 +1,35 @@
 @charset "UTF-8";
-@charset "UTF-8";
 
-/* ==========================================================================
-   AppApp システム - 削除完了画面専用スタイル (Teal & Soft Red Theme)
-   ========================================================================== */
-
-/* --- 全体・ベース設定 --- */
+/* =========================================
+   ベース設定
+========================================= */
 body {
     font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
-    background-color: #f0f4f4; /* 人事部のベース背景色 */
+    background-color: #f0f4f4; 
     margin: 0;
     padding: 0;
     color: #333333;
 }
 
-/* --- ナビゲーションバー (一覧や更新画面と統一) --- */
+/* =========================================
+   共通ナビゲーションバーのオーバーライド
+========================================= */
 .navbar {
     background-color: #00695c;
-    
 }
 
-/* --- メインコンテナとカードデザイン --- */
+/* =========================================
+   コンテナと完了カードの枠組み
+========================================= */
+/* 画面中央寄せのコンテナ */
 .container {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 75vh; /* 画面中央に配置するための高さ設定 */
+    min-height: 75vh;
 }
 
+/* 処理完了を表示する白いカード枠 */
 .complete-card {
     background-color: #ffffff;
     padding: 50px 40px;
@@ -36,16 +38,19 @@ body {
     text-align: center;
     width: 100%;
     max-width: 500px;
-    /* 💡 削除完了を表すソフトレッドのアクセントライン */
+    /* 削除アクション */
     border-top: 8px solid #e53935; 
 }
 
-/* --- 削除アイコンのスタイル --- */
+/* =========================================
+   コンテンツデザイン
+========================================= */
+/* 削除を象徴する丸いゴミ箱アイコンの背景デザイン */
 .delete-icon {
     width: 80px;
     height: 80px;
     background-color: #ffebee; /* 薄い赤色の背景 */
-    color: #c62828; /* 濃い赤色のテキスト/アイコン */
+    color: #c62828;            /* アイコン（文字）の色 */
     font-size: 36px;
     line-height: 80px;
     border-radius: 50%;
@@ -53,23 +58,33 @@ body {
     font-weight: bold;
 }
 
-.complete-card h2 {
-    color: #37474f; /* 濃いブルーグレーで落ち着きを出す */
+/* 完了通知のタイトル */
+.card-title {
+    color: #37474f; 
     margin-top: 0;
     margin-bottom: 15px;
     font-size: 24px;
 }
 
-.complete-card p {
+/* 処理内容の説明文 */
+.card-message {
     color: #6c757d;
     margin-bottom: 35px;
     line-height: 1.6;
     font-size: 15px;
 }
 
-/* --- 一覧へ戻るボタン --- */
+/* =========================================
+   ナビゲーションボタン
+========================================= */
+/* ボタン配置用エリア */
+.action-area {
+    margin-top: 20px;
+}
+
+/* 一覧へ戻るボタンの基本デザイン */
 .btn-home {
-    background-color: #546e7a; /* 戻るボタンは落ち着いたブルーグレーを使用 */
+    background-color: #546e7a; 
     color: white;
     text-decoration: none;
     padding: 14px 35px;
@@ -81,11 +96,13 @@ body {
     box-shadow: 0 2px 4px rgba(84, 110, 122, 0.3);
 }
 
+/* ボタンホバー時の設定 */
 .btn-home:hover {
-    background-color: #37474f; /* ホバー時に暗くする */
+    background-color: #37474f;
     transform: translateY(-2px);
 }
 
+/* ボタンクリック時のアニメーション */
 .btn-home:active {
     transform: scale(0.98);
 }

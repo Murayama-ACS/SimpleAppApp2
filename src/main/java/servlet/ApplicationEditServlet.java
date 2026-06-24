@@ -7,8 +7,10 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import bean.ApplicationBean;
+import bean.EmployeeBean;
 import dao.ApplicationDAO;
 
 @WebServlet("/ApplicationEdit")
@@ -18,6 +20,9 @@ public class ApplicationEditServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) 
 			throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
+		
+		HttpSession session = request.getSession();
+		EmployeeBean employee = (EmployeeBean) session.getAttribute("empBean");
 		
 		String apctId = request.getParameter("apct_id");
 		String isSubmit = request.getParameter("isSubmit");
@@ -38,6 +43,16 @@ public class ApplicationEditServlet extends HttpServlet {
 				int amount = 0;
 				if (amountParam != null && !amountParam.trim().isEmpty()) {
 					amount = Integer.parseInt(amountParam.trim());
+				}
+				
+				ApplicationDAO aDao = new ApplicationDAO();
+				Integer posAmount = aDao.selectPositionAmount(employee.getPos_id());
+				//【修正】上限金額チェック追加	
+				if (posAmount != null && amount > posAmount) {
+					response.setContentType("text/plain; charset=UTF-8");
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // 400 エラー
+					response.getWriter().write("申請金額が役職の上限（" + posAmount + "円）を超えています。");
+					return;
 				}
 
 				String urgentStr = "通常";

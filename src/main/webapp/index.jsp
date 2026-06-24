@@ -45,7 +45,7 @@
             <form action="Login" method="post" id="loginForm">
                 <div class="form-group">
                     <label for="empId">社員ID または Email</label>
-                    <input type="text" id="empId" name="empId" placeholder="IDかEmailを入力" required autofocus
+                    <input type="text" id="empId" name="empId" placeholder="IDかEmailを入力" required autofocus>
                 </div>
                 
                 <div class="form-group">

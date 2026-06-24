@@ -1,20 +1,26 @@
 @charset "UTF-8";
 
-
+/* =========================================
+   ベース設定
+========================================= */
 body {
-	font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;    background-color: #f4f5f7;
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
     background-color: #f4f5f7;
     margin: 0;
     padding: 0;
     color: #333;
 }
 
-/* --- ナビゲーションバー (Business Blue) --- */
+/* =========================================
+   共通ナビゲーションバーのオーバーライド
+========================================= */
 .navbar {
-    background-color: #1976d2; /* 信頼と効率を表すビジネスブルー */
+    background-color: #1976d2; 
 }
 
-/* --- メインコンテナ・カード --- */
+/* =========================================
+   メインコンテンツの枠組み
+========================================= */
 .container {
     width: 90%;
     max-width: 800px;
@@ -25,31 +31,36 @@ body {
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    border-top: 5px solid #2196f3; /* 鮮やかなブルーのアクセント */
+    border-top: 5px solid #2196f3; /* 上部のブルーのアクセントライン */
     padding: 40px;
 }
 
+/* 「新規申請提出」のタイトル領域 */
 .card-header h2 {
     margin-top: 0;
     color: #0d47a1; /* 深いブルー */
     border-bottom: 2px solid #64b5f6;
     padding-bottom: 15px;
     margin-bottom: 25px;
-
 }
 
-/* --- エラー表示・情報表示 --- */
+
+/* =========================================
+   エラー・情報表示領域
+========================================= */
+/* バックエンドエラーメッセージ表示枠（赤色） */
 .error-display {
     background: #f8d7da; 
-	color: #721c24; 
-	padding: 15px; 
-	border-radius: 4px; 
-	margin-bottom: 20px; 
-	font-weight: bold;
+    color: #721c24; 
+    padding: 15px; 
+    border-radius: 4px; 
+    margin-bottom: 20px; 
+    font-weight: bold;
 }
 
+/* ログインユーザーの基本情報表示領域 */
 .info-display {
-    background-color: #e3f2fd; /* 薄いブルー背景 */
+    background-color: #e3f2fd; 
     padding: 15px 20px;
     border-radius: 4px;
     margin-bottom: 30px;
@@ -59,11 +70,16 @@ body {
     line-height: 1.6;
 }
 
-/* --- フォームスタイル --- */
+
+/* =========================================
+   フォーム入力要素
+========================================= */
+/* 各入力項目を囲むグループ */
 .form-group {
     margin-bottom: 25px;
 }
 
+/* 入力項目の見出しラベル */
 .form-group label {
     display: block;
     font-weight: bold;
@@ -72,6 +88,7 @@ body {
     font-size: 15px;
 }
 
+/* 「※必須」の赤いマーク */
 .required-mark {
     color: #dc3545;
     font-size: 12px;
@@ -79,6 +96,7 @@ body {
     font-weight: normal;
 }
 
+/* 入力フィールドの共通デザイン */
 .form-group input[type="number"],
 .form-group select,
 .form-group textarea {
@@ -94,12 +112,13 @@ body {
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+/* テキストエリア特有の設定（縦方向のみリサイズ可） */
 .form-group textarea {
     resize: vertical;
     min-height: 100px;
 }
 
-/* フォーカス時のブルーグロー効果 */
+/* 入力フィールドフォーカス時のブルーグロー効果 */
 .form-group input[type="number"]:focus,
 .form-group select:focus,
 .form-group textarea:focus {
@@ -108,10 +127,14 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
 }
 
-/* --- チェックボックス (緊急度) --- */
+
+/* =========================================
+   緊急フラグ用チェックボックス領域
+========================================= */
+/* 注意を引く薄い黄色の背景 */
 .checkbox-group {
     margin-bottom: 35px;
-    background-color: #fff3cd; /* 注意を引く薄い黄色 */
+    background-color: #fff3cd; 
     padding: 15px;
     border-radius: 4px;
     border: 1px solid #ffeeba;
@@ -133,7 +156,11 @@ body {
     cursor: pointer;
 }
 
-/* --- ボタン・リンク --- */
+
+/* =========================================
+   送信ボタン・ナビゲーション
+========================================= */
+/* 「申請を提出する」ボタン */
 .btn-submit {
     background-color: #1976d2;
     color: white;
@@ -147,10 +174,15 @@ body {
     transition: background-color 0.2s, transform 0.1s;
     box-shadow: 0 4px 6px rgba(25, 118, 210, 0.2);
 }
+.btn-submit:hover { 
+    background-color: #1565c0; 
+    transform: translateY(-1px); 
+}
+.btn-submit:active { 
+    transform: scale(0.98); 
+}
 
-.btn-submit:hover { background-color: #1565c0; transform: translateY(-1px); }
-.btn-submit:active { transform: scale(0.98); }
-
+/* 画面最下部の「⬅ メインメニューに戻る」リンク */
 .back-link {
     display: block;
     text-align: center;
@@ -160,11 +192,16 @@ body {
     font-weight: bold;
     transition: color 0.2s;
 }
-.back-link:hover { color: #0d47a1; text-decoration: underline; }
+.back-link:hover { 
+    color: #0d47a1; 
+    text-decoration: underline; 
+}
+
 
 /* ==========================================================================
    SweetAlert 確認ポップアップ用のカスタムスタイル
    ========================================================================== */
+/* 確認内容の全体枠 */
 .swal-summary-container {
     text-align: left;
     background-color: #f8f9fa;
@@ -175,12 +212,20 @@ body {
     color: #333;
 }
 
+/* 確認内容の各区切り線 */
 .swal-summary-section {
     border-bottom: 1px dashed #ced4da;
     padding-bottom: 15px;
     margin-bottom: 15px;
 }
 
+/* 確認ポップアップ内の各項目の見出しラベル */
+.swal-summary-label {
+    display: block;
+    margin-top: 10px;
+}
+
+/* 確認ポップアップ内の長文テキスト（内容、理由など）の背景枠 */
 .swal-summary-text {
     display: inline-block;
     background-color: #ffffff;
@@ -193,6 +238,18 @@ body {
     color: #495057;
 }
 
+/* 確認ポップアップのタイトル文字 */
+.swal-confirm-title {
+    font-size: 22px;
+    color: #0d47a1;
+}
+
+/* エラーメッセージポップアップ内の赤文字 */
+.swal-error-msg {
+    color: #dc3545;
+}
+
+/* 至急判定の赤いテキストバッジ */
 .swal-urgent-text {
     color: #dc3545;
     font-weight: bold;
@@ -201,6 +258,7 @@ body {
     border-radius: 4px;
 }
 
+/* SweetAlertアイコンのサイズ調整用カスタムクラス */
 .my-custom-icon-size {
-    transform: scale(0.8); /* アイコンを少し控えめなサイズに */
+    transform: scale(0.8); /* アイコンを少し控えめなサイズに縮小 */
 }

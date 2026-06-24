@@ -1,6 +1,8 @@
 @charset "UTF-8";
 
-
+/* =========================================
+   ベース設定
+========================================= */
 body {
     font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
     background-color: #f4f5f7;
@@ -9,12 +11,16 @@ body {
     color: #333;
 }
 
-/* --- ナビゲーションバー (Dark) --- */
+/* =========================================
+   共通ナビゲーションバーのオーバーライド
+========================================= */
 .navbar {
     background-color: #212121;
 }
 
-/* --- メインコンテナ --- */
+/* =========================================
+   メインコンテンツの枠組み
+========================================= */
 .container {
     width: 95%;
     max-width: 1400px;
@@ -25,18 +31,11 @@ body {
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    border-top: 5px solid #424242; /* ダークグレーのアクセント */
+    border-top: 5px solid #424242; /* ダークグレーのアクセントライン */
     padding: 30px;
 }
-.info-display {
-	background-color: #f8f9fa;
-	    padding: 20px;
-	    border-radius: 8px;
-	    border: 1px solid #e0e0e0;
-	    margin-bottom: 25px;
-	    border-left: 4px solid #343a40; 
-}
-.user-position { font-weight: bold; color: #1a237e; }
+
+/* 「未承認申請一覧」のタイトル */
 .card-header h2 {
     margin-top: 0;
     color: #212121;
@@ -45,25 +44,127 @@ body {
     margin-bottom: 25px;
 }
 
-/* メッセージ表示 */
-.error-display { 
-	background: #f8d7da; 
-	color: #721c24; 
-	padding: 15px; 
-	border-radius: 4px; 
-	margin-bottom: 20px; 
-	font-weight: bold; 
+
+/* =========================================
+   エラー・情報表示領域
+========================================= */
+/* ログインユーザー情報表示エリア */
+.info-display {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 25px;
+    border-left: 4px solid #343a40; 
 }
-.success-display { 
-	background: #d4edda; 
-	color: #155724; 
-	padding: 15px; 
-	border-radius: 4px; 
-	margin-bottom: 20px; 
-	font-weight: bold; 
+.user-position { 
+    font-weight: bold; 
+    color: #1a237e; 
 }
 
-/* --- テーブルとスクロール --- */
+/* エラーメッセージ（赤色） */
+.error-display { 
+    background: #f8d7da; 
+    color: #721c24; 
+    padding: 15px; 
+    border-radius: 4px; 
+    margin-bottom: 20px; 
+    font-weight: bold; 
+}
+
+/* サクセスメッセージ（緑色） */
+.success-display { 
+    background: #d4edda; 
+    color: #155724; 
+    padding: 15px; 
+    border-radius: 4px; 
+    margin-bottom: 20px; 
+    font-weight: bold; 
+}
+
+
+/* =========================================
+   絞り込み検索フォーム 
+========================================= */
+/* 検索フォーム全体を囲む枠（左端にダークグレーのアクセント） */
+.search-form-container {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 25px;
+    border-left: 4px solid #343a40; 
+}
+
+/* 「絞り込み検索」のタイトル */
+.search-title {
+    font-weight: bold;
+    color: #343a40;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+/* 入力項目を横並びにするレイアウト */
+.search-inputs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 15px;
+    align-items: center;
+}
+
+/* 検索入力欄の共通スタイル */
+.search-inputs select, 
+.search-inputs input {
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #495057;
+}
+
+/* 金額入力用の少し幅が狭い入力欄 */
+.search-input-num {
+    width: 120px;
+}
+
+/* 金額の間の「〜」記号 */
+.search-separator {
+    color: #6c757d;
+}
+
+/* 検索実行ボタン */
+.btn-search {
+    background-color: #343a40;
+    color: white;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-search:hover {
+    background-color: #212121;
+}
+
+/* 検索条件のクリアリンク */
+.btn-clear {
+    color: #6c757d;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+}
+.btn-clear:hover {
+    text-decoration: underline;
+    color: #343a40;
+}
+
+
+/* =========================================
+   データテーブル（一覧表示部分）
+========================================= */
+/* テーブルをスクロール可能にするコンテナ */
 .table-scroll-container {
     max-height: 500px;
     overflow-y: auto;
@@ -78,11 +179,12 @@ table {
     border-collapse: collapse;
 }
 
+/* テーブルの見出し（スクロール時も上部に固定・ダークヘッダー） */
 table th {
     position: sticky;
     top: 0;
     z-index: 10;
-    background-color: #343a40; /* 権威を示すダークヘッダー */
+    background-color: #343a40; 
     color: #ffffff;
     padding: 15px;
     text-align: left;
@@ -91,6 +193,39 @@ table th {
     box-shadow: 0 2px 2px -1px rgba(0,0,0,0.2);
 }
 
+/* ソート可能なヘッダーのカーソルとホバー効果 */
+.sortable {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.sortable:hover {
+    background-color: #4b5258;
+}
+
+/* 現在ソートされている列の強調ハイライト */
+.sortable.active-sort {
+    background-color: #4b5258;
+    color: #ffffff;
+}
+
+/* ソート矢印 */
+.sort-arrow {
+    color: #868e96;
+    margin-left: 4px;
+}
+
+/* ソート矢印（現在ソート中の列は真っ白） */
+.sort-arrow.active-arrow {
+    color: #ffffff;
+}
+
+/* 「操作」列の見出し用スタイル */
+.col-action-header {
+    width: 220px;
+    text-align: center;
+}
+
+/* テーブルのデータセル */
 table td {
     padding: 15px;
     border-bottom: 1px solid #eeeeee;
@@ -99,115 +234,102 @@ table td {
 }
 table tr:hover td { background-color: #f8f9fa; }
 
-/* バッジ類 */
-.badge-urgent { 
-	background-color: #dc3545; 
-	color: white; 
-	padding: 4px 8px; 
-	border-radius: 4px; 
-	font-size: 12px; 
-	font-weight: bold; 
-}
-.badge-normal { 
-	background-color: #6c757d; 
-	color: white; 
-	padding: 4px 8px; 
-	border-radius: 4px; 
-	font-size: 12px; 
-	font-weight: bold; 
+/* 申請IDの太字スタイル */
+.col-id {
+    font-weight: bold;
 }
 
-/* --- アクションボタン --- */
-.action-btns { display: flex; gap: 8px; align-items: center; }
-.btn { 
-	padding: 8px 15px; 
-	border-radius: 4px; 
-	font-size: 13px; 
-	font-weight: bold; 
-	cursor: pointer; 
-	border: none; 
-	text-decoration: none; 
-	color: white; 
-	transition: 0.2s; 
+/* 対象データが0件の時のメッセージ行 */
+.empty-row td {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
 }
+
+
+/* =========================================
+   バッジ類
+========================================= */
+/* 至急バッジ（赤背景） */
+.badge-urgent { 
+    background-color: #dc3545; 
+    color: white; 
+    padding: 4px 8px; 
+    border-radius: 4px; 
+    font-size: 12px; 
+    font-weight: bold; 
+}
+
+/* 通常バッジ（グレー背景） */
+.badge-normal { 
+    background-color: #6c757d; 
+    color: white; 
+    padding: 4px 8px; 
+    border-radius: 4px; 
+    font-size: 12px; 
+    font-weight: bold; 
+}
+
+
+/* =========================================
+   アクションボタン・ナビゲーション
+========================================= */
+/* ボタンを横並びにし、中央揃えにするコンテナ */
+.action-btns { 
+    display: flex; 
+    gap: 8px; 
+    align-items: center; 
+    justify-content: center;
+}
+
+/* アクションボタンの共通デザイン */
+.btn { 
+    padding: 8px 15px; 
+    border-radius: 4px; 
+    font-size: 13px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    border: none; 
+    text-decoration: none; 
+    color: white; 
+    transition: background-color 0.2s; 
+}
+
+/* 詳細ボタン（グレー） */
 .btn-detail { background-color: #6c757d; }
 .btn-detail:hover { background-color: #5a6268; }
+
+/* 承認ボタン（緑） */
 .btn-approve { background-color: #28a745; }
 .btn-approve:hover { background-color: #218838; }
+
+/* 却下ボタン（赤） */
 .btn-reject { background-color: #dc3545; }
 .btn-reject:hover { background-color: #c82333; }
 
+/* 画面最下部の「⬅ メインメニューに戻る」リンク */
 .back-link { 
-	display: inline-block; 
-	color: #343a40; 
-	text-decoration: none; 
-	font-weight: bold; 
-	transition: 0.2s; 
+    display: inline-block; 
+    color: #343a40; 
+    text-decoration: none; 
+    font-weight: bold; 
+    transition: color 0.2s; 
 }
-.back-link:hover { color: #212121; text-decoration: underline; }
-
-/* --- 検索フォーム (Dark Theme) --- */
-.search-form-container {
-    background-color: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    margin-bottom: 25px;
-    border-left: 4px solid #343a40; /* ダークテーマのアクセント */
+.back-link:hover { 
+    color: #212121; 
+    text-decoration: underline; 
 }
 
-.search-inputs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-top: 15px;
-    align-items: center;
+
+/* =========================================
+   隠し要素・ポップアップ用設定
+========================================= */
+/* サーバーへデータを送るための非表示フォーム */
+.hidden-form {
+    display: none;
 }
 
-.search-inputs select, 
-.search-inputs input {
-    padding: 10px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 14px;
-    color: #495057;
-}
-
-.btn-search {
-    background-color: #343a40;
-    color: white;
-    padding: 10px 25px;
-    border: none;
-    border-radius: 4px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.btn-search:hover {
-    background-color: #212121;
-}
-
-.btn-clear {
-    color: #6c757d;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: bold;
-}
-
-.btn-clear:hover {
-    text-decoration: underline;
-    color: #343a40;
-}
-
-/* ソート可能なヘッダーのカーソル */
-.sortable {
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-.sortable:hover {
-    background-color: #4b5258;
-}
+/* SweetAlertポップアップ内の「※コメントを入力された場合〜」の注記テキスト */
 .swal-comment-notice {
     font-size: 13px;
     color: rgb(255, 128, 0);

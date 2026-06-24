@@ -9,8 +9,8 @@
     <meta charset="UTF-8">
     <title>申請詳細 - AppApp システム</title>
     <%-- 専用CSSと共通ナビゲーションCSSの読み込み --%>
-    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/app_comment.css"> 
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/navbar.css">
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/app_comment.css"> 
     <%-- ポップアップダイアログ表示用のライブラリ（SweetAlert2） --%>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -48,14 +48,14 @@
             <tr>
                 <th>申請状態</th>
                 <td>
-                    <%-- 状態名に応じて文字色を動的に変更（承認:緑, 却下:赤, その他:黄色） --%>
-                    <span style="font-weight: bold; color: ${application.statusName == '承認' ? '#28a745' : (application.statusName == '却下' ? '#dc3545' : '#ffc107')};">
+                    <%-- 状態名に応じて文字色を動的に変更するクラスを付与 --%>
+                    <span class="status-text ${application.statusName == '承認' ? 'text-approved' : (application.statusName == '却下' ? 'text-rejected' : 'text-pending')}">
                         ${application.statusName}
                     </span>
                 </td>
             </tr>
             <%-- 前回のコメントが存在しない場合は「なし」と表示 --%>
-            <tr><th>コメント</th><td style="color: rgb(255, 128, 64);">${empty approval.comment ? 'なし' : approval.comment}</td></tr>
+            <tr><th>コメント</th><td class="comment-data">${empty approval.comment ? 'なし' : approval.comment}</td></tr>
             <tr><th>備考</th><td>${empty application.note ? 'なし' : application.note}</td></tr>
         </table>
 
@@ -63,15 +63,15 @@
         <%-- サーブレット側で設定された「承認権限(canApprove)」があり、かつ対象が「未承認（ステータス1）」の場合のみ表示 --%>
         <c:if test="${canApprove && (application.statusName == '未承認' || application.statusName == '承認待ち' || application.status_id == 1)}">
             <div class="approval-action-box">
-                <h3 style="margin-top: 0; color: #495057; font-size: 16px; margin-bottom: 20px;">この申請に対するアクション</h3>
+                <h3 class="action-title">この申請に対するアクション</h3>
                 
                 <form id="approvalForm" action="${pageContext.request.contextPath}/ApplicationComment" method="post">
                     <%-- バックエンドに送信するための隠しフィールド（申請IDと、JSでセットするアクション種別） --%>
                     <input type="hidden" name="apct_id" value="${application.apctId}">
                     <input type="hidden" name="action_type" id="hiddenActionType" value="">
                     
-                    <div style="text-align: left; margin-bottom: 20px; max-width: 600px; margin-left: auto; margin-right: auto;">
-                        <label for="commentInput" style="display: block; font-weight: bold; color: #495057; margin-bottom: 8px;">コメント (任意):</label>
+                    <div class="comment-input-area">
+                        <label for="commentInput" class="comment-label">コメント (任意):</label>
                         <textarea id="commentInput" name="comment" rows="4" placeholder="上司としてのコメントやフィードバックを入力してください"></textarea>
                     </div>
                     
@@ -86,7 +86,7 @@
 
         <div class="dual-nav-container">
             <%--戻るボタン：セッションに検索条件付きの一覧URL（lastListUrl）が保存されていればそこに戻り、なければデフォルトの未承認一覧に戻る --%>
-            <a class="nav-back-btn" href="${not empty sessionScope.lastListUrl ? sessionScope.lastListUrl : pageContext.request.contextPath += '/ApplicationWaitList'}" class="back-link">⬅ 未承認一覧へ</a>
+            <a class="nav-back-btn" href="${not empty sessionScope.lastListUrl ? sessionScope.lastListUrl : pageContext.request.contextPath += '/ApplicationWaitList'}">⬅ 未承認一覧へ</a>
         </div>
     </div>
 
@@ -99,10 +99,10 @@
                 const btnColor = (actionType === 'reject') ? '#dc3545' : '#28a745';
                 const commentValue = document.getElementById('commentInput').value.trim();
                 
-                // 確認メッセージの組み立て
+                // 確認メッセージの組み立て（CSSでスタイル分離済み）
                 let confirmText = "この申請を「" + actionName + "」しますか？";
                 if (commentValue !== "") {
-                    confirmText += "<br><span style='font-size: 13px; color: #6c757d;'>※コメントも一緒に送信されます</span>";
+                    confirmText += "<br><span class='confirm-notice'>※コメントも一緒に送信されます</span>";
                 }
 
                 // SweetAlert2を使用したリッチな確認ダイアログ
