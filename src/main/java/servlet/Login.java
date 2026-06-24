@@ -105,6 +105,7 @@ public class Login extends HttpServlet {
 			} else {
 				HttpSession session = request.getSession();
 				session.setAttribute("empBean", empBean);
+				session.removeAttribute("eMsg");
 
 				if (pass.equals("Abcd1234")) {
 					RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/jsp/pass_reset1.jsp");

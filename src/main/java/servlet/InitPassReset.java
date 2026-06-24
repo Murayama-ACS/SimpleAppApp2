@@ -39,6 +39,7 @@ public class InitPassReset extends HttpServlet {
 	        EmployeeBean employee = (EmployeeBean) session.getAttribute("empBean");
 
 	        if (employee == null || employee.getEmp_id() == null) {
+	        	session.setAttribute("eMsg", "error : session timeout");
 	            response.sendRedirect(request.getContextPath() + "/index.jsp");
 	            return;
 	        }

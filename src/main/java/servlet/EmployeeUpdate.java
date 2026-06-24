@@ -125,6 +125,7 @@ public class EmployeeUpdate extends HttpServlet {
 				changed = true;
 			}
 			if (changed) {
+				System.out.println("updateを実施しました。");
 				EmployeeDAO empDAO = new EmployeeDAO();
 				int updateResult = empDAO.updateEmpInfo(updateBean);
 				if (updateResult == 0) {
@@ -137,6 +138,7 @@ public class EmployeeUpdate extends HttpServlet {
 				}
 			} else {
 				// 変更なし → 確認ページへ遷移（必要に応じてメッセージを表示）
+				System.out.println("updateは実施していません。");
 				url = JSP_COMPLETE;
 			}
 			break;
@@ -145,6 +147,7 @@ public class EmployeeUpdate extends HttpServlet {
 			EmployeeBean insertBean = (EmployeeBean) session.getAttribute("insertEmpBean");
 			if (insertBean == null) {
 				request.setAttribute("eMsg", "データが登録できていません");
+				url = JSP_SIGNUP;//変更点
 			} else {
 				EmployeeDAO empDAO = new EmployeeDAO();
 				int result = empDAO.insertEmployee(insertBean);
