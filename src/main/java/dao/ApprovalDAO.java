@@ -61,7 +61,6 @@ public class ApprovalDAO extends DAO {
 		ApprovalBean approval = null;
 
 		// テーブル名を approval から approvals に修正
-		// 修改后的 SQL：按时间降序排列，只取最新的一条
 		String sql = "SELECT approval_id, apct_id, emp_id, status_id, comment, time "
 		           + "FROM approvals WHERE apct_id = ? "
 		           + "ORDER BY time DESC LIMIT 1";
@@ -95,79 +94,7 @@ public class ApprovalDAO extends DAO {
 		}
 		return approval;
 	}
-	/**
-	 * 申請者（empId）に対する通知一覧を取得する（外部結合・安全版）
-	 */
-	public List<NotificationBean> selectNotificationsByApplicant(String empId) {
-		Connection con = dbConnect();
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		List<NotificationBean> list = new ArrayList<>();
-
-		// INNER JOIN から LEFT JOIN に変更して、結合時のデータ脱落を完全に防ぐ
-		String sql = "SELECT apv.approval_id, a.apct_id, a.content, apv.status_id, s.status_name, apv.comment, apv.time, apv.is_read, "
-				+ "e.emp_name, p.pos_name "
-				+ "FROM approvals apv "
-				+ "JOIN applications a ON apv.apct_id = a.apct_id "
-				+ "LEFT JOIN status s ON apv.status_id = s.status_id "     // LEFT JOIN に変更
-				+ "LEFT JOIN employees e ON apv.emp_id = e.emp_id "       // LEFT JOIN に変更
-				+ "LEFT JOIN positions p ON e.pos_id = p.pos_id "         // LEFT JOIN に変更
-				+ "WHERE a.emp_id = ? AND a.is_deleted = 0 "
-				+ "ORDER BY apv.time DESC LIMIT 10";
-
-		try {
-			if (con != null) {
-				st = con.prepareStatement(sql);
-				st.setString(1, empId);
-				rs = st.executeQuery();
-
-				while (rs.next()) {
-					NotificationBean bean = new NotificationBean();
-					bean.setApprovalId(rs.getString("approval_id"));
-					bean.setApctId(rs.getString("apct_id"));
-					
-					// 申請内容がnullの場合のセーフティ
-					String content = rs.getString("content");
-					bean.setContent(content != null ? content : "（内容なし）");
-					
-					bean.setStatusId(rs.getInt("status_id"));
-					
-					// status_name が取得できなかった場合のセーフティ
-					String sName = rs.getString("status_name");
-					bean.setStatusName(sName != null ? sName : "更新");
-					
-					bean.setComment(rs.getString("comment"));
-					
-					// 日時の変換と文字列フォーマット処理（null安全）
-					if (rs.getTimestamp("time") != null) {
-						java.time.LocalDateTime ldt = rs.getTimestamp("time").toLocalDateTime();
-						bean.setTime(ldt);
-						java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-						bean.setTimeStr(ldt.format(formatter));
-					} else {
-						bean.setTimeStr("---");
-					}
-					
-					// 処理者名・役職名がnullの場合のセーフティ
-					String empName = rs.getString("emp_name");
-					bean.setApproverName(empName != null ? empName : "システム担当");
-					
-					String posName = rs.getString("pos_name");
-					bean.setApproverPosName(posName != null ? posName : "担当者");
-					
-					bean.setRead(rs.getInt("is_read") == 1);
-					list.add(bean);
-				}
-			}
-		} catch (SQLException e) {
-			System.out.println("selectNotificationsByApplicantエラー: " + e.getMessage());
-		} finally {
-			if (rs != null) try { rs.close(); } catch (SQLException e) {}
-			if (st != null) try { st.close(); } catch (SQLException e) {}
-			dbClose(con);
-		}
-		return list;
-	}
+	
 
 	/**
 	 * 特定の社員の未読通知をすべて既読（is_read = 1）に更新する
@@ -192,5 +119,138 @@ public class ApprovalDAO extends DAO {
 			dbClose(con);
 		}
 		return result;
+	}
+	
+	/**
+	 * 【新規追加】指定した社員の通知の「総件数」を取得する（ページネーション計算用）
+	 */
+	public int countNotificationsByApplicant(String empId) {
+		Connection con = dbConnect();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		int count = 0;
+
+		String sql = "SELECT COUNT(*) AS total FROM approvals apv "
+				+ "JOIN applications a ON apv.apct_id = a.apct_id "
+				+ "WHERE a.emp_id = ? AND a.is_deleted = 0";
+		try {
+			if (con != null) {
+				st = con.prepareStatement(sql);
+				st.setString(1, empId);
+				rs = st.executeQuery();
+				if (rs.next()) {
+					count = rs.getInt("total");
+				}
+			}
+		} catch (SQLException e) {
+			System.out.println("countNotificationsByApplicantエラー: " + e.getMessage());
+		} finally {
+			if (rs != null) try { rs.close(); } catch (SQLException e) {}
+			if (st != null) try { st.close(); } catch (SQLException e) {}
+			dbClose(con);
+		}
+		return count;
+	}
+
+	/**
+	 * 【修正】ページネーション（LIMITとOFFSETを使って指定範囲の通知一覧を取得する）
+	 */
+	public List<NotificationBean> selectNotificationsByApplicant(String empId, int limit, int offset) {
+		Connection con = dbConnect();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		List<NotificationBean> list = new ArrayList<>();
+
+		String sql = "SELECT apv.approval_id, a.apct_id, a.content, apv.status_id, s.status_name, apv.comment, apv.time, apv.is_read, "
+				+ "e.emp_name, p.pos_name "
+				+ "FROM approvals apv "
+				+ "JOIN applications a ON apv.apct_id = a.apct_id "
+				+ "LEFT JOIN status s ON apv.status_id = s.status_id "
+				+ "LEFT JOIN employees e ON apv.emp_id = e.emp_id "
+				+ "LEFT JOIN positions p ON e.pos_id = p.pos_id "
+				+ "WHERE a.emp_id = ? AND a.is_deleted = 0 "
+				+ "ORDER BY apv.time DESC LIMIT ? OFFSET ?";
+
+		try {
+			if (con != null) {
+				st = con.prepareStatement(sql);
+				st.setString(1, empId);
+				st.setInt(2, limit);
+				st.setInt(3, offset);
+				rs = st.executeQuery();
+
+				while (rs.next()) {
+					NotificationBean bean = new NotificationBean();
+					bean.setApprovalId(rs.getString("approval_id"));
+					bean.setApctId(rs.getString("apct_id"));
+					
+					String content = rs.getString("content");
+					bean.setContent(content != null ? content : "（内容なし）");
+					
+					bean.setStatusId(rs.getInt("status_id"));
+					
+					String sName = rs.getString("status_name");
+					bean.setStatusName(sName != null ? sName : "更新");
+					
+					bean.setComment(rs.getString("comment"));
+					
+					if (rs.getTimestamp("time") != null) {
+						java.time.LocalDateTime ldt = rs.getTimestamp("time").toLocalDateTime();
+						bean.setTime(ldt);
+						java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+						bean.setTimeStr(ldt.format(formatter));
+					} else {
+						bean.setTimeStr("---");
+					}
+					
+					String empName = rs.getString("emp_name");
+					bean.setApproverName(empName != null ? empName : "システム担当");
+					
+					String posName = rs.getString("pos_name");
+					bean.setApproverPosName(posName != null ? posName : "担当者");
+					
+					bean.setRead(rs.getInt("is_read") == 1);
+					list.add(bean);
+				}
+			}
+		} catch (SQLException e) {
+			System.out.println("selectNotificationsByApplicant(Paging)エラー: " + e.getMessage());
+		} finally {
+			if (rs != null) try { rs.close(); } catch (SQLException e) {}
+			if (st != null) try { st.close(); } catch (SQLException e) {}
+			dbClose(con);
+		}
+		return list;
+	}
+	
+	/**
+	 * 【新規追加】指定した社員の「未読」通知の総件数のみを取得する
+	 */
+	public int countUnreadNotifications(String empId) {
+		Connection con = dbConnect();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		int count = 0;
+
+		String sql = "SELECT COUNT(*) AS unread_count FROM approvals apv "
+				+ "JOIN applications a ON apv.apct_id = a.apct_id "
+				+ "WHERE a.emp_id = ? AND a.is_deleted = 0 AND apv.is_read = 0";
+		try {
+			if (con != null) {
+				st = con.prepareStatement(sql);
+				st.setString(1, empId);
+				rs = st.executeQuery();
+				if (rs.next()) {
+					count = rs.getInt("unread_count");
+				}
+			}
+		} catch (SQLException e) {
+			System.out.println("countUnreadNotificationsエラー: " + e.getMessage());
+		} finally {
+			if (rs != null) try { rs.close(); } catch (SQLException e) {}
+			if (st != null) try { st.close(); } catch (SQLException e) {}
+			dbClose(con);
+		}
+		return count;
 	}
 }

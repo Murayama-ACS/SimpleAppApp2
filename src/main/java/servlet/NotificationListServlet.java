@@ -32,15 +32,36 @@ public class NotificationListServlet extends HttpServlet {
 
         ApprovalDAO approvalDao = new ApprovalDAO();
         
-        // 1. まず現在の通知一覧（未読が含まれる状態）を取得してリクエストに格納
-        List<NotificationBean> notifications = approvalDao.selectNotificationsByApplicant(employee.getEmp_id());
+        //ページネーション処理
+        int page = 1; // デフォルトは1ページ目
+        String pageParam = request.getParameter("page");
+        if (pageParam != null && !pageParam.isEmpty()) {
+            try {
+                page = Integer.parseInt(pageParam);
+            } catch (NumberFormatException e) {
+                page = 1;
+            }
+        }
+        
+        int limit = 10; // 1ページあたりの表示件数
+        int offset = (page - 1) * limit; // データ取得の開始位置
+        
+        // 1. 総件数を取得し、次のページがあるか（hasNext）を判定
+        int totalCount = approvalDao.countNotificationsByApplicant(employee.getEmp_id());
+        boolean hasNext = (page * limit) < totalCount;
+        
+        // 2. 指定したページ範囲の通知一覧を取得
+        List<NotificationBean> notifications = approvalDao.selectNotificationsByApplicant(employee.getEmp_id(), limit, offset);
+        
+        // 3. JSPへデータを渡す
         request.setAttribute("notifications", notifications);
+        request.setAttribute("page", page);
+        request.setAttribute("hasNext", hasNext);
 
-        // 2. 画面を表示する前に、このユーザーの未読通知をすべて既読に更新する
-        // （これにより、このリクエストの表示は未読デザインのままになり、次回トップに戻ると既読扱いになります）
+        // 4. このユーザーの未読通知をすべて既読に更新する
         approvalDao.updateAllNotificationsAsRead(employee.getEmp_id());
 
-        // 3. 通知一覧ページへフォワード
+        // 5. 通知一覧ページへフォワード
         request.getRequestDispatcher("/WEB-INF/jsp/notification_list.jsp").forward(request, response);
     }
 }

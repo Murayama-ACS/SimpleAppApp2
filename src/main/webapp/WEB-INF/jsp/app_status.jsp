@@ -53,7 +53,7 @@
                     <form id="completeForm" action="${pageContext.request.contextPath}/ApplicationStatusEdit" method="post" class="inline-form">
                         <input type="hidden" name="apct_id" value="${application.apctId}">
                         <%-- 誤操作防止のため type="button" にし、JSの確認ポップアップを経由させる --%>
-                        <button type="button" class="btn-complete" onclick="confirmComplete()">✔ 経理処理を完了する</button>
+                        <button type="button" class="btn-complete" onclick="confirmComplete()">経理処理を完了する</button>
                     </form>
                 </div>
             </c:if>

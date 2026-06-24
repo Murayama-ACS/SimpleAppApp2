@@ -14,7 +14,6 @@ import bean.EmployeeBean;
 import bean.NotificationBean;
 import dao.ApprovalDAO;
 
-// 💡 修正：あなたの他のページのリンクに合わせて "/TopPageServlet" に統一しました
 @WebServlet("/TopPageServlet")
 public class TopPageServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -35,17 +34,11 @@ public class TopPageServlet extends HttpServlet {
         // 2. 通知の未読件数を取得
         try {
             ApprovalDAO approvalDao = new ApprovalDAO();
-            List<NotificationBean> notifications = approvalDao.selectNotificationsByApplicant(employee.getEmp_id());
-
+            //【修正】（引数に「10」と「0」を追加します）
+            List<NotificationBean> notifications = approvalDao.selectNotificationsByApplicant(employee.getEmp_id(), 10, 0);
             // 未読（is_readがfalse）の件数をカウント
             long unreadCount = notifications.stream().filter(n -> !n.isRead()).count();
             request.setAttribute("unreadCount", unreadCount);
-
-            // --- デバッグ用ログ（本番環境では消してもOKです） ---
-            System.out.println("====== TopPageServlet デバッグ ======");
-            System.out.println("ログイン社員: " + employee.getEmp_name() + " (ID: " + employee.getEmp_id() + ")");
-            System.out.println("未読通知件数: " + unreadCount);
-            System.out.println("====================================");
 
         } catch (Exception e) {
             log("TopPageServlet 通知取得エラー", e);

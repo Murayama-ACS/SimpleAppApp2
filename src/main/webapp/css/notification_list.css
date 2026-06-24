@@ -212,3 +212,45 @@ body {
     text-decoration: underline; 
     color: #003380; 
 }
+/* =========================================
+   ページネーション
+========================================= */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+/* ページングボタン */
+.page-btn {
+    padding: 8px 16px;
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #0047A5; 
+    transition: all 0.2s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+    background-color: #f4f8ff;
+    border-color: #0047A5;
+}
+
+/* ページがない時の無効化スタイル */
+.page-btn:disabled {
+    background-color: #f8f9fa;
+    color: #adb5bd;
+    border-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+/* 現在のページ番号テキスト */
+.page-count {
+    font-weight: bold;
+    color: #495057;
+}

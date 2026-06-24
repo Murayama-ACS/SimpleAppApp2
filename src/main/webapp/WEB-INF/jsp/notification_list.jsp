@@ -7,11 +7,9 @@
     <meta charset="UTF-8">
     <title>通知センター - AppApp システム</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/navbar.css">
-    <%-- 刷新された専用CSSのみを読み込み（内部のstyleタグは廃止） --%>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/notification_list.css">
 </head>
 <body>
-    <%-- 動的な未読カウント計算を含む共通ヘッダーを読み込み --%>
     <%@ include file="/WEB-INF/jsp/header.jsp" %>
 
     <div class="container">
@@ -33,46 +31,33 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <%-- 通知データの有無で表示を分岐 --%>
                         <c:choose>
                             <c:when test="${empty notifications}">
                                 <tr class="empty-row">
-                                    <td colspan="7">現在、新しい通知はありません。</td>
+                                    <td colspan="7">現在、通知はありません。</td>
                                 </tr>
                             </c:when>
                             <c:otherwise>
                                 <c:forEach var="noti" items="${notifications}">
-                                    <%-- 既読フラグでCSSクラスを切り替え --%>
                                     <tr class="${noti.read ? 'read-row' : 'unread-row'}">
-                                        
                                         <td class="col-time">${noti.timeStr}</td>
-                                        
                                         <td class="col-id">${noti.apctId}</td>
-                                        
                                         <td>${noti.content}</td>
-                                        
                                         <td>
                                             <span class="status-badge ${noti.statusId == 6 ? 'status-rejected' : (noti.statusId == 1 || noti.statusId == 2 || noti.statusId == 3 || noti.statusId == 4 ? 'status-pending' : 'status-approved')}">
                                                 ${noti.statusName}
                                             </span>
                                         </td>
-                                        
                                         <td>
                                             ${noti.approverName} 
                                             <span class="col-approver-pos">(${noti.approverPosName})</span>
                                         </td>
-                                        
                                         <td class="col-comment">
                                             <c:choose>
-                                                <c:when test="${not empty noti.comment}">
-                                                    ${noti.comment}
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <span class="empty-comment">なし</span>
-                                                </c:otherwise>
+                                                <c:when test="${not empty noti.comment}">${noti.comment}</c:when>
+                                                <c:otherwise><span class="empty-comment">なし</span></c:otherwise>
                                             </c:choose>
                                         </td>
-                                        
                                         <td class="col-action">
                                             <a href="${pageContext.request.contextPath}/ApplicationDetail?apct_id=${noti.apctId}&from=noti" class="btn-sm btn-detail">確認</a>
                                         </td>
@@ -84,8 +69,27 @@
                 </table>
             </div>
 
-            <a href="${pageContext.request.contextPath}/TopPageServlet" class="back-link">⬅ メインメニューに戻る</a>
+            <%--ページネーション--%>
+            <div class="pagination">
+                <button class="page-btn" onclick="doPage(${page - 1})" ${page <= 1 ? 'disabled' : ''}>◀ 前のページ</button>
+                <span class="page-count">ページ ${page}</span>
+                <button class="page-btn" onclick="doPage(${page + 1})" ${!hasNext ? 'disabled' : ''}>次のページ ▶</button>
+            </div>
+
+            <div style="text-align: center;">
+                <a href="${pageContext.request.contextPath}/TopPageServlet" class="back-link">⬅ メインメニューに戻る</a>
+            </div>
         </div>
     </div>
+
+    <%--ページ遷移--%>
+    <script>
+        function doPage(pageNum) {
+            // 現在のURLにパラメータ page を付与してリロードする
+            const url = new URL(window.location.href.split('?')[0]);
+            url.searchParams.set('page', pageNum);
+            window.location.href = url.toString();
+        }
+    </script>
 </body>
 </html>

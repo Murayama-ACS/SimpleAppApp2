@@ -3,7 +3,7 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%-- Javaのクラスをインポート（スクリプトレット内で使用するため） --%>
-<%@ page import="bean.EmployeeBean, dao.ApprovalDAO, bean.NotificationBean, java.util.List" %>
+<%@ page import="bean.EmployeeBean, dao.ApprovalDAO" %>
 
 <%-- 全画面共通のリアルタイム未読通知計算ロジック --%>
 <%
@@ -13,11 +13,9 @@
     // ログインしている場合のみ通知を計算する
     if (loginEmp != null) {
         ApprovalDAO headerDao = new ApprovalDAO();
-        // ログインユーザー宛の通知リストをDBから取得
-        List<NotificationBean> headerNotifs = headerDao.selectNotificationsByApplicant(loginEmp.getEmp_id());
         
-        // Java 8のStream APIを使用して、未読（isRead() == false）の件数をカウント
-        long globalUnreadCount = headerNotifs.stream().filter(n -> !n.isRead()).count();
+        // DB側で直接「未読数」だけをカウントする
+        int globalUnreadCount = headerDao.countUnreadNotifications(loginEmp.getEmp_id());
         
         // 計算した未読件数をリクエストスコープにセットし、下部のHTML（JSP）へ渡す
         request.setAttribute("globalUnreadCount", globalUnreadCount);

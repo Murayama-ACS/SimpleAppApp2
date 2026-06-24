@@ -61,7 +61,7 @@
 
         <%-- 承認アクションボックスの表示制御 --%>
         <%-- サーブレット側で設定された「承認権限(canApprove)」があり、かつ対象が「未承認（ステータス1）」の場合のみ表示 --%>
-        <c:if test="${canApprove && (application.statusName == '未承認' || application.statusName == '承認待ち' || application.status_id == 1)}">
+        <c:if test="${canApprove && (application.statusName == '未承認' || application.statusName == '承認待ち' || application.status_id == 1 || application.status_id == 2)}">
             <div class="approval-action-box">
                 <h3 class="action-title">この申請に対するアクション</h3>
                 
