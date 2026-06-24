@@ -29,6 +29,7 @@ public class ApplicationHistoryServlet extends HttpServlet {
 		HttpSession session = request.getSession();
 		EmployeeBean loginUser = (EmployeeBean) session.getAttribute("empBean");
 		if (loginUser == null) {
+        	session.setAttribute("eMsg", "error : session timeout");
 			response.sendRedirect(request.getContextPath() + "/index.jsp");
 			return;
 		}

@@ -39,6 +39,7 @@ public class ApplicationCommentServlet extends HttpServlet {
 		}
 
 		if (employee == null) {
+        	session.setAttribute("eMsg", "error : session timeout");
 			response.sendRedirect(request.getContextPath() + "/index.jsp");
 			return;
 		}
@@ -107,6 +108,7 @@ public class ApplicationCommentServlet extends HttpServlet {
 		}
 
 		if (employee == null) {
+        	session.setAttribute("eMsg", "error : session timeout");
 			response.sendRedirect(request.getContextPath() + "/index.jsp");
 			return;
 		}

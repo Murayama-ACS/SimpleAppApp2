@@ -32,6 +32,7 @@ public class ApplicationDeleteServlet extends HttpServlet {
 
 		// 万が一セッションが切れていた（ログインしていない）場合は、不正アクセス防止のためログイン画面へ弾く
 		if (loginUser == null) {
+        	session.setAttribute("eMsg", "error : session timeout");
 			response.sendRedirect(request.getContextPath() + "/index.jsp");
 			return;
 		}

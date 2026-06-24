@@ -34,6 +34,7 @@ public class ApplicationDetailServlet extends HttpServlet {
 		}
 
 		if (employee == null) {
+        	session.setAttribute("eMsg", "error : session timeout");
 			response.sendRedirect(request.getContextPath() + "/index.jsp");
 			return;
 		}

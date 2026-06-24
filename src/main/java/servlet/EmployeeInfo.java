@@ -37,7 +37,7 @@ public class EmployeeInfo extends HttpServlet {
 	    HttpSession session = request.getSession();
 	    EmployeeBean employee = (EmployeeBean) session.getAttribute("empBean");
 	    if (employee == null) {
-	    	request.setAttribute("eMsg", "session timeout");
+        	session.setAttribute("eMsg", "error : session timeout");
 	        response.sendRedirect(request.getContextPath() + loginUrl);
 	        return;
 	    }

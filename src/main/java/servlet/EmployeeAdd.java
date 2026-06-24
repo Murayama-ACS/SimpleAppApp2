@@ -41,7 +41,7 @@ public class EmployeeAdd extends HttpServlet {
 		EmployeeBean employee = (EmployeeBean) session.getAttribute("empBean"); 
 
 		if (employee == null) {
-			request.setAttribute("eMsg", "アクセス権限がありません。");
+        	session.setAttribute("eMsg", "error : session timeout");
 			response.sendRedirect(request.getContextPath() + loginUrl);
 			return;
 		}
@@ -75,7 +75,7 @@ public class EmployeeAdd extends HttpServlet {
 		EmployeeBean employee = (EmployeeBean) session.getAttribute("empBean"); 
 
 		if (employee == null) {
-			request.setAttribute("eMsg", "アクセス権限がありません。");
+        	session.setAttribute("eMsg", "error : session timeout");
 			response.sendRedirect(request.getContextPath() + loginUrl);
 			return;
 		}

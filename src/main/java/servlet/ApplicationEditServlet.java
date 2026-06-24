@@ -24,6 +24,12 @@ public class ApplicationEditServlet extends HttpServlet {
 		HttpSession session = request.getSession();
 		EmployeeBean employee = (EmployeeBean) session.getAttribute("empBean");
 		
+		if (employee == null) {
+        	session.setAttribute("eMsg", "error : session timeout");
+			response.sendRedirect(request.getContextPath() + "/index.jsp");
+			return;
+		}
+		
 		String apctId = request.getParameter("apct_id");
 		String isSubmit = request.getParameter("isSubmit");
 

@@ -34,6 +34,7 @@ public class ApplicationStatusEditServlet extends HttpServlet {
         EmployeeBean employee = (EmployeeBean) session.getAttribute("empBean");
 
         if (employee == null) {
+        	session.setAttribute("eMsg", "error : session timeout");
             response.sendRedirect(request.getContextPath() + "/index.jsp");
             return;
         }
