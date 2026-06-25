@@ -116,22 +116,37 @@ background-color: #00695c;
    データテーブル
 ========================================= */
 .table-scroll-container {
-    max-height: 500px; overflow-y: auto; border: 1px solid #ced4da;
-    border-radius: 4px; margin-top: 15px; background-color: #ffffff;
+	max-height: 500px; 
+    overflow-y: auto; 
+    overflow-x: auto; 
+    border: 1px solid #ced4da;
+    border-radius: 4px; 
+    margin-top: 15px; 
+    background-color: #ffffff;
 }
 
-.data-table { width: 100%; border-collapse: collapse; }
+.data-table { 
+	width: 100%; 
+    min-width: 1100px; 
+    border-collapse: collapse; 
+}
 
 .data-table th {
-    position: sticky; top: 0; z-index: 10;
-    background-color: #e0f2f1; color: #004d40;
-    padding: 12px 15px; text-align: left;
+    position: sticky; 
+	top: 0; 
+	z-index: 10;
+    background-color: #e0f2f1; 
+	color: #004d40;
+    padding: 12px 15px; 
+	text-align: left;
     white-space: nowrap;
 }
 
 .data-table td {
-    padding: 12px 15px; border-bottom: 1px solid #eeeeee;
+    padding: 12px 15px; 
+	border-bottom: 1px solid #eeeeee;
     vertical-align: middle;
+	white-space: nowrap;
 }
 
 .data-table tr:hover td { background-color: #f4f9f9; }
@@ -158,3 +173,25 @@ background-color: #00695c;
 .page-btn:disabled { background-color: #f8f9fa; color: #adb5bd; border-color: #e9ecef; }
 .page-count { font-weight: bold; color: #495057; }
 .back-link { display: block; margin-top: 30px; color: #495057; text-decoration: none; font-weight: bold; }
+
+/* =========================================
+   「操作」列のズレ修正
+========================================= */
+/* 「操作」のテーブルヘッダーを中央揃えにし、幅を固定する */
+.col-action {
+    text-align: center !important; 
+    width: 140px !important; 
+    min-width: 140px !important;
+}
+
+td.action-flex { 
+    display: table-cell !important; 
+    text-align: center !important;  
+    vertical-align: middle !important;
+    width: 140px !important;
+}
+
+td.action-flex .inline-form {
+    display: inline-block !important;
+    margin: 0 4px !important; 
+}
