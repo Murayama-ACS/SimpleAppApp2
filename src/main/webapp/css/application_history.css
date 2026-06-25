@@ -185,6 +185,7 @@ body {
 /* テーブルをスクロール可能にするコンテナ */
 .table-scroll-container {
     max-height: 500px;
+	overflow-x: auto;
     overflow-y: auto;
     border: 1px solid #ced4da;
     border-radius: 4px;
@@ -193,6 +194,7 @@ body {
 
 .data-table {
     width: 100%;
+	min-width: 1100px;
     border-collapse: collapse;
 }
 
@@ -206,6 +208,7 @@ body {
     padding: 15px;
     text-align: left;
     box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);
+	white-space: nowrap;
 }
 
 /* テーブルヘッダーのソート可能領域（マウスカーソルを指にする） */
@@ -236,6 +239,7 @@ body {
     padding: 15px;
     border-bottom: 1px solid #eeeeee;
     vertical-align: middle;
+	white-space: nowrap;
 }
 .data-table tr:hover td { background-color: #fafcfc; }
 
