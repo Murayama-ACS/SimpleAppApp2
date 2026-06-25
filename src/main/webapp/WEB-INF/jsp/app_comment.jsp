@@ -91,7 +91,7 @@
     </div>
 
     <%-- アクションボックスが表示されている場合のみ、関連するJavaScriptもレンダリングする --%>
-    <c:if test="${canApprove && (application.statusName == '未承認' || application.statusName == '承認待ち' || application.status_id == 1)}">
+    <c:if test="${canApprove && (application.statusName == '未承認' || application.statusName == '承認待ち' || application.status_id == 1 || application.status_id == 2)}">
         <script>
             // アクション確認用のポップアップ処理
             function confirmAction(actionType, actionName) {
