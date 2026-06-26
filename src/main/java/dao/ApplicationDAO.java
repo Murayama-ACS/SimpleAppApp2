@@ -590,7 +590,10 @@ public class ApplicationDAO extends DAO {
 				"urgent", "CASE WHEN a.urgent IN ('緊急', 'true', '1') THEN 1 ELSE 0 END"
 				);
 
-		if (sortKey == null || sortKey.isEmpty()) sortKey = "date";
+		if (sortKey == null || sortKey.isEmpty()){
+			sortKey = "date";
+			sortDir = "DESC";
+		}
 		String orderBy = colMap.getOrDefault(sortKey, "a.create_date");
 		String dir = "ASC".equalsIgnoreCase(sortDir) ? "ASC" : "DESC";
 
